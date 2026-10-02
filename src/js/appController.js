@@ -62,7 +62,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: '', redirect: 'login' },
   { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
   { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } }
+  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } }
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -84,7 +85,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 ];
 
 const authenticatedNavData = [
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } }
+  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;
