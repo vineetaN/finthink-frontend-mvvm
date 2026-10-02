@@ -1,0 +1,463 @@
+/*
+    Document   : override
+    Created on : <date>
+    Author     : <author>
+    Description:
+        This is where any of your application specific styles should be included
+*/
+
+.send-off-screen {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.demo-oracle-icon {
+  width:137px;
+  height:18px;
+  content:url("images/oracle_logo.svg")
+}
+
+html:not([dir="rtl"]) .demo-oracle-icon {
+  padding-right:4px
+}
+
+html[dir="rtl"] .demo-oracle-icon {
+  padding-left:4px
+}
+
+.demo-oracle-icon:before {
+  display:inline
+}
+
+.demo-appheader-avatar {
+  width:24px;
+  height:24px
+}
+
+.demo-appheader-avatar:before {
+  content:url("images/avatar_24px.png")
+}
+@media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
+  .demo-appheader-avatar:before {
+      content:url("images/avatar_24px_2x.png");
+      -webkit-transform:translate(-25%, -25%) scale(0.5);
+      transform:translate(-25%, -25%) scale(0.5)
+  }
+}
+
+
+/* FinThink authentication pages */
+
+.auth-page {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.9fr);
+  align-items: stretch;
+  min-height: calc(100vh - 12rem);
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: clamp(2rem, 6vw, 6.5rem);
+  background:
+    radial-gradient(circle at 8% 12%, rgba(37, 193, 164, 0.16), transparent 25%),
+    linear-gradient(120deg, #eef8f5 0%, #f8fbfa 48%, #f4f8f7 100%);
+}
+
+.auth-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 620px;
+  padding: 3rem clamp(1rem, 7vw, 7rem) 3rem 1rem;
+}
+
+.auth-eyebrow,
+.auth-step {
+  margin: 0 0 1.5rem;
+  color: #52717a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.auth-hero h1,
+.auth-card h2 {
+  color: #082f3a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+.auth-hero h1 {
+  margin: 0;
+  font-size: clamp(3.5rem, 6vw, 6.5rem);
+  line-height: 0.94;
+}
+
+.auth-hero-copy {
+  max-width: 470px;
+  margin: 2rem 0 4rem;
+  color: #607d85;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  line-height: 1.45;
+}
+
+.auth-trust-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  color: #123e4a;
+  font-size: 0.9rem;
+}
+
+.auth-trust-note > span {
+  color: #1b9c8b;
+  font-size: 1.15rem;
+}
+
+.auth-trust-note strong,
+.auth-trust-note span {
+  display: block;
+}
+
+.auth-trust-note span {
+  margin-top: 0.2rem;
+  color: #607d85;
+  font-size: 0.78rem;
+}
+
+.auth-card {
+  align-self: center;
+  width: min(100%, 34rem);
+  box-sizing: border-box;
+  padding: clamp(2rem, 4vw, 4rem);
+  border: 1px solid #dbe7e4;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22px 55px rgba(22, 68, 71, 0.1);
+}
+
+.auth-card h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.55rem);
+  line-height: 1.12;
+}
+
+.auth-subtitle {
+  margin: 0.75rem 0 2rem;
+  color: #607d85;
+  font-size: 1rem;
+}
+
+.auth-form {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.auth-primary-button {
+  width: 100%;
+  --oj-button-solid-chrome-bg-color: #0a3843;
+  --oj-button-solid-chrome-border-color: #0a3843;
+  --oj-button-solid-chrome-text-color: #ffffff;
+}
+
+.auth-primary-button:hover {
+  --oj-button-solid-chrome-bg-color: #0e4c58;
+  --oj-button-solid-chrome-border-color: #0e4c58;
+}
+
+.auth-register-note {
+  margin: 2rem 0 0;
+  color: #607d85;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-register-note strong {
+  color: #087d72;
+}
+
+.auth-resend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.25rem;
+}
+
+.auth-countdown {
+  margin-top: 0.35rem;
+  color: #607d85;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.auth-message {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+}
+
+.auth-message-error {
+  border-left: 3px solid #bb2d3b;
+  background: #fff2f3;
+  color: #8d1f2b;
+}
+
+.auth-message-success {
+  border-left: 3px solid #198d78;
+  background: #effaf6;
+  color: #126b5c;
+}
+
+.auth-spinner {
+  display: block;
+  margin: 1.25rem auto 0;
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .auth-hero {
+    max-width: 34rem;
+    padding: 2rem 1rem 3rem;
+  }
+
+  .auth-hero h1 {
+    font-size: clamp(3.25rem, 14vw, 5rem);
+  }
+
+  .auth-hero-copy {
+    margin: 1.25rem 0 2rem;
+  }
+
+  .auth-card {
+    justify-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 2rem 1.25rem;
+  }
+
+  .auth-hero {
+    padding-left: 0.5rem;
+  }
+}
+
+
+
+/* FinThink dashboard */
+
+.dashboard-page {
+  min-height: calc(100vh - 13rem);
+  padding: clamp(2.5rem, 6vw, 6.5rem);
+  background:
+    radial-gradient(circle at 7% 5%, rgba(39, 194, 164, 0.14), transparent 22%),
+    linear-gradient(120deg, #f2f9f7 0%, #fbfdfc 58%, #f3f8f7 100%);
+}
+
+.dashboard-intro,
+.dashboard-grid,
+.dashboard-summary {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboard-intro {
+  margin-bottom: 3.5rem;
+}
+
+.dashboard-eyebrow {
+  margin: 0 0 1rem;
+  color: #64808a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.dashboard-intro h1,
+.quick-actions-card h2,
+.summary-card h3 {
+  color: #082f3a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600;
+}
+
+.dashboard-intro h1 {
+  margin: 0;
+  font-size: clamp(3.25rem, 6vw, 5.7rem);
+  letter-spacing: -0.05em;
+  line-height: 0.94;
+}
+
+.dashboard-intro > p:last-child {
+  margin: 1.5rem 0 0;
+  color: #67818a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.75fr) minmax(400px, 1.25fr);
+  gap: 1.5rem;
+}
+
+.balance-card,
+.quick-actions-card,
+.summary-card {
+  box-sizing: border-box;
+}
+
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+  padding: 2.5rem;
+  background: #083641;
+  color: #ffffff;
+  box-shadow: 0 22px 48px rgba(10, 51, 62, 0.18);
+}
+
+.balance-label {
+  margin: 0;
+  color: #aac9c9;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.balance-amount {
+  margin: auto 0;
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 4vw, 3.8rem);
+  letter-spacing: -0.04em;
+}
+
+.balance-caption {
+  margin: 0;
+  color: #b3cecf;
+  font-size: 0.9rem;
+}
+
+.quick-actions-card {
+  padding: 2.5rem;
+  border: 1px solid #dce8e5;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.quick-actions-card h2 {
+  margin: 0 0 2rem;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  letter-spacing: -0.035em;
+}
+
+.quick-action-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.2rem 0;
+  border-top: 1px solid #dce8e5;
+  color: #163f4b;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+}
+
+.quick-action-row:last-child {
+  border-bottom: 1px solid #dce8e5;
+}
+
+.quick-action-row span:last-child {
+  color: #087d72;
+  font-family: Arial, sans-serif;
+  font-size: 1.35rem;
+}
+
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.summary-card {
+  min-height: 190px;
+  padding: 1.6rem;
+  border: 1px solid #dce8e5;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.summary-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.025em;
+}
+
+.summary-account {
+  margin: 0;
+  color: #67818a;
+  font-size: 0.88rem;
+}
+
+.summary-value {
+  margin: 1.5rem 0 0;
+  color: #083641;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 850px) {
+  .dashboard-page {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .dashboard-grid,
+  .dashboard-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .balance-card {
+    min-height: 280px;
+  }
+
+  .dashboard-summary {
+    margin-top: 1.25rem;
+  }
+}
+
+
+.auth-register-card {
+  width: min(100%, 38rem);
+}
+
+.auth-secondary-button {
+  width: 100%;
+  margin-top: 0.9rem;
+  --oj-button-outlined-chrome-border-color: #0a3843;
+  --oj-button-outlined-chrome-text-color: #0a3843;
+}
+
+.auth-register-note {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 2rem;
+  color: #607d85;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-inline-action {
+  --oj-button-borderless-chrome-text-color: #087d72;
+  font-weight: 700;
+}

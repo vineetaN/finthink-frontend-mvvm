@@ -1,0 +1,133 @@
+<div class="auth-page">
+  <section class="auth-hero" aria-label="FinThink Bank introduction">
+    <p class="auth-eyebrow">FINTHINK BANK</p>
+    <h1>Your money,<br>in focus.</h1>
+    <p class="auth-hero-copy">
+      Welcome back to a calmer way to manage your everyday banking.
+    </p>
+
+    <div class="auth-trust-note">
+      <span aria-hidden="true">↗</span>
+      <div>
+        <strong>Bank with confidence</strong>
+        <span>Your data is encrypted end to end.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-card" aria-labelledby="auth-title">
+    <!-- ko ifnot: verificationRequired -->
+    <p class="auth-step">01 / 02</p>
+    <h2 id="auth-title">Sign in to online banking</h2>
+    <p class="auth-subtitle">Enter your credentials to continue.</p>
+
+    <oj-form-layout
+      class="auth-form"
+      label-edge="inside"
+      max-columns="1"
+      user-assistance-density="efficient">
+
+      <oj-input-text
+        label-hint="Username"
+        value="{{username}}"
+        raw-value="{{username}}"
+        help.instruction="Enter your registered username."
+        required>
+      </oj-input-text>
+
+      <oj-input-password
+        label-hint="Password"
+        value="{{password}}"
+        raw-value="{{password}}"
+        help.instruction="Enter a password with at least 8 characters."
+        required>
+      </oj-input-password>
+    </oj-form-layout>
+
+    <oj-button
+      class="auth-primary-button"
+      chroming="solid"
+      on-oj-action="[[submit]]"
+      disabled="[[!canSubmit()]]">
+      Continue
+    </oj-button>
+
+    <div class="auth-register-note">
+  <span>New to FinThink?</span>
+
+  <oj-button
+    class="auth-inline-action"
+    chroming="borderless"
+    on-oj-action="[[goToRegister]]">
+    Open an account
+  </oj-button>
+</div>
+    <!-- /ko -->
+
+    <!-- ko if: verificationRequired -->
+    <p class="auth-step">02 / 02</p>
+    <h2 id="auth-title">Verify your identity</h2>
+    <p class="auth-subtitle">
+      Enter the six-digit code sent to your registered email address.
+    </p>
+
+    <oj-form-layout
+      class="auth-form"
+      label-edge="inside"
+      max-columns="1"
+      user-assistance-density="efficient">
+
+      <oj-input-text
+        label-hint="Verification code"
+        value="{{otpCode}}"
+        raw-value="{{otpCode}}"
+        help.instruction="Enter the six-digit code sent to your registered email address."
+        required>
+      </oj-input-text>
+    </oj-form-layout>
+
+    <oj-button
+      class="auth-primary-button"
+      chroming="solid"
+      on-oj-action="[[verifyOtp]]"
+      disabled="[[!canVerifyOtp()]]">
+      Verify code
+    </oj-button>
+
+    <div class="auth-resend">
+      <oj-button
+        chroming="borderless"
+        on-oj-action="[[resendOtp]]"
+        disabled="[[!canResendOtp()]]">
+        <oj-bind-text value="[[resendButtonLabel]]"></oj-bind-text>
+      </oj-button>
+
+      <div
+        class="auth-countdown"
+        data-bind="visible: resendSeconds() > 0">
+        <oj-bind-text value="[[resendWaitMessage]]"></oj-bind-text>
+      </div>
+    </div>
+    <!-- /ko -->
+
+    <div
+      class="auth-message auth-message-error"
+      data-bind="visible: errorMessage">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+
+    <div
+      class="auth-message auth-message-success"
+      data-bind="visible: successMessage">
+      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    </div>
+
+    <oj-progress-circle
+      class="auth-spinner"
+      size="sm"
+      value="-1"
+      aria-label="Signing in"
+      data-bind="visible: isSubmitting">
+    </oj-progress-circle>
+  </section>
+</div>

@@ -1,0 +1,127 @@
+<div class="auth-page">
+  <section class="auth-hero" aria-label="FinThink Bank introduction">
+    <p class="auth-eyebrow">FINTHINK BANK</p>
+    <h1>Banking that<br>moves with you.</h1>
+    <p class="auth-hero-copy">
+      Create your account and bring your everyday finances into focus.
+    </p>
+
+    <div class="auth-trust-note">
+      <span aria-hidden="true">↗</span>
+      <div>
+        <strong>Secure from the start</strong>
+        <span>Your information is protected at every step.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-card auth-register-card" aria-labelledby="register-title">
+    <p class="auth-step">CREATE ACCOUNT</p>
+    <h2 id="register-title">Join FinThink Bank</h2>
+    <p class="auth-subtitle">
+      Fill in your details to create your secure online banking account.
+    </p>
+
+    <oj-form-layout
+      class="auth-form"
+      label-edge="inside"
+      max-columns="1"
+      user-assistance-density="efficient">
+
+      <oj-input-text
+        label-hint="Username"
+        value="{{username}}"
+        raw-value="{{username}}"
+        required
+        help.instruction="Required. Use letters, numbers, and underscores only.">
+      </oj-input-text>
+
+      <oj-input-password
+        label-hint="Password"
+        value="{{password}}"
+        raw-value="{{password}}"
+        required
+        help.instruction="Required. Use at least 8 characters, including uppercase, lowercase, a number, and a special character.">
+      </oj-input-password>
+
+      <oj-input-text
+        label-hint="First name"
+        value="{{firstName}}"
+        raw-value="{{firstName}}"
+        required
+        help.instruction="Required. Enter your first name.">
+      </oj-input-text>
+
+      <oj-input-text
+        label-hint="Last name"
+        value="{{lastName}}"
+        raw-value="{{lastName}}"
+        required
+        help.instruction="Required. Enter your last name.">
+      </oj-input-text>
+
+      <oj-input-text
+        label-hint="Email address"
+        value="{{email}}"
+        raw-value="{{email}}"
+        required
+        help.instruction="Required. Use an address such as name@example.com.">
+      </oj-input-text>
+
+      <oj-input-text
+        label-hint="Mobile number"
+        value="{{mobileNo}}"
+        raw-value="{{mobileNo}}"
+        required
+        help.instruction="Required. Use international format, for example +919876543210.">
+      </oj-input-text>
+    </oj-form-layout>
+
+    <oj-button
+      class="auth-primary-button"
+      chroming="solid"
+      on-oj-action="[[submit]]"
+      disabled="[[!canSubmit()]]">
+      Create account
+    </oj-button>
+
+    <oj-button
+      class="auth-secondary-button"
+      chroming="outlined"
+      on-oj-action="[[goToLogin]]"
+      data-bind="visible: successMessage">
+      Continue to sign in
+    </oj-button>
+
+    <div
+      class="auth-message auth-message-error"
+      data-bind="visible: errorMessage">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+
+    <div
+      class="auth-message auth-message-success"
+      data-bind="visible: successMessage">
+      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    </div>
+
+    <div class="auth-register-note">
+      <span>Already have an account?</span>
+
+      <oj-button
+        class="auth-inline-action"
+        chroming="borderless"
+        on-oj-action="[[goToLogin]]">
+        Sign in
+      </oj-button>
+    </div>
+
+    <oj-progress-circle
+      class="auth-spinner"
+      size="sm"
+      value="-1"
+      aria-label="Creating account"
+      data-bind="visible: isSubmitting">
+    </oj-progress-circle>
+  </section>
+</div>
