@@ -1,0 +1,74 @@
+<div class="admin-overview">
+  <header class="overview-heading">
+    <div>
+      <p class="admin-eyebrow">ADMINISTRATION</p>
+      <h1>Overview</h1>
+      <p class="overview-subtitle">A live snapshot of banking operations.</p>
+    </div>
+    <span class="overview-date"><span class="oj-ux-ico-calendar" aria-hidden="true"></span> Operations dashboard</span>
+  </header>
+
+  <section class="metric-grid" aria-label="Banking summary metrics">
+    <oj-bind-for-each data="[[summaryCards]]">
+      <template>
+        <article class="metric-card" :aria-label="[[$current.data.title + ' summary']]">
+          <span class="metric-mark" aria-hidden="true"></span>
+          <h2><oj-bind-text value="[[$current.data.title]]"></oj-bind-text></h2>
+          <oj-bind-if test="[[$current.data.loading()]]">
+            <div class="metric-state" role="status">Loading...</div>
+          </oj-bind-if>
+          <oj-bind-if test="[[$current.data.error()]]">
+            <div class="metric-state metric-error" role="alert"><oj-bind-text value="[[$current.data.error]]"></oj-bind-text></div>
+          </oj-bind-if>
+          <oj-bind-if test="[[$current.data.loading() === false && !$current.data.error()]]">
+            <p class="metric-value"><oj-bind-text value="[[$current.data.value]]"></oj-bind-text></p>
+          </oj-bind-if>
+        </article>
+      </template>
+    </oj-bind-for-each>
+  </section>
+
+  <section class="overview-lower" aria-label="Operational activity">
+    <article class="overview-panel chart-panel" aria-label="Loans by status chart">
+      <div class="panel-heading">
+        <div><p class="admin-eyebrow">PORTFOLIO</p><h2>Loans by status</h2></div>
+        <span class="panel-period">Current</span>
+      </div>
+      <oj-bind-if test="[[chartLoading()]]"><p class="panel-state" role="status">Loading chart...</p></oj-bind-if>
+      <oj-bind-if test="[[chartError()]]"><p class="panel-state metric-error" role="alert"><oj-bind-text value="[[chartError]]"></oj-bind-text></p></oj-bind-if>
+      <oj-bind-if test="[[chartLoading() === false && !chartError()]]">
+        <oj-chart type="bar" data="[[chartDataProvider]]" groups="[[chartGroups]]"
+          animation-on-display="auto" animation-on-data-change="auto"
+          aria-label="Loans by status" class="loans-chart">
+          <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item value="[[item.data.value]]" group-id="[[item.data.group]]"
+              series-id="[[item.data.series]]"></oj-chart-item>
+          </template>
+        </oj-chart>
+      </oj-bind-if>
+    </article>
+
+    <article class="overview-panel audit-panel" aria-label="Recent audit events">
+      <div class="panel-heading">
+        <div><p class="admin-eyebrow">CONTROL ACTIVITY</p><h2>Recent Audit Events</h2></div>
+        <span class="audit-count">5 entries</span>
+      </div>
+      <oj-bind-if test="[[auditLoading()]]"><p class="panel-state" role="status">Loading events...</p></oj-bind-if>
+      <oj-bind-if test="[[auditError()]]"><p class="panel-state metric-error" role="alert"><oj-bind-text value="[[auditError]]"></oj-bind-text></p></oj-bind-if>
+      <ol class="audit-list" aria-label="Last five audit events">
+        <oj-bind-for-each data="[[auditEvents]]">
+          <template>
+            <li class="audit-item">
+              <span class="audit-type"><oj-bind-text value="[[$current.data.type]]"></oj-bind-text></span>
+              <div class="audit-detail">
+                <strong><oj-bind-text value="[[$current.data.action]]"></oj-bind-text></strong>
+                <span><oj-bind-text value="[[$current.data.actor]]"></oj-bind-text></span>
+              </div>
+              <time><oj-bind-text value="[[$current.data.time]]"></oj-bind-text></time>
+            </li>
+          </template>
+        </oj-bind-for-each>
+      </ol>
+    </article>
+  </section>
+</div>
