@@ -22,6 +22,7 @@ define([
       var token = sessionService.getToken();
 
       if (!token) {
+        sessionService.expireSession();
         return Promise.reject(
           new Error('Your session has expired. Please sign in again.')
         );
@@ -43,8 +44,12 @@ define([
       .then(function (response) {
         return parseResponse(response).then(function (body) {
           if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-              sessionService.clearSession();
+            if (response.status === 401) {
+              sessionService.expireSession();
+            } else if (response.status === 403) {
+              window.dispatchEvent(new CustomEvent('access-denied', {
+                detail: { message: 'Access denied' }
+              }));
             }
 
             var requestError = new Error(
