@@ -1,0 +1,48 @@
+<div class="dashboard-page customer-summary-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">CUSTOMER SUMMARY</p>
+    <h1>Your accounts,<br>at a glance.</h1>
+    <p>Welcome, <oj-bind-text value="[[username]]"></oj-bind-text>.</p>
+  </section>
+
+  <section class="customer-summary-content" aria-label="Your account summary">
+    <div data-bind="visible: isLoading" class="customer-summary-state" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading accounts"></oj-progress-circle>
+      <span>Loading your accounts…</span>
+    </div>
+
+    <div data-bind="visible: errorMessage" class="customer-summary-state customer-summary-error" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+      <oj-button chroming="borderless" on-oj-action="[[loadSummary]]">Try again</oj-button>
+    </div>
+
+    <!-- ko if: !isLoading() && !errorMessage() -->
+    <!-- ko if: hasAccounts -->
+    <article class="balance-card customer-summary-total">
+      <p class="balance-label">TOTAL AVAILABLE BALANCE</p>
+      <p class="balance-amount" data-bind="text: formatMoney(totalAvailable())"></p>
+      <p class="balance-caption" data-bind="text: accounts().length + ' account(s)' "></p>
+    </article>
+
+    <div class="customer-summary-heading">
+      <p class="dashboard-eyebrow">YOUR ACCOUNTS</p>
+      <h2>Account details</h2>
+    </div>
+    <div class="customer-summary-grid" data-bind="foreach: accounts">
+      <article class="summary-card customer-account-card">
+        <p class="dashboard-eyebrow" data-bind="text: accountType || 'ACCOUNT'"></p>
+        <h3 data-bind="text: $parent.maskAccount(accountNumber)"></h3>
+        <p class="summary-account" data-bind="text: status || 'Status unavailable'"></p>
+        <dl>
+          <div><dt>Available balance</dt><dd data-bind="text: $parent.formatMoney(availableBalance)"></dd></div>
+          <div><dt>Current balance</dt><dd data-bind="text: $parent.formatMoney(currentBalance)"></dd></div>
+        </dl>
+      </article>
+    </div>
+    <!-- /ko -->
+    <!-- ko ifnot: hasAccounts -->
+    <div class="customer-summary-state">No accounts are linked to your profile yet.</div>
+    <!-- /ko -->
+    <!-- /ko -->
+  </section>
+</div>

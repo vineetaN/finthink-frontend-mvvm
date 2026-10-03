@@ -31,6 +31,28 @@ define(['knockout'], function (ko) {
     return window.sessionStorage.getItem(TOKEN_KEY);
   }
 
+  function getClaims() {
+    var token = getToken();
+    if (!token) return null;
+    try {
+      var part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(window.atob(part));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getCustomerId() {
+    var claims = getClaims();
+    var id = claims && Number(claims.customerId);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+  }
+
+  function isAdmin() {
+    var claims = getClaims();
+    return !!claims && String(claims.role).toUpperCase() === 'ADMIN';
+  }
+
   function getUsername() {
     return username();
   }
@@ -52,6 +74,8 @@ define(['knockout'], function (ko) {
     authenticated: authenticated,
     saveSession: saveSession,
     getToken: getToken,
+    getCustomerId: getCustomerId,
+    isAdmin: isAdmin,
     getUsername: getUsername,
     isAuthenticated: isAuthenticated,
     clearSession: clearSession

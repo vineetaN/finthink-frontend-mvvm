@@ -62,7 +62,11 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: '', redirect: 'login' },
   { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
   { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } }
+  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
+  { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } },
+  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } }
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -84,14 +88,21 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 ];
 
 const authenticatedNavData = [
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } }
+  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
+  { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } }
+];
+
+const adminNavData = [
+  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;
 
 this.navDataProvider = ko.pureComputed(() => {
   const visibleNavData = sessionService.isAuthenticated()
-    ? authenticatedNavData
+    ? authenticatedNavData.concat(sessionService.isAdmin() ? adminNavData : [])
     : publicNavData;
 
   return new ArrayDataProvider(visibleNavData, {
