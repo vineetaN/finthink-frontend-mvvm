@@ -1013,3 +1013,217 @@ html[dir="rtl"] .demo-oracle-icon {
   cursor: not-allowed;
   opacity: 0.45;
 }
+
+.loans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.5rem;
+}
+
+.loan-card {
+  display: flex;
+  min-height: 275px;
+  flex-direction: column;
+  padding: 1.6rem;
+  border: 1px solid #d6e3e1;
+  background: #ffffff;
+  box-shadow: 0 12px 26px rgba(11, 53, 64, 0.08);
+}
+
+.loan-card-top,
+.loan-card-details {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.loan-card-top {
+  color: #58787e;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.loan-status {
+  color: #14725f;
+}
+
+.loan-account-number {
+  margin: 1.75rem 0 1.25rem;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+}
+
+.loan-amount {
+  margin-bottom: auto;
+}
+
+.loan-amount span,
+.loan-card-details span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #60777d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loan-amount strong {
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 500;
+}
+
+.loan-card-details {
+  margin-top: 1.75rem;
+}
+
+.loan-card-details strong {
+  color: #0b3540;
+}
+
+.loan-details-button {
+  margin-top: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0b5961;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.loan-detail-panel {
+  margin-top: 2rem;
+  border: 1px solid #d6e3e1;
+  background: #ffffff;
+}
+
+.loan-detail-content {
+  padding: 1.75rem;
+}
+
+.loan-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+.loan-detail-grid span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #60777d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loan-detail-grid strong {
+  color: #0b3540;
+}
+
+.repayment-schedule {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #d6e3e1;
+}
+
+.repayment-schedule h3 {
+  margin: 0.35rem 0 1rem;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.repayment-list {
+  border-top: 1px solid #edf2f1;
+}
+
+.repayment-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #edf2f1;
+}
+
+.repayment-item strong,
+.repayment-item span {
+  display: block;
+}
+
+.repayment-item span {
+  margin-top: 0.25rem;
+  color: #60777d;
+  font-size: 0.85rem;
+}
+
+.repayment-item > div:last-child {
+  text-align: right;
+}
+
+.repayment-item > div:last-child span {
+  color: #14725f;
+  font-weight: 700;
+}
+
+.loan-autopay-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #d6e3e1;
+}
+
+.loan-autopay-entry h3 {
+  margin: 0.35rem 0;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.autopay-account-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.autopay-account-option {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #d6e3e1;
+  cursor: pointer;
+}
+
+.autopay-account-option:has(input:checked) {
+  border-color: #0b5961;
+  background: #f3f8f7;
+}
+
+.autopay-account-option strong,
+.autopay-account-option small {
+  display: block;
+}
+
+.autopay-account-option strong {
+  color: #0b3540;
+}
+
+.autopay-account-option small {
+  margin-top: 0.25rem;
+  color: #60777d;
+}
