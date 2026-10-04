@@ -60,6 +60,7 @@ define([
 );
 
 requestError.status = response.status;
+requestError.body = body;
 
 throw requestError;
           }

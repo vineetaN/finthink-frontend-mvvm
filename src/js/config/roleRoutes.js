@@ -4,7 +4,7 @@ define([], function () {
   return {
     roles: {
       ADMIN: { landingPage: 'adminDashboard' },
-      CUSTOMER: { landingPage: 'dashboard' }
+      CUSTOMER: { landingPage: 'adminDashboard' }
     },
     pages: [
       { path: 'adminDashboard', label: 'Overview', iconClass: 'oj-ux-ico-dashboard', roles: ['ADMIN'] },

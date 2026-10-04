@@ -1,0 +1,22 @@
+<oj-dialog id="rewardFormDialog" dialog-title="[[mode() === 'edit' ? 'Edit Reward' : 'Create Reward']]" modality="modal" cancel-behavior="icon" on-oj-close="[[closed]]" on-oj-before-close="[[beforeClose]]" class="reward-form-dialog">
+  <div slot="body" class="reward-form">
+    <p class="reward-form-error" role="alert" data-bind="visible: error, text: error"></p>
+    <div class="reward-form-grid">
+      <div class="reward-form-field"><oj-label for="rewardNameInput">Reward name</oj-label><oj-input-text id="rewardNameInput" value="{{rewardName}}" required="true" max-length="100"></oj-input-text><span role="alert" data-bind="text: fieldErrors.rewardName"></span></div>
+      <div class="reward-form-field"><oj-label for="rewardTypeInput">Reward type</oj-label><oj-select-single id="rewardTypeInput" data="[[typeOptions]]" value="{{rewardType}}" required="true"></oj-select-single><span role="alert" data-bind="text: fieldErrors.rewardType"></span></div>
+      <div class="reward-form-field"><oj-label for="rewardPointsRequiredInput">Points required</oj-label><oj-input-number id="rewardPointsRequiredInput" value="{{pointsRequired}}" min="0" step="1" required="true" validators="[[pointsValidators]]"></oj-input-number><span role="alert" data-bind="text: fieldErrors.pointsRequired"></span></div>
+      <div class="reward-form-field"><oj-label for="rewardRewardValueInput">Reward value</oj-label><oj-input-number id="rewardRewardValueInput" value="{{rewardValue}}" min="0" step="0.01" required="true" validators="[[valueValidators]]"></oj-input-number><span role="alert" data-bind="text: fieldErrors.rewardValue"></span></div>
+      <div class="reward-form-field"><oj-label for="rewardStartDateInput">Start date</oj-label><oj-input-date id="rewardStartDateInput" value="{{startDate}}" required="true"></oj-input-date><span role="alert" data-bind="text: fieldErrors.startDate"></span></div>
+      <div class="reward-form-field"><oj-label for="rewardEndDateInput">End date</oj-label><oj-input-date id="rewardEndDateInput" value="{{endDate}}" required="true"></oj-input-date><span role="alert" data-bind="text: fieldErrors.endDate"></span></div>
+    </div>
+    <div class="reward-form-status" data-bind="visible: mode() === 'edit'">
+      <span>Current status: <strong data-bind="text: selected() && selected().status"></strong></span>
+      <oj-button chroming="outlined" on-oj-action="[[requestStatus]]" disabled="[[saving]]"><oj-bind-text value="[[selected() && selected().status === 'ACTIVE' ? 'Deactivate' : 'Activate']]"></oj-bind-text></oj-button>
+    </div>
+  </div>
+  <div slot="footer" class="reward-dialog-actions">
+    <oj-button chroming="borderless" on-oj-action="[[close]]" disabled="[[saving]]">Cancel</oj-button>
+    <oj-progress-circle size="sm" value="-1" aria-label="Saving reward" data-bind="visible: saving"></oj-progress-circle>
+    <oj-button chroming="callToAction" on-oj-action="[[submit]]" disabled="[[saving]]"><oj-bind-text value="[[mode() === 'edit' ? 'Save changes' : 'Create']]"></oj-bind-text></oj-button>
+  </div>
+</oj-dialog>

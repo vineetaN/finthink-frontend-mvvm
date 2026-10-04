@@ -1,5 +1,144 @@
-<section class="placeholder-page">
-  <p class="admin-eyebrow">ADMINISTRATION</p>
-  <h1><oj-bind-text value="[[title]]"></oj-bind-text></h1>
-  <p>Coming soon</p>
+<section class="audit-page" aria-labelledby="auditPageTitle">
+  <header class="audit-heading">
+    <div>
+      <p class="admin-eyebrow">CONTROL ACTIVITY</p>
+      <h1 id="auditPageTitle">Audit Log</h1>
+      <p class="audit-subtitle">Review administrative and customer activity.</p>
+    </div>
+    <div class="audit-actions" role="toolbar" aria-label="Audit log actions">
+      <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh audit logs">
+        <span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh
+      </oj-button>
+      <oj-button on-oj-action="[[exportCsv]]" chroming="callToAction" aria-label="Export current page to CSV">
+        <span slot="startIcon" class="oj-ux-ico-download" aria-hidden="true"></span>Export CSV
+      </oj-button>
+    </div>
+  </header>
+
+  <section class="audit-filter-panel" aria-label="Audit log filters">
+    <div class="audit-filter-grid">
+      <div class="audit-filter-field audit-filter-search">
+        <oj-label for="auditSearch">Search details</oj-label>
+        <oj-input-text id="auditSearch" value="{{search}}" on-keydown="[[onFilterKeydown]]" clear-icon="conditional"></oj-input-text>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditAction">Action</oj-label>
+        <oj-select-single id="auditAction" data="[[actionOptions]]" value="{{action}}" on-keydown="[[onFilterKeydown]]"></oj-select-single>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditModule">Module</oj-label>
+        <oj-select-single id="auditModule" data="[[moduleOptions]]" value="{{moduleName}}" on-keydown="[[onFilterKeydown]]"></oj-select-single>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditCustomerId">Customer ID</oj-label>
+        <oj-input-text id="auditCustomerId" type="number" min="0" step="1" value="{{actorCustomerId}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditFromDate">From</oj-label>
+        <oj-input-date id="auditFromDate" value="{{fromDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditToDate">To</oj-label>
+        <oj-input-date id="auditToDate" value="{{toDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
+      </div>
+      <div class="audit-filter-field">
+        <oj-label for="auditIpAddress">IP Address</oj-label>
+        <oj-input-text id="auditIpAddress" value="{{ipAddress}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
+      </div>
+    </div>
+    <div class="audit-filter-actions">
+      <oj-button on-oj-action="[[applyFilters]]" chroming="callToAction">Apply</oj-button>
+      <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear all</oj-button>
+    </div>
+    <p class="audit-validation-message" role="alert" data-bind="visible: filterError">
+      <oj-bind-text value="[[filterError]]"></oj-bind-text>
+    </p>
+    <div class="audit-active-filters" data-bind="visible: activeFilters().length" aria-label="Active filters">
+      <oj-bind-for-each data="[[activeFilters]]">
+        <template>
+          <oj-button chroming="outlined" on-oj-action="[[removeFilter]]" :data-filter-key="[[$current.data.key]]"
+            :aria-label="[['Remove ' + $current.data.label + ' filter']]">
+            <oj-bind-text value="[[$current.data.label + ': ' + $current.data.value]]"></oj-bind-text>
+            <span slot="endIcon" class="oj-ux-ico-close" aria-hidden="true"></span>
+          </oj-button>
+        </template>
+      </oj-bind-for-each>
+    </div>
+  </section>
+
+  <div class="audit-live-region" role="status" aria-live="polite" aria-atomic="true">
+    <oj-bind-text value="[[liveMessage]]"></oj-bind-text>
+  </div>
+
+  <section class="audit-table-section" aria-label="Audit log results">
+    <oj-bind-if test="[[loading()]]">
+      <div class="audit-state" role="status"><oj-progress-circle size="sm" value="-1"></oj-progress-circle><span>Loading audit logs...</span></div>
+    </oj-bind-if>
+    <oj-bind-if test="[[error()]]">
+      <div class="audit-state audit-state-error" role="alert">
+        <span><oj-bind-text value="[[error]]"></oj-bind-text></span>
+        <oj-button on-oj-action="[[refresh]]" chroming="outlined">Retry</oj-button>
+      </div>
+    </oj-bind-if>
+    <oj-bind-if test="[[!loading() && !error() && rows().length === 0]]">
+      <p class="audit-state">No audit logs found</p>
+    </oj-bind-if>
+    <div class="audit-table-scroll" data-bind="visible: rows().length > 0 && !loading() && !error()">
+        <oj-table id="auditTable" data="[[tableDataProvider]]" columns="[[columns]]" display="grid"
+          horizontal-grid-visible="enabled" vertical-grid-visible="disabled"
+          on-oj-row-action="[[openDetail]]" on-oj-sort="[[handleSort]]"
+          aria-label="Audit log entries">
+          <template slot="dateCell" data-oj-as="cell">
+            <oj-bind-text value="[[formatDate(cell.data)]]"></oj-bind-text>
+          </template>
+          <template slot="usernameCell" data-oj-as="cell">
+            <oj-bind-text value="[[cell.data || '-']]" ></oj-bind-text>
+          </template>
+          <template slot="actionCell" data-oj-as="cell">
+            <span :class="[[actionClass(cell.data)]]"><oj-bind-text value="[[cell.data]]"></oj-bind-text></span>
+          </template>
+          <template slot="detailsCell" data-oj-as="cell">
+            <span class="audit-details-cell" :title="[[cell.data]]"><oj-bind-text value="[[cell.data]]"></oj-bind-text></span>
+          </template>
+          <template slot="ipCell" data-oj-as="cell">
+            <oj-bind-text value="[[cell.data || '-']]" ></oj-bind-text>
+          </template>
+        </oj-table>
+    </div>
+  </section>
+
+  <footer class="audit-pagination" aria-label="Audit log pagination">
+    <div class="audit-page-size">
+      <oj-label for="auditPageSize">Rows per page</oj-label>
+      <oj-select-single id="auditPageSize" data="[[pageSizeOptions]]" value="[[pageSize]]" on-value-changed="[[changePageSize]]"></oj-select-single>
+    </div>
+    <oj-paging-control data="[[pagingModel]]" page-size="[[pageSize]]" page-options='{"type":"numbers","maxPageLinks":5}' aria-label="Audit log pages"></oj-paging-control>
+    <span class="audit-result-count"><oj-bind-text value="[[showingText]]"></oj-bind-text></span>
+  </footer>
+
+  <p class="audit-copy-message" role="status" aria-live="polite"><oj-bind-text value="[[copyMessage]]"></oj-bind-text></p>
+
+  <oj-dialog id="auditDetailDialog" dialog-title="Audit log entry" modality="modal" class="audit-detail-dialog">
+    <div slot="body" data-bind="if: selectedEntry">
+      <dl class="audit-detail-list">
+        <div><dt>Audit ID</dt><dd><oj-bind-text value="[[selectedEntry().auditId]]"></oj-bind-text>
+          <oj-button display="icons" chroming="borderless" on-oj-action="[[copyAuditId]]" aria-label="Copy audit ID">
+            <span slot="startIcon" class="oj-ux-ico-copy" aria-hidden="true"></span>
+          </oj-button></dd></div>
+        <div><dt>Date &amp; Time</dt><dd><oj-bind-text value="[[formatDate(selectedEntry().actionTime)]]"></oj-bind-text></dd></div>
+        <div><dt>Customer ID</dt><dd><oj-bind-text value="[[selectedEntry().actorCustomerId == null ? '-' : selectedEntry().actorCustomerId]]"></oj-bind-text></dd></div>
+        <div><dt>Username</dt><dd><oj-bind-text value="[[selectedEntry().actorUsername || '-']]" ></oj-bind-text></dd></div>
+        <div><dt>Action</dt><dd><oj-bind-text value="[[selectedEntry().action]]"></oj-bind-text></dd></div>
+        <div><dt>Module</dt><dd><oj-bind-text value="[[selectedEntry().moduleName]]"></oj-bind-text></dd></div>
+        <div class="audit-detail-full"><dt>Details</dt><dd><oj-bind-text value="[[selectedEntry().details]]"></oj-bind-text>
+          <oj-button display="icons" chroming="borderless" on-oj-action="[[copyDetails]]" aria-label="Copy full details">
+            <span slot="startIcon" class="oj-ux-ico-copy" aria-hidden="true"></span>
+          </oj-button></dd></div>
+        <div><dt>IP Address</dt><dd><oj-bind-text value="[[selectedEntry().ipAddress || '-']]" ></oj-bind-text></dd></div>
+      </dl>
+    </div>
+    <div slot="footer">
+      <oj-button on-oj-action="[[closeDetail]]" chroming="callToAction">Close</oj-button>
+    </div>
+  </oj-dialog>
 </section>

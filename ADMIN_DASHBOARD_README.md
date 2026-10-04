@@ -8,6 +8,15 @@ Install dependencies with `npm install`, then start the development server with 
 
 The login response must include its JWT in `token`. The client stores only that value in `sessionStorage` and reads only `sub`, `role`, and `exp` from its base64url payload. Dashboard requests use mock fixtures by default; switch `useMockDashboardData` in `src/js/config/apiConfig.js` to `false` to use the configured endpoint paths.
 
+## Audit Log API
+
+The Audit Log page calls the backend by default using `apiGatewayBaseUrl` plus `auditLogEndpoint` through the shared authenticated API client. Set `useMockAuditLogData` in `src/js/config/apiConfig.js` to `true` to use the mock Spring Data page instead. Set `CLIENT_SIDE_FILTERING` to `false` when the backend supports the configured filter parameters; while it is `true`, only paging and sorting are sent and filters apply to the loaded page in the browser. The Audit Log endpoint still requires backend ADMIN authorization.
+
+## Reward Management API
+
+Reward Management is registered for `ADMIN` in `src/js/config/roleRoutes.js`. It calls the real service by default using `apiGatewayBaseUrl` plus `rewardEndpoint` (`http://localhost:8080/audit-admin-service/admin/rewards`). Set `useMockRewardData` to `true` to use the three local rewards and simulate create, edit, and status changes in memory until the page reloads. Set `rewardCurrency` and `rewardStatusField` there if the backend contract changes. The shared API client sends the Bearer token and handles session expiry and access denial. The backend must enforce ADMIN authorization on every `/admin/*` endpoint.
+
+
 ## Add a Role or Page
 
 Add the role's landing page to `roles` and add pages with their allowed `roles` to `src/js/config/roleRoutes.js`. The guard and navigation list derive access from that registry. Add matching `src/js/views/<route>.html` and `src/js/viewModels/<route>.js` modules for each new page. UI checks are not an authorization boundary; the backend must enforce roles on every API.

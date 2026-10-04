@@ -826,6 +826,51 @@ body.oj-web-applayout-body {
   color: var(--admin-muted);
 }
 
+.reward-page { min-width: 0; }
+.reward-heading, .reward-results-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.reward-heading h1 { margin: 0; color: #193631; }
+.reward-subtitle { color: var(--admin-muted); margin: 0.45rem 0 0; }
+.reward-heading-actions, .reward-scroll-actions, .reward-dialog-actions { display: flex; align-items: center; gap: 0.5rem; }
+.reward-filters { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(160px, 1fr)); gap: 1rem; margin: 1.5rem 0 1rem; padding: 1.25rem; background: #fff; border: 1px solid #e5ebe7; border-radius: 14px; }
+.reward-filters > div { min-width: 0; }
+.reward-filters oj-input-text, .reward-filters oj-select-single { width: 100%; }
+.reward-results-heading p { margin: 0; color: #52675f; }
+.reward-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.reward-card-row { display: flex; overflow-x: auto; gap: 16px; scroll-snap-type: x proximity; padding: 0.8rem 0.15rem 1.2rem; margin-top: 0.4rem; }
+.reward-card-row:focus-visible { outline: 3px solid #268b72; outline-offset: 3px; border-radius: 10px; }
+.reward-card-row > div { flex: 0 0 300px; scroll-snap-align: start; }
+.reward-card { display: flex; flex-direction: column; min-height: 260px; height: 100%; padding: 1.1rem; border: 1px solid #c9ddd3; border-radius: 14px; background: #fff; box-shadow: 0 4px 15px #173d2710; }
+.reward-card-inactive { border-color: #d5d9d7; background: #f7f8f7; color: #53625d; }
+.reward-card-top { min-width: 0; }
+.reward-card-title { margin: 0 0 0.65rem; font-size: 1.07rem; color: #193631; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reward-card-inactive .reward-card-title { color: #44534e; }
+.reward-chip { display: inline-block; padding: 0.23rem 0.55rem; border-radius: 999px; font-size: 0.69rem; font-weight: 700; }
+.reward-chip-cashback { background: #dcf5e7; color: #12633f; }
+.reward-chip-voucher { background: #e1ecfb; color: #20538d; }
+.reward-chip-offer { background: #fff0dc; color: #9a540a; }
+.reward-card-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 1.2rem 0; }
+.reward-card-metrics strong, .reward-card-label { display: block; }
+.reward-card-metrics strong { margin-top: 0.2rem; font-size: 1rem; }
+.reward-card-label { color: #6c7c76; font-size: 0.73rem; }
+.reward-card-validity { margin: 0 0 1rem; font-size: 0.79rem; }
+.reward-expired { display: inline-block; margin-left: 0.4rem; color: #9a540a; font-size: 0.7rem; font-weight: 700; }
+.reward-card-footer { display: flex; flex-direction: column; gap: 0.55rem; margin-top: auto; padding-top: 0.7rem; border-top: 1px solid #e5ebe7; }
+.reward-status { align-self: flex-start; padding: 0.2rem 0.5rem; border-radius: 999px; background: #e4e7e5; color: #48564f; font-size: 0.68rem; font-weight: 700; }
+.reward-status-active { background: #dcf5e7; color: #12633f; }
+.reward-card-buttons { display: flex; align-items: center; gap: 0.15rem; }
+.reward-state { margin-top: 1rem; padding: 2rem; text-align: center; background: #fff; border: 1px solid #e5ebe7; border-radius: 14px; }
+.reward-skeleton-row { display: flex; gap: 16px; overflow: hidden; margin-top: 1rem; }
+.reward-skeleton { flex: 0 0 300px; height: 260px; border-radius: 14px; background: linear-gradient(90deg, #e7ece9, #f5f7f6, #e7ece9); background-size: 200% 100%; animation: reward-shimmer 1.5s infinite; }
+@keyframes reward-shimmer { to { background-position: -200% 0; } }
+.reward-form-dialog { width: min(680px, calc(100vw - 2rem)); }
+.reward-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem 1rem; }
+.reward-form-field { min-width: 0; }
+.reward-form-field > span, .reward-form-error { display: block; color: #a12323; font-size: 0.75rem; }
+.reward-form-field > span:empty { display: none; }
+.reward-form-status { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid #e5ebe7; }
+.reward-toast { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1000; padding: 0.8rem 1.1rem; border-radius: 8px; background: #193631; color: white; box-shadow: 0 8px 24px #0003; }
+@media (max-width: 700px) { .reward-heading { align-items: flex-start; flex-direction: column; } .reward-filters { grid-template-columns: 1fr; } .reward-form-grid { grid-template-columns: 1fr; } }
+
 .admin-mobile-drawer {
   display: none;
 }
