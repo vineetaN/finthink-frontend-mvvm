@@ -1,5 +1,28 @@
-<section class="placeholder-page">
-  <p class="admin-eyebrow">ADMINISTRATION</p>
-  <h1><oj-bind-text value="[[title]]"></oj-bind-text></h1>
-  <p>Coming soon</p>
+<section class="investment-page" aria-labelledby="investmentPageTitle">
+  <header class="investment-heading">
+    <div><p class="admin-eyebrow">ADMINISTRATION</p><h1 id="investmentPageTitle">Investment Management</h1></div>
+    <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh investment products">
+      <span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh
+    </oj-button>
+  </header>
+  <div class="investment-toolbar" role="search" aria-label="Filter investment products">
+    <div><oj-label for="investmentSearch">Search investment name</oj-label><oj-input-text id="investmentSearch" value="{{search}}" on-raw-value-changed="[[searchInputChanged]]" on-value-changed="[[searchInputChanged]]" clear-icon="conditional"></oj-input-text></div>
+    <div><oj-label for="investmentStatusFilter">Status</oj-label><oj-select-single id="investmentStatusFilter" data="[[statusOptions]]" value="{{statusFilter}}"></oj-select-single></div>
+  </div>
+  <div class="investment-results-heading">
+    <p><oj-bind-text value="[[showingText]]"></oj-bind-text></p>
+    <div class="investment-scroll-actions">
+      <oj-button display="icons" chroming="outlined" on-oj-action="[[scrollLeft]]" disabled="[[atStart]]" aria-label="Scroll products left"><span slot="startIcon" class="oj-ux-ico-chevron-left" aria-hidden="true"></span></oj-button>
+      <oj-button display="icons" chroming="outlined" on-oj-action="[[scrollRight]]" disabled="[[atEnd]]" aria-label="Scroll products right"><span slot="startIcon" class="oj-ux-ico-chevron-right" aria-hidden="true"></span></oj-button>
+    </div>
+  </div>
+  <div class="investment-live" role="status" aria-live="polite"><oj-bind-text value="[[liveMessage]]"></oj-bind-text></div>
+  <oj-bind-if test="[[loading()]]"><div class="investment-skeleton-row" role="status" aria-label="Loading investment products"><div class="investment-skeleton"></div><div class="investment-skeleton"></div><div class="investment-skeleton"></div></div></oj-bind-if>
+  <oj-bind-if test="[[error()]]"><div class="investment-state" role="alert"><p><oj-bind-text value="[[error]]"></oj-bind-text></p><oj-button on-oj-action="[[refresh]]">Retry</oj-button></div></oj-bind-if>
+  <oj-bind-if test="[[!loading() && !error() && filteredProducts().length === 0]]"><div class="investment-state">No investment products found</div></oj-bind-if>
+  <div id="investmentCardRow" class="investment-card-row" tabindex="0" role="region" aria-label="Investment products, horizontally scrollable; use left and right arrow keys" on-scroll="[[updateScroll]]" on-keydown="[[rowKeydown]]" data-bind="visible: !loading() && !error() && filteredProducts().length > 0">
+    <oj-bind-for-each data="[[filteredProducts]]"><template><div data-bind="component: { name: 'investment-card', params: { investment: $current.data, onUpdate: openUpdate } }"></div></template></oj-bind-for-each>
+  </div>
+  <update-interest-dialog params="model: updateDialog"></update-interest-dialog>
+  <div class="investment-toast" role="status" aria-live="polite" data-bind="visible: toast, text: toast"></div>
 </section>

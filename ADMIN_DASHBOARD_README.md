@@ -16,6 +16,10 @@ The Audit Log page calls the backend by default using `apiGatewayBaseUrl` plus `
 
 Reward Management is registered for `ADMIN` in `src/js/config/roleRoutes.js`. It calls the real service by default using `apiGatewayBaseUrl` plus `rewardEndpoint` (`http://localhost:8080/audit-admin-service/admin/rewards`). Set `useMockRewardData` to `true` to use the three local rewards and simulate create, edit, and status changes in memory until the page reloads. Set `rewardCurrency` and `rewardStatusField` there if the backend contract changes. The shared API client sends the Bearer token and handles session expiry and access denial. The backend must enforce ADMIN authorization on every `/admin/*` endpoint.
 
+## Investment Management API
+
+Investment Management is registered for `ADMIN` and uses the separate investment service at `investmentBaseUrl` (`http://localhost:8080/investment-service/api/investments/admin`). By default, `useMockInvestmentData` is `true`; the page then reads `src/js/data/investmentMock.json` and simulates rate updates in memory. To use the real API, set `useMockInvestmentData` to `false` in `src/js/config/apiConfig.js`. The shared API client sends the Bearer token; `MAX_INTEREST_RATE` controls the client-side update limit. The update call posts `{ productId, interestRate }`, then reloads the list after success. The backend must enforce ADMIN authorization on every investment admin endpoint.
+
 
 ## Add a Role or Page
 

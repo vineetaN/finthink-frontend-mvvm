@@ -40,7 +40,8 @@ define([
       fetchOptions.body = JSON.stringify(payload);
     }
 
-    return fetch(apiConfig.apiGatewayBaseUrl + path, fetchOptions)
+    var url = /^https?:\/\//i.test(path) ? path : apiConfig.apiGatewayBaseUrl + path;
+    return fetch(url, fetchOptions)
       .then(function (response) {
         return parseResponse(response).then(function (body) {
           if (!response.ok) {
