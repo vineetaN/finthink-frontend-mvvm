@@ -9,7 +9,8 @@
  * Your application specific code will go here
  */
 define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraydataprovider',
-        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','./utils/navigationService' , './utils/sessionService'],
+        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','./utils/navigationService' , './utils/sessionService','./services/notificationService'
+      ],
   function (
   ko,
   Context,
@@ -26,7 +27,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   ModuleElement,
   ojKnockout,
   navigationService,
-  sessionService
+  sessionService,
+   notificationService
 ) {
      function ControllerViewModel() {
 
@@ -65,7 +67,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
   { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } }
+{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
+{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } }
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -90,10 +93,34 @@ const authenticatedNavData = [
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } }
+{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
+{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;
+
+this.unreadNotificationCount = notificationService.unreadCount;
+
+this.refreshUnreadNotificationCount = function () {
+  if (!sessionService.isAuthenticated()) {
+    notificationService.clearUnreadCount();
+    return;
+  }
+
+  notificationService.getUnreadCount().catch(function () {
+    // Keep the last known badge count if the request temporarily fails.
+  });
+};
+
+sessionService.authenticated.subscribe((isAuthenticated) => {
+  if (isAuthenticated) {
+    this.refreshUnreadNotificationCount();
+  } else {
+    notificationService.clearUnreadCount();
+  }
+});
+
+this.refreshUnreadNotificationCount();
 
 this.navDataProvider = ko.pureComputed(() => {
   const visibleNavData = sessionService.isAuthenticated()

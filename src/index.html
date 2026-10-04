@@ -47,11 +47,22 @@
   <body class="oj-web-applayout-body">
     <!-- Template for rendering navigation items shared between nav bar and nav list -->
     <script type="text/html" id="navTemplate">
-      <li><a href="#">
-        <span :class="[[$data.detail.iconClass]]"></span>
+  <li>
+    <a href="#">
+      <span :class="[[$data.detail.iconClass]]"></span>
+
+      <span class="app-nav-label">
         <oj-bind-text value="[[$data.detail.label]]"></oj-bind-text>
-      </a></li>
-    </script>
+
+        <span class="notification-nav-badge"
+              data-bind="visible: $data.path === 'notifications' &&
+                                  $root.unreadNotificationCount() > 0,
+                         text: $root.unreadNotificationCount">
+        </span>
+      </span>
+    </a>
+  </li>
+</script>
 
     <div id="globalBody">
 
