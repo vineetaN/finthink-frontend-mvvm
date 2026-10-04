@@ -64,7 +64,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
   { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
-  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } }
+{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
+{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } }
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -87,8 +88,9 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 
 const authenticatedNavData = [
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
-  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } }
+ { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
+{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
+{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;

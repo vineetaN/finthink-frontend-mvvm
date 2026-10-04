@@ -48,15 +48,14 @@ define([
             }
 
             var requestError = new Error(
-  body.message ||
-  body.error ||
-  body.detail ||
-  'The request could not be completed.'
-);
+              body.message ||
+              body.error ||
+              body.detail ||
+              'The request could not be completed.'
+            );
 
-requestError.status = response.status;
-
-throw requestError;
+            requestError.status = response.status;
+            throw requestError;
           }
 
           return body;
@@ -64,10 +63,64 @@ throw requestError;
       });
   }
 
+  function download(path, fileName) {
+    var token = sessionService.getToken();
+
+    if (!token) {
+      return Promise.reject(
+        new Error('Your session has expired. Please sign in again.')
+      );
+    }
+
+    return fetch(apiConfig.apiGatewayBaseUrl + path, {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return parseResponse(response).then(function (body) {
+            if (response.status === 401 || response.status === 403) {
+              sessionService.clearSession();
+            }
+
+            var error = new Error(
+              body.message ||
+              body.error ||
+              'The statement could not be downloaded.'
+            );
+
+            error.status = response.status;
+            throw error;
+          });
+        }
+
+        return response.blob();
+      })
+      .then(function (pdfBlob) {
+        var url = window.URL.createObjectURL(pdfBlob);
+        var link = document.createElement('a');
+
+        link.href = url;
+        link.download = fileName || 'FinThink_Statement.pdf';
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(function () {
+          window.URL.revokeObjectURL(url);
+        }, 1000);
+      });
+  }
+
   return {
     get: function (path, options) {
       return request('GET', path, null, options);
     },
+
+    download: download,
 
     post: function (path, payload, options) {
       return request('POST', path, payload, options);
