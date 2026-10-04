@@ -8,6 +8,11 @@ define([], function () {
     rewardTypes: ['CASHBACK', 'VOUCHER', 'OFFER'],
     rewardCurrency: 'INR',
     rewardStatusField: 'status',
+    cardApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    cardActionPaths: { freeze: '/cards/{cardId}/freeze', unfreeze: '/cards/{cardId}/unfreeze', block: '/cards/{cardId}/block' },
+    cardStatuses: { ACTIVE: 'ACTIVE', FROZEN: 'FROZEN', BLOCKED: 'BLOCKED' },
+    cardCurrency: 'INR',
+    useMockCardData: false,
     investmentBaseUrl: 'http://localhost:8080/investment-service/api/investments/admin',
     useMockInvestmentData: false,
     MAX_INTEREST_RATE: 100,
@@ -28,6 +33,29 @@ define([], function () {
       fromDate: 'fromDate',
       toDate: 'toDate',
       search: 'search'
-    }
+    },
+    loanApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    loanEndpoint: '/loans',
+    useMockLoanData: true,
+    loanCurrency: 'INR',
+    LOAN_TYPES: [
+      { value: 'HOME', label: 'Home Loan', icon: 'home' },
+      { value: 'PERSONAL', label: 'Personal Loan', icon: 'person' },
+      { value: 'CAR', label: 'Car Loan', icon: 'car' },
+      { value: 'TWO_WHEELER', label: 'Two-Wheeler Loan', icon: 'bike' },
+      { value: 'EDUCATION', label: 'Education Loan', icon: 'school' },
+      { value: 'BUSINESS', label: 'Business Loan', icon: 'business' },
+      { value: 'GOLD', label: 'Gold Loan', icon: 'diamond' },
+      { value: 'LOAN_AGAINST_PROPERTY', label: 'Loan Against Property', icon: 'property' },
+      { value: 'AGRICULTURE', label: 'Agriculture Loan', icon: 'leaf' },
+      { value: 'CONSUMER_DURABLE', label: 'Consumer Durable Loan', icon: 'cart' }
+    ],
+    NORMALIZE_LOAN_TYPE: true,
+    MAX_LOAN_TYPE_LENGTH: 50,
+    MAX_INTEREST_RATE: 100,
+    MAX_TENURE_MONTHS: 480,
+    DUE_SOON_DAYS: 7,
+    HIGH_VALUE_THRESHOLD: 2500000,
+    AUTO_REFRESH_SECONDS: 60
   };
 });

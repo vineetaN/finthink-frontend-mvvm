@@ -16,10 +16,22 @@ The Audit Log page calls the backend by default using `apiGatewayBaseUrl` plus `
 
 Reward Management is registered for `ADMIN` in `src/js/config/roleRoutes.js`. It calls the real service by default using `apiGatewayBaseUrl` plus `rewardEndpoint` (`http://localhost:8080/audit-admin-service/admin/rewards`). Set `useMockRewardData` to `true` to use the three local rewards and simulate create, edit, and status changes in memory until the page reloads. Set `rewardCurrency` and `rewardStatusField` there if the backend contract changes. The shared API client sends the Bearer token and handles session expiry and access denial. The backend must enforce ADMIN authorization on every `/admin/*` endpoint.
 
+## Card Management API
+
+Card Management is registered for ADMIN in src/js/config/roleRoutes.js. It uses cardApiBaseUrl plus /cards and the configured cardActionPaths for the freeze, unfreeze, and block endpoints. Set useMockCardData in src/js/config/apiConfig.js to false to use the real API; it defaults to true and loads five cards from src/js/data/cardMock.json, with status actions simulated in memory. Configure cardCurrency for daily limit formatting. Requests use the shared API client for Bearer authentication, 401 session expiry, and 403 access denial. The backend must enforce ADMIN authorization on every /admin/* endpoint.
+
 ## Investment Management API
 
 Investment Management is registered for `ADMIN` and uses the separate investment service at `investmentBaseUrl` (`http://localhost:8080/investment-service/api/investments/admin`). By default, `useMockInvestmentData` is `true`; the page then reads `src/js/data/investmentMock.json` and simulates rate updates in memory. To use the real API, set `useMockInvestmentData` to `false` in `src/js/config/apiConfig.js`. The shared API client sends the Bearer token; `MAX_INTEREST_RATE` controls the client-side update limit. The update call posts `{ productId, interestRate }`, then reloads the list after success. The backend must enforce ADMIN authorization on every investment admin endpoint.
 
+
+## Loan Management API
+
+Loan Management is registered for `ADMIN` in `src/js/config/roleRoutes.js` and uses the shared authenticated API client. The page reads `src/js/data/loanMock.json` when `useMockLoanData` is `true` and otherwise calls `loanApiBaseUrl + loanEndpoint` (`http://localhost:8080/audit-admin-service/admin/loans`). Set `NORMALIZE_LOAN_TYPE`, `MAX_LOAN_TYPE_LENGTH`, `MAX_INTEREST_RATE`, `MAX_TENURE_MONTHS`, and `AUTO_REFRESH_SECONDS` in `src/js/config/apiConfig.js` to align the form validation and backend contract. The base URL remains in the config file and the app sends the Bearer token with every request. The backend must still enforce ADMIN on every `/admin/*` endpoint.
+
+## Switch from Mock to Real API
+
+To switch the Loan Management page from the mock data file to the backend, change `useMockLoanData` in `src/js/config/apiConfig.js` from `true` to `false`. Leave the route and navigation registration as-is; the page will then call the configured `loanApiBaseUrl` and `loanEndpoint`, and the shared `apiClient` will handle Bearer auth, 401 expiry, and 403 access-denied events automatically.
 
 ## Add a Role or Page
 
