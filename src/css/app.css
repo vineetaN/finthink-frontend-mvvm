@@ -684,6 +684,100 @@ body.oj-web-applayout-body {
   gap: 0.9rem;
 }
 
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.module-tile {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  text-align: left;
+}
+
+.module-tile::part(button) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 170px;
+  padding: 1rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 4px;
+  background: var(--admin-paper);
+  color: var(--admin-ink);
+  text-align: left;
+  white-space: normal;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.module-tile:hover::part(button),
+.module-tile:focus-within::part(button) {
+  transform: translateY(-2px);
+  border-color: #79a99a;
+  box-shadow: 0 8px 20px rgba(23, 65, 54, 0.09);
+}
+
+.module-tile-content,
+.module-tile-title,
+.module-tile-value {
+  display: block;
+}
+
+.module-tile-content { width: 100%; }
+
+.module-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.module-tile-icon {
+  display: grid;
+  width: 34px;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 4px;
+  background: #e3f2eb;
+  color: #006b5d;
+  font-size: 1rem;
+}
+
+.module-tile-cards .module-tile-icon { background: #e7eff6; color: #356d91; }
+.module-tile-loans .module-tile-icon { background: #f8ecd9; color: #996523; }
+.module-tile-investments .module-tile-icon { background: #f8e8e3; color: #a65945; }
+.module-tile-rewards .module-tile-icon { background: #e8f0df; color: #587b3b; }
+
+.module-tile-arrow { color: #82928b; font-size: 0.85rem; }
+
+.module-tile-title {
+  min-height: 2.4em;
+  color: #47605a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.module-tile-value {
+  margin-top: 0.45rem;
+  color: #71817c;
+  font-size: 0.7rem;
+}
+
+.module-tile-value strong {
+  display: block;
+  color: #193631;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.module-tile-value > span { display: block; margin-top: 0.12rem; }
+.module-tile-loading { padding-top: 0.35rem; }
+
 .metric-card,
 .overview-panel {
   box-sizing: border-box;
@@ -977,6 +1071,7 @@ body.oj-web-applayout-body {
 
 @media (max-width: 1050px) {
   .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .module-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .overview-lower { grid-template-columns: 1fr; }
 }
 
@@ -997,10 +1092,15 @@ body.oj-web-applayout-body {
   .placeholder-page h1 { font-size: 2rem; }
   .overview-date { display: none; }
   .overview-panel { padding: 1rem; }
+  .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 480px) {
   .metric-grid { grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+  .module-grid { gap: 0.55rem; }
+  .module-tile::part(button) { min-height: 156px; padding: 0.8rem; }
+  .module-tile-title { min-height: 2.6em; font-size: 0.7rem; }
+  .module-tile-value strong { font-size: 1.2rem; }
   .metric-card { min-height: 130px; padding: 0.9rem; }
   .metric-value { font-size: 1.5rem; }
   .metric-card h2 { min-height: 2rem; }

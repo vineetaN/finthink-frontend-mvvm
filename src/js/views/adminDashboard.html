@@ -1,29 +1,30 @@
 <div class="admin-overview">
   <header class="overview-heading">
     <div>
-      <p class="admin-eyebrow">ADMINISTRATION</p>
-      <h1>Overview</h1>
-      <p class="overview-subtitle">A live snapshot of banking operations.</p>
+      <p class="admin-eyebrow">ADMINISTRATION / OVERVIEW</p>
+      <h1>Welcome, <oj-bind-text value="[[adminName]]"></oj-bind-text></h1>
+      <p class="overview-subtitle">Your banking operations, at a glance.</p>
     </div>
     <span class="overview-date"><span class="oj-ux-ico-calendar" aria-hidden="true"></span> Operations dashboard</span>
   </header>
 
-  <section class="metric-grid" aria-label="Banking summary metrics">
-    <oj-bind-for-each data="[[summaryCards]]">
+  <section class="module-grid" aria-label="Administration modules">
+    <oj-bind-for-each data="[[moduleCards]]">
       <template>
-        <article class="metric-card" :aria-label="[[$current.data.title + ' summary']]">
-          <span class="metric-mark" aria-hidden="true"></span>
-          <h2><oj-bind-text value="[[$current.data.title]]"></oj-bind-text></h2>
-          <oj-bind-if test="[[$current.data.loading()]]">
-            <div class="metric-state" role="status">Loading...</div>
-          </oj-bind-if>
-          <oj-bind-if test="[[$current.data.error()]]">
-            <div class="metric-state metric-error" role="alert"><oj-bind-text value="[[$current.data.error]]"></oj-bind-text></div>
-          </oj-bind-if>
-          <oj-bind-if test="[[$current.data.loading() === false && !$current.data.error()]]">
-            <p class="metric-value"><oj-bind-text value="[[$current.data.value]]"></oj-bind-text></p>
-          </oj-bind-if>
-        </article>
+        <oj-button class="module-tile" :class="[[$current.data.accent]]" chroming="borderless" on-oj-action="[[$current.data.navigate]]" :aria-label="[['Open ' + $current.data.title]]">
+          <span class="module-tile-content">
+            <span class="module-tile-top">
+              <span class="module-tile-icon" aria-hidden="true"><span :class="[[$current.data.icon]]"></span></span>
+              <span class="module-tile-arrow oj-ux-ico-arrow-up-right" aria-hidden="true"></span>
+            </span>
+            <span class="module-tile-title"><oj-bind-text value="[[$current.data.title]]"></oj-bind-text></span>
+            <oj-bind-if test="[[$current.data.loading()]]"><span class="module-tile-value module-tile-loading">Loading</span></oj-bind-if>
+            <oj-bind-if test="[[$current.data.error()]]"><span class="module-tile-value metric-error">Unavailable</span></oj-bind-if>
+            <oj-bind-if test="[[$current.data.loading() === false && !$current.data.error()]]">
+              <span class="module-tile-value"><strong><oj-bind-text value="[[$current.data.value]]"></oj-bind-text></strong><span><oj-bind-text value="[[$current.data.note]]"></oj-bind-text></span></span>
+            </oj-bind-if>
+          </span>
+        </oj-button>
       </template>
     </oj-bind-for-each>
   </section>
@@ -51,7 +52,7 @@
     <article class="overview-panel audit-panel" aria-label="Recent audit events">
       <div class="panel-heading">
         <div><p class="admin-eyebrow">CONTROL ACTIVITY</p><h2>Recent Audit Events</h2></div>
-        <span class="audit-count">5 entries</span>
+        <span class="audit-count"><oj-bind-text value="[[auditCount]]"></oj-bind-text> recent</span>
       </div>
       <oj-bind-if test="[[auditLoading()]]"><p class="panel-state" role="status">Loading events...</p></oj-bind-if>
       <oj-bind-if test="[[auditError()]]"><p class="panel-state metric-error" role="alert"><oj-bind-text value="[[auditError]]"></oj-bind-text></p></oj-bind-if>

@@ -2,6 +2,7 @@ define([], function () {
   'use strict';
 
   return {
+    useMockDashboardData: true,
     apiGatewayBaseUrl: 'http://localhost:8080',
     rewardEndpoint: '/audit-admin-service/admin/rewards',
     useMockRewardData: false,
