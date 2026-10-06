@@ -1898,3 +1898,745 @@ html[dir="rtl"] .demo-oracle-icon {
   font-weight: 800;
   line-height: 1;
 }
+
+.biller-page-actions,
+.biller-form-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.biller-page-actions {
+  margin: 2.5rem 0 1.25rem;
+}
+
+.biller-page-actions h2,
+.biller-form-heading h2 {
+  margin: 0.3rem 0 0;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.biller-primary-button {
+  border: 1px solid #075d65;
+  background: #075d65;
+  color: white;
+  padding: 0.85rem 1.3rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.biller-primary-button:hover:not(:disabled) {
+  background: #064b52;
+}
+
+.biller-primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.biller-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.biller-card,
+.biller-form-panel {
+  border: 1px solid #d6e3e1;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(11, 53, 64, 0.06);
+}
+
+.biller-card {
+  min-width: 0;
+  padding: 1.6rem;
+}
+
+.biller-category {
+  color: #607c82;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.biller-card h3 {
+  margin: 0.8rem 0 0.2rem;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+}
+
+.biller-provider {
+  margin: 0;
+  color: #607c82;
+}
+
+.biller-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5eeee;
+}
+
+.biller-card-footer span {
+  color: #607c82;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.biller-card-footer strong {
+  color: #0b3540;
+  text-align: right;
+}
+
+.biller-form-panel {
+  margin-top: 1.5rem;
+  padding: 2rem;
+}
+
+.biller-form-panel > p {
+  color: #607c82;
+}
+
+.biller-text-button {
+  border: 0;
+  background: none;
+  color: #075d65;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.biller-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.biller-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #0b3540;
+  font-weight: 700;
+}
+
+.biller-form-grid input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #a9bdbf;
+  padding: 0.85rem;
+  font: inherit;
+}
+
+.biller-form-grid input:focus {
+  outline: 2px solid #075d65;
+  outline-offset: 1px;
+}
+
+.biller-form-grid em {
+  color: #ae3434;
+  font-style: normal;
+}
+
+.biller-form-grid small {
+  color: #607c82;
+  font-weight: 400;
+}
+
+.biller-success {
+  padding: 0.85rem 1rem;
+  background: #e5f6ef;
+  color: #155b45;
+}
+
+@media (max-width: 700px) {
+  .biller-page-actions,
+  .biller-form-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .biller-grid,
+  .biller-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .biller-card-footer {
+    flex-direction: column;
+  }
+}
+
+.biller-delete-button {
+  margin-top: 1.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #9b3434;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.biller-delete-confirmation {
+  margin-top: 1.5rem;
+  padding: 1.6rem;
+  border: 1px solid #e5bcbc;
+  background: #fff8f8;
+}
+
+.biller-delete-confirmation h2 {
+  margin: 0.4rem 0;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+
+.biller-delete-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.biller-danger-button {
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #9b3434;
+  background: #9b3434;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.biller-danger-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.biller-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: rgba(5, 35, 43, 0.7);
+}
+
+.biller-delete-modal {
+  width: min(100%, 460px);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 2rem;
+  background: white;
+  border: 1px solid #d6e3e1;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.biller-delete-modal h2 {
+  margin: 0.5rem 0 1rem;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.biller-delete-modal > p:not(.cards-eyebrow):not(.card-action-error) {
+  color: #526c72;
+  line-height: 1.5;
+}
+
+.biller-delete-modal .biller-delete-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 500px) {
+  .biller-delete-modal {
+    padding: 1.4rem;
+  }
+
+  .biller-delete-modal .biller-delete-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+}
+
+.biller-payment-modal {
+  width: min(100%, 580px);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 2rem;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.biller-payment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.2rem 0;
+  color: #0b3540;
+  font-weight: 700;
+}
+
+.biller-payment-field input,
+.biller-payment-field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.85rem;
+  border: 1px solid #a9bdbf;
+  background: white;
+  font: inherit;
+}
+
+.biller-account-balance {
+  color: #607c82;
+}
+
+.biller-payment-review {
+  margin: 1.5rem 0;
+  padding: 1.2rem;
+  background: #f2f7f6;
+}
+
+.biller-payment-review p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #d6e3e1;
+  padding-bottom: 0.75rem;
+}
+
+.biller-payment-review p:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.biller-payment-review span {
+  color: #607c82;
+}
+
+.biller-payment-review strong {
+  color: #0b3540;
+  text-align: right;
+}
+
+.biller-payment-success {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #a8d9c6;
+  background: #e8f7f0;
+  color: #155b45;
+}
+
+.biller-payment-success h3 {
+  margin: 0.5rem 0 1.25rem;
+  font-family: Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+.biller-payment-success strong {
+  overflow-wrap: anywhere;
+}
+
+.biller-payment-modal {
+  position: relative;
+}
+
+.biller-payment-modal .biller-form-heading {
+  padding-right: 2.5rem;
+}
+
+.biller-payment-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  background: #fff0f0;
+  color: #b12f2f;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.biller-payment-close:hover:not(:disabled) {
+  background: #f8dada;
+}
+
+.biller-payment-close:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.biller-archived-section {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  border: 1px solid #d6e3e1;
+  background: #fff;
+}
+
+.biller-archived-section > p {
+  color: #607c82;
+}
+
+.biller-archived-section .biller-grid {
+  margin-top: 1.5rem;
+}
+
+.biller-archived-card {
+  position: relative;
+  background: #f7f9f8;
+}
+
+.biller-archived-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: #667c80;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.biller-archived-empty {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f2f7f6;
+}
+
+@media (max-width: 700px) {
+  .biller-archived-section {
+    padding: 1.4rem;
+  }
+}
+
+.biller-text-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.biller-history-protected {
+  margin: 1.2rem 0 0;
+  color: #607c82;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.biller-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0 0;
+}
+
+.biller-info-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 13rem;
+  padding: 2rem 4rem 2rem 2rem;
+  border: 2px solid #075d65;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #e4f6f2 0%, #f7fbfa 100%);
+  color: #093943;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(11, 53, 64, 0.1);
+  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.biller-info-card:hover,
+.biller-info-card.is-open {
+  background: #d6eee9;
+  box-shadow: 0 16px 30px rgba(11, 53, 64, 0.16);
+  transform: translateY(-2px);
+}
+
+.biller-info-card.is-open {
+  border-color: #0b3540;
+  box-shadow: inset 0 0 0 1px #0b3540, 0 16px 30px rgba(11, 53, 64, 0.16);
+}
+
+.biller-info-card:focus-visible {
+  outline: 3px solid #075d65;
+  outline-offset: 3px;
+}
+
+.biller-info-card strong {
+  font-family: Georgia, serif;
+  font-size: clamp(1.55rem, 2.3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.biller-info-card > span:not(.cards-eyebrow):not(.biller-info-arrow) {
+  color: #607c82;
+}
+
+.biller-info-arrow {
+  position: absolute;
+  right: 1.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #075d65;
+}
+
+.biller-info-card.is-open .biller-info-arrow {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.biller-history-section,
+.biller-archived-section {
+  margin-top: 1.25rem;
+  padding: 2rem;
+  border: 1px solid #d6e3e1;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(11, 53, 64, 0.06);
+}
+
+.biller-info-panel-heading {
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.biller-info-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.biller-info-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #a33131;
+  border-radius: 50%;
+  background: #a33131;
+  color: #fff;
+  font: inherit;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.biller-info-close:hover {
+  border-color: #842323;
+  background: #842323;
+}
+
+.biller-info-close:focus-visible {
+  outline: 3px solid #a33131;
+  outline-offset: 2px;
+}
+
+.biller-add-modal {
+  width: min(100%, 720px);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 2rem;
+  border: 1px solid #d6e3e1;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.biller-add-modal .biller-form-heading {
+  align-items: flex-start;
+}
+
+.biller-add-modal .biller-form-heading h2 {
+  font-size: 2.2rem;
+}
+
+.biller-add-modal .biller-payment-close {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+  .biller-add-modal {
+    padding: 1.4rem;
+  }
+
+  .biller-add-modal .biller-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.biller-history-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 1.5rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid #e3ecea;
+}
+
+.biller-history-item h3 {
+  margin: 0 0 0.3rem;
+  color: #0b3540;
+}
+
+.biller-history-item p,
+.biller-history-item small {
+  color: #607c82;
+}
+
+.biller-history-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.biller-history-meta {
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 700px) {
+  .biller-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .biller-history-section,
+  .biller-archived-section {
+    padding: 1.4rem;
+  }
+}
+
+.change-password-page {
+  max-width: 900px;
+}
+
+.change-password-card {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid #d6e3e1;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(11, 53, 64, 0.09);
+}
+
+.change-password-card h2 {
+  margin: 0 0 0.8rem;
+  color: #0b3540;
+  font-family: Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  font-weight: 500;
+}
+
+.change-password-card > p:not(.cards-eyebrow) {
+  color: #607c82;
+  line-height: 1.6;
+}
+
+.change-password-card form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 1.5rem;
+}
+
+.change-password-card form > label {
+  margin: 1rem 0 0.45rem;
+  color: #0b3540;
+  font-weight: 700;
+}
+
+.change-password-card form > label span {
+  color: #a33131;
+}
+
+.change-password-card form > input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.85rem 1rem;
+  border: 1px solid #a9bdbf;
+  border-radius: 0.25rem;
+  background: #fff;
+  font: inherit;
+}
+
+.change-password-card form > input:focus {
+  outline: 2px solid #075d65;
+  outline-offset: 2px;
+}
+
+.change-password-card oj-input-password {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.change-password-card small {
+  margin-top: 0.45rem;
+  color: #607c82;
+}
+
+.change-password-card form .biller-primary-button {
+  margin-top: 1.5rem;
+}
+
+.change-password-card .card-action-error {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.change-password-resend {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #d6e3e1;
+  color: #607c82;
+}
+
+.change-password-resend p {
+  margin: 0 0 0.75rem;
+}
+
+.change-password-card > .biller-primary-button {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .change-password-card form .biller-primary-button,
+  .change-password-card > .biller-primary-button {
+    width: 100%;
+  }
+}

@@ -37,6 +37,7 @@
 
       <oj-input-password
         label-hint="Password"
+        mask-icon="visible"
         value="{{password}}"
         raw-value="{{password}}"
         help.instruction="Enter a password with at least 8 characters."
@@ -52,9 +53,17 @@
       Continue
     </oj-button>
 
-    <div class="auth-register-note">
-  <span>New to FinThink?</span>
+  <div class="auth-register-note">
+  <oj-button
+    class="auth-inline-action"
+    chroming="borderless"
+    on-oj-action="[[goToForgotPassword]]">
+    Forgot password?
+  </oj-button>
+</div>
 
+<div class="auth-register-note">
+  <span>New to FinThink?</span>
   <oj-button
     class="auth-inline-action"
     chroming="borderless"

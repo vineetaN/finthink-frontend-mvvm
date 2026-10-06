@@ -9,6 +9,13 @@ define(['knockout', './apiClient'], function (ko, apiClient) {
     );
   }
 
+  function getNotificationsPage(page) {
+    return apiClient.get(
+      '/notification-service/api/notifications/me/page?page=' +
+      encodeURIComponent(page)
+    );
+  }
+
   function getUnreadCount() {
     return apiClient.get(
       '/notification-service/api/notifications/me/unread-count'
@@ -39,6 +46,7 @@ define(['knockout', './apiClient'], function (ko, apiClient) {
   return {
     unreadCount: unreadCount,
     getNotifications: getNotifications,
+    getNotificationsPage: getNotificationsPage,
     getUnreadCount: getUnreadCount,
     markAsRead: markAsRead,
     markAllAsRead: markAllAsRead,

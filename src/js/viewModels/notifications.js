@@ -15,6 +15,9 @@ define([
     self.errorMessage = ko.observable('');
     self.actionError = ko.observable('');
     self.expandedNotificationId = ko.observable(null);
+    self.currentPage = ko.observable(0);
+    self.totalPages = ko.observable(0);
+    self.totalRecords = ko.observable(0);
 
     self.formatDateTime = function (value) {
       if (!value) {
@@ -36,23 +39,32 @@ define([
         String(notification.notificationId);
     };
 
-    self.loadNotifications = function () {
+    self.loadNotificationsPage = function (page) {
+      if (self.isLoading() || page < 0) {
+        return;
+      }
+
       self.isLoading(true);
       self.errorMessage('');
 
       return Promise.all([
-        notificationService.getNotifications(),
+        notificationService.getNotificationsPage(page),
         notificationService.getUnreadCount()
       ])
         .then(function (responses) {
+          const notificationPage = responses[0];
           self.notifications(
-            Array.isArray(responses[0]) ? responses[0] : []
+            Array.isArray(notificationPage.content)
+              ? notificationPage.content
+              : []
           );
-
+          self.currentPage(notificationPage.number ?? page);
+          self.totalPages(notificationPage.totalPages ?? 0);
+          self.totalRecords(notificationPage.totalElements ?? 0);
+          self.expandedNotificationId(null);
           self.unreadCount(responses[1].unreadCount || 0);
         })
         .catch(function (error) {
-          self.notifications([]);
           self.errorMessage(
             error.message || 'We could not load your notifications.'
           );
@@ -60,6 +72,22 @@ define([
         .finally(function () {
           self.isLoading(false);
         });
+    };
+
+    self.loadNotifications = function () {
+      return self.loadNotificationsPage(0);
+    };
+
+    self.goToPreviousPage = function () {
+      if (self.currentPage() > 0) {
+        return self.loadNotificationsPage(self.currentPage() - 1);
+      }
+    };
+
+    self.goToNextPage = function () {
+      if (self.currentPage() + 1 < self.totalPages()) {
+        return self.loadNotificationsPage(self.currentPage() + 1);
+      }
     };
 
     self.markAsRead = function (notification) {

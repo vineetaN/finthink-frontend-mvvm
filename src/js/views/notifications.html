@@ -92,5 +92,26 @@
       </article>
       <!-- /ko -->
     </div>
+
+    <div class="transaction-pagination"
+         data-bind="visible: totalRecords() > 0">
+      <span data-bind="text: 'Showing page ' + (currentPage() + 1) +
+                              ' of ' + totalPages() +
+                              ' • ' + totalRecords() + ' notifications'"></span>
+
+      <div>
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: goToPreviousPage,
+                           disable: currentPage() === 0 || isLoading() || isMarkingAllRead()">
+          Previous
+        </button>
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: goToNextPage,
+                           disable: currentPage() >= totalPages() - 1 ||
+                                    isLoading() || isMarkingAllRead()">
+          Next
+        </button>
+      </div>
+    </div>
   </section>
 </div>

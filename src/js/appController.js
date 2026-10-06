@@ -64,11 +64,14 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: '', redirect: 'login' },
   { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
   { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'forgotPassword', detail: { label: 'Forgot Password' } },
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'changePassword', detail: { label: 'Change Password' } },
   { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
-{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } }
+{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
+{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -94,7 +97,8 @@ const authenticatedNavData = [
  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
-{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } }
+{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
+{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;
@@ -142,14 +146,18 @@ this.navDataProvider = ko.pureComputed(() => {
       this.toggleDrawer = () => {
         this.sideDrawerOn(!this.sideDrawerOn());
       }
+this.handleUserMenuAction = function (event) {
+  const selectedValue = event.detail.selectedValue;
 
-      this.handleUserMenuAction = function (event) {
-  if (event.detail.selectedValue !== 'out') {
+  if (selectedValue === 'changePassword') {
+    navigationService.goTo('changePassword');
     return;
   }
 
-  sessionService.clearSession();
-  navigationService.goTo('login');
+  if (selectedValue === 'out') {
+    sessionService.clearSession();
+    navigationService.goTo('login');
+  }
 };
 
       // Header

@@ -208,6 +208,10 @@ define([
   navigationService.goTo('register');
 };
 
+self.goToForgotPassword = function () {
+  navigationService.goTo('forgotPassword');
+};
+
     self.connected = function () {
       document.title = 'Sign in | FinThink Bank';
     };
