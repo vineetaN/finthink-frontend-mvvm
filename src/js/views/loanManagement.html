@@ -91,7 +91,7 @@
 
   <div class="loan-toast" role="status" aria-live="polite" data-bind="visible: toastMessage, text: toastMessage"></div>
 
-  <oj-dialog id="loanCreateDialog" dialog-title="Create Loan" modality="modal" open="[[createDialogOpen]]">
+  <oj-dialog id="loanCreateDialog" dialog-title="Create Loan" modality="modal">
     <div slot="body">
       <div class="loan-form-grid">
         <div>
@@ -158,7 +158,7 @@
     </div>
   </oj-dialog>
 
-  <oj-dialog id="loanConfirmDialog" dialog-title="Confirm loan creation" modality="modal" open="[[confirmCreateOpen]]">
+  <oj-dialog id="loanConfirmDialog" dialog-title="Confirm loan creation" modality="modal">
     <div slot="body">
       <p data-bind="text: confirmText"></p>
     </div>

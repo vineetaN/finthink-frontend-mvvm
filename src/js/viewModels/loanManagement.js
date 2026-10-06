@@ -123,14 +123,14 @@ define([
       { value: 'comfortable', label: 'Comfortable' },
       { value: 'compact', label: 'Compact' }
     ];
-    this.loanTypePresetOptions = [
+    this.loanTypePresetOptions = new ArrayDataProvider([
       { value: 'HOME', label: 'Home Loan' },
       { value: 'PERSONAL', label: 'Personal Loan' },
       { value: 'CAR', label: 'Car Loan' },
       { value: 'BUSINESS', label: 'Business Loan' },
       { value: 'EDUCATION', label: 'Education Loan' },
       { value: 'OTHER', label: 'Other (enter a new type)' }
-    ];
+    ], { keyAttributes: 'value' });
 
     this.tableColumns = ko.pureComputed(function () {
       var state = self.columnState();
@@ -239,9 +239,7 @@ define([
       nextEmiDate: ko.observable('')
     };
     this.formErrors = ko.observable({});
-    this.createDialogOpen = ko.observable(false);
-    this.confirmCreateOpen = ko.observable(false);
-    this.confirmText = ko.observable('');
+      this.confirmText = ko.observable('');
     this.pendingCreate = ko.observable(null);
 
     this.showCustomLoanType = ko.pureComputed(function () {
@@ -405,7 +403,7 @@ define([
       self.form.nextEmiDate('');
       self.formErrors({});
       self.pendingCreate(null);
-      self.createDialogOpen(true);
+      document.getElementById('loanCreateDialog').open();
       window.setTimeout(function () {
         var element = document.getElementById('loanCustomerIdInput');
         if (element && element.focus) {
@@ -415,14 +413,14 @@ define([
     };
 
     this.closeCreateDialog = function () {
-      self.createDialogOpen(false);
+      document.getElementById('loanCreateDialog').close();
       self.pendingCreate(null);
       self.formErrors({});
-      self.confirmCreateOpen(false);
+      document.getElementById('loanConfirmDialog').close();
     };
 
     this.closeConfirmCreateDialog = function () {
-      self.confirmCreateOpen(false);
+      document.getElementById('loanConfirmDialog').close();
     };
 
     this.validateCreateForm = function () {
@@ -451,16 +449,19 @@ define([
       } else if (!String(values.loanType || '').trim()) {
         errors.loanType = 'Please select a loan type.';
       }
-      if (!values.principalAmount || Number(values.principalAmount) < 0.01) {
+      var principalAmount = Number(values.principalAmount);
+      if (values.principalAmount === null || values.principalAmount === '' || !Number.isFinite(principalAmount) || principalAmount < 0.01) {
         errors.principalAmount = 'Principal amount must be at least 0.01.';
       }
-      if (!values.interestRate || Number(values.interestRate) < 0 || Number(values.interestRate) > apiConfig.MAX_INTEREST_RATE) {
+      var interestRate = Number(values.interestRate);
+      if (values.interestRate === null || values.interestRate === '' || !Number.isFinite(interestRate) || interestRate < 0 || interestRate > apiConfig.MAX_INTEREST_RATE) {
         errors.interestRate = 'Interest rate must be between 0 and ' + apiConfig.MAX_INTEREST_RATE + '.';
       }
       if (!values.loanStartDate) {
         errors.loanStartDate = 'Loan start date is required.';
       }
-      if (!values.tenureMonths || Number(values.tenureMonths) <= 0 || Number(values.tenureMonths) > apiConfig.MAX_TENURE_MONTHS) {
+      var tenureMonths = Number(values.tenureMonths);
+      if (values.tenureMonths === null || values.tenureMonths === '' || !Number.isInteger(tenureMonths) || tenureMonths <= 0 || tenureMonths > apiConfig.MAX_TENURE_MONTHS) {
         errors.tenureMonths = 'Tenure must be between 1 and ' + apiConfig.MAX_TENURE_MONTHS + ' months.';
       }
       if (!values.nextEmiDate) {
@@ -490,7 +491,7 @@ define([
         tenureMonths: Number(self.form.tenureMonths()),
         nextEmiDate: self.form.nextEmiDate()
       });
-      self.confirmCreateOpen(true);
+      document.getElementById('loanConfirmDialog').open();
     };
 
     this.submitCreate = function () {
@@ -498,7 +499,7 @@ define([
         return;
       }
       var payload = self.pendingCreate();
-      self.confirmCreateOpen(false);
+      document.getElementById('loanConfirmDialog').close();
       self.liveMessage('Creating loan');
 
       loanService.create(payload)
@@ -509,7 +510,7 @@ define([
           window.setTimeout(function () { self.toastMessage(''); }, 4000);
         })
         .catch(function (error) {
-          self.createDialogOpen(true);
+          document.getElementById('loanCreateDialog').open();
           self.formErrors({ server: error && error.message ? error.message : 'Unable to create loan.' });
           self.liveMessage(self.formErrors().server);
         });

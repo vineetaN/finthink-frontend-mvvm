@@ -37,7 +37,7 @@ define([], function () {
     },
     loanApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
     loanEndpoint: '/loans',
-    useMockLoanData: true,
+    useMockLoanData: false,
     loanCurrency: 'INR',
     LOAN_TYPES: [
       { value: 'HOME', label: 'Home Loan', icon: 'home' },
