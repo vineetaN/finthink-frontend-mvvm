@@ -200,7 +200,7 @@ define([
 
     this.showingText = ko.pureComputed(function () {
       var rows = self.filteredRows();
-      return 'Showing 1-' + rows.length + ' of ' + self.rows().length + ' loans';
+      return 'Showing ' + (rows.length ? '1-' + rows.length : '0') + ' of ' + self.rows().length + ' loans';
     });
 
     this.summaryCards = [
@@ -303,6 +303,15 @@ define([
         list = list.concat([filterKey]);
       }
       self.activeQuickFilters(list);
+    };
+
+    this.clearFilters = function () {
+      self.search('');
+      self.customerIdFilter(null);
+      self.loanTypeFilter('');
+      self.statusFilter('');
+      self.autopayFilter('');
+      self.activeQuickFilters([]);
     };
 
     this.isQuickFilterActive = function (filterKey) {

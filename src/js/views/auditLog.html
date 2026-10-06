@@ -16,6 +16,12 @@
   </header>
 
   <section class="audit-filter-panel" aria-label="Audit log filters">
+    <div class="audit-filter-heading">
+      <div>
+        <h2>Filter activity</h2>
+        <p>Find an event by its details, action, or module.</p>
+      </div>
+    </div>
     <div class="audit-filter-grid">
       <div class="audit-filter-field audit-filter-search">
         <oj-label for="auditSearch">Search details</oj-label>
@@ -29,30 +35,37 @@
         <oj-label for="auditModule">Module</oj-label>
         <oj-select-single id="auditModule" data="[[moduleOptions]]" value="{{moduleName}}" on-keydown="[[onFilterKeydown]]"></oj-select-single>
       </div>
-      <div class="audit-filter-field">
-        <oj-label for="auditCustomerId">Customer ID</oj-label>
-        <oj-input-text id="auditCustomerId" type="number" min="0" step="1" value="{{actorCustomerId}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
-      </div>
-      <div class="audit-filter-field">
-        <oj-label for="auditFromDate">From</oj-label>
-        <oj-input-date id="auditFromDate" value="{{fromDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
-      </div>
-      <div class="audit-filter-field">
-        <oj-label for="auditToDate">To</oj-label>
-        <oj-input-date id="auditToDate" value="{{toDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
-      </div>
-      <div class="audit-filter-field">
-        <oj-label for="auditIpAddress">IP Address</oj-label>
-        <oj-input-text id="auditIpAddress" value="{{ipAddress}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
-      </div>
     </div>
-    <div class="audit-filter-actions">
-      <oj-button on-oj-action="[[applyFilters]]" chroming="callToAction">Apply</oj-button>
-      <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear all</oj-button>
+    <details class="audit-more-filters">
+      <summary>More filters <span class="audit-more-hint">Customer, date, and IP address</span></summary>
+      <div class="audit-filter-grid audit-filter-grid-extra">
+        <div class="audit-filter-field">
+          <oj-label for="auditCustomerId">Customer ID</oj-label>
+          <oj-input-text id="auditCustomerId" type="number" min="0" step="1" value="{{actorCustomerId}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
+        </div>
+        <div class="audit-filter-field">
+          <oj-label for="auditFromDate">From</oj-label>
+          <oj-input-date id="auditFromDate" value="{{fromDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
+        </div>
+        <div class="audit-filter-field">
+          <oj-label for="auditToDate">To</oj-label>
+          <oj-input-date id="auditToDate" value="{{toDate}}" on-keydown="[[onFilterKeydown]]"></oj-input-date>
+        </div>
+        <div class="audit-filter-field">
+          <oj-label for="auditIpAddress">IP Address</oj-label>
+          <oj-input-text id="auditIpAddress" value="{{ipAddress}}" on-keydown="[[onFilterKeydown]]"></oj-input-text>
+        </div>
+      </div>
+    </details>
+    <div class="audit-filter-footer">
+      <div class="audit-filter-actions">
+        <oj-button on-oj-action="[[applyFilters]]" chroming="callToAction">Apply filters</oj-button>
+        <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear all</oj-button>
+      </div>
+      <p class="audit-validation-message" role="alert" data-bind="visible: filterError">
+        <oj-bind-text value="[[filterError]]"></oj-bind-text>
+      </p>
     </div>
-    <p class="audit-validation-message" role="alert" data-bind="visible: filterError">
-      <oj-bind-text value="[[filterError]]"></oj-bind-text>
-    </p>
     <div class="audit-active-filters" data-bind="visible: activeFilters().length" aria-label="Active filters">
       <oj-bind-for-each data="[[activeFilters]]">
         <template>
@@ -71,6 +84,13 @@
   </div>
 
   <section class="audit-table-section" aria-label="Audit log results">
+    <div class="audit-results-heading">
+      <div>
+        <h2>Activity history</h2>
+        <p>Select a row to see the full event details.</p>
+      </div>
+      <span class="audit-result-summary"><oj-bind-text value="[[showingText]]"></oj-bind-text></span>
+    </div>
     <oj-bind-if test="[[loading()]]">
       <div class="audit-state" role="status"><oj-progress-circle size="sm" value="-1"></oj-progress-circle><span>Loading audit logs...</span></div>
     </oj-bind-if>

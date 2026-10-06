@@ -3,18 +3,23 @@
     <div>
       <p class="admin-eyebrow">ADMINISTRATION</p>
       <h1 id="loanPageTitle">Loan Management</h1>
+      <p class="loan-subtitle">Review loans, track balances, and manage new applications.</p>
     </div>
     <div class="loan-page-actions">
-      <oj-button on-oj-action="[[refresh]]" chroming="outlined">Refresh</oj-button>
-      <oj-button on-oj-action="[[exportCsv]]" chroming="outlined">Export CSV</oj-button>
+      <oj-button on-oj-action="[[refresh]]" chroming="outlined">
+        <span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh
+      </oj-button>
+      <oj-button on-oj-action="[[exportCsv]]" chroming="outlined">
+        <span slot="startIcon" class="oj-ux-ico-download" aria-hidden="true"></span>Export CSV
+      </oj-button>
       <oj-button on-oj-action="[[openCreateDialog]]" chroming="callToAction">Create Loan</oj-button>
     </div>
   </header>
 
   <div class="loan-toolbar">
     <div class="loan-meta">
-      <span class="loan-density-label">Density</span>
-      <oj-select-single value="{{density}}" data="[[densityOptions]]"></oj-select-single>
+      <oj-label for="loanDensity">Row spacing</oj-label>
+      <oj-select-single id="loanDensity" value="{{density}}" data="[[densityOptions]]"></oj-select-single>
     </div>
     <div class="loan-last-updated" role="status" aria-live="polite">
       <span>Last updated</span>
@@ -22,6 +27,13 @@
     </div>
   </div>
 
+  <section class="loan-summary-section" aria-label="Loan overview">
+    <div class="loan-section-heading">
+      <div>
+        <h2>Portfolio overview</h2>
+        <p>Figures reflect the loans currently shown.</p>
+      </div>
+    </div>
   <div class="loan-summary-grid">
     <oj-bind-for-each data="[[summaryCards]]">
       <template>
@@ -34,21 +46,20 @@
       </template>
     </oj-bind-for-each>
   </div>
+  </section>
 
-  <div class="loan-quick-filters" data-bind="foreach: quickFilters">
-    <button type="button" class="quick-filter-chip" data-bind="css: { active: $parent.isQuickFilterActive($data.key) }, click: function () { $parent.handleQuickFilterToggle($data.key); }">
-      <span data-bind="text: $data.label"></span>
-    </button>
-  </div>
-
-  <div class="loan-filter-bar" role="search" aria-label="Loan filters">
-    <div>
-      <oj-label for="loanSearch">Search</oj-label>
-      <oj-input-text id="loanSearch" value="{{search}}" clear-icon="conditional"></oj-input-text>
+  <section class="loan-filter-panel" aria-label="Loan filters">
+    <div class="loan-section-heading">
+      <div>
+        <h2>Filter loans</h2>
+        <p>Results update as you change a filter.</p>
+      </div>
+      <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear all</oj-button>
     </div>
-    <div>
-      <oj-label for="loanCustomerIdFilter">Customer ID</oj-label>
-      <oj-input-number id="loanCustomerIdFilter" value="{{customerIdFilter}}" min="1" max="999999999"></oj-input-number>
+  <div class="loan-filter-bar" role="search" aria-label="Loan filters">
+    <div class="loan-filter-search">
+      <oj-label for="loanSearch">Search account or customer</oj-label>
+      <oj-input-text id="loanSearch" value="{{search}}" clear-icon="conditional"></oj-input-text>
     </div>
     <div>
       <oj-label for="loanTypeFilter">Loan type</oj-label>
@@ -58,15 +69,37 @@
       <oj-label for="loanStatusFilter">Status</oj-label>
       <oj-select-single id="loanStatusFilter" value="{{statusFilter}}" data="[[statusOptions]]"></oj-select-single>
     </div>
-    <div>
-      <oj-label for="loanAutopayFilter">Autopay</oj-label>
-      <oj-select-single id="loanAutopayFilter" value="{{autopayFilter}}" data="[[autopayOptions]]"></oj-select-single>
+  </div>
+  <details class="loan-more-filters">
+    <summary>More filters <span>Customer ID and autopay</span></summary>
+    <div class="loan-filter-bar loan-filter-extra">
+      <div>
+        <oj-label for="loanCustomerIdFilter">Customer ID</oj-label>
+        <oj-input-number id="loanCustomerIdFilter" value="{{customerIdFilter}}" min="1" max="999999999"></oj-input-number>
+      </div>
+      <div>
+        <oj-label for="loanAutopayFilter">Autopay</oj-label>
+        <oj-select-single id="loanAutopayFilter" value="{{autopayFilter}}" data="[[autopayOptions]]"></oj-select-single>
+      </div>
     </div>
+  </details>
+  <div class="loan-quick-filters" aria-label="Quick filters" data-bind="foreach: quickFilters">
+    <button type="button" class="quick-filter-chip" data-bind="css: { active: $parent.isQuickFilterActive($data.key) }, click: function () { $parent.handleQuickFilterToggle($data.key); }, attr: { 'aria-pressed': $parent.isQuickFilterActive($data.key) }">
+      <span data-bind="text: $data.label"></span>
+    </button>
   </div>
+  </section>
 
-  <div class="loan-table-status" role="status" aria-live="polite">
+  <section class="loan-results-panel" aria-label="Loan results">
+    <div class="loan-results-heading">
+      <div>
+        <h2>All loans</h2>
+        <p>Scroll horizontally to see all loan details.</p>
+      </div>
+      <div class="loan-table-status" role="status" aria-live="polite">
     <oj-bind-text value="[[showingText]]"></oj-bind-text>
-  </div>
+      </div>
+    </div>
 
   <oj-bind-if test="[[loading()]]">
     <div class="loan-loader" role="status" aria-live="polite">Loading loan data...</div>
@@ -88,6 +121,7 @@
       <oj-table id="loanTable" aria-label="Loan management table" data="[[tableDataProvider]]" columns='[[tableColumns]]'></oj-table>
     </div>
   </oj-bind-if>
+  </section>
 
   <div class="loan-toast" role="status" aria-live="polite" data-bind="visible: toastMessage, text: toastMessage"></div>
 
