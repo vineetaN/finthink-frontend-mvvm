@@ -18,17 +18,21 @@ define([
       return { allowed: true };
     }
 
-    var claims = sessionService.getClaims();
-    if (!claims) {
+    if (!sessionService.isAuthenticated()) {
       return { allowed: false, redirect: 'login' };
     }
-    if (page.roles.indexOf(claims.role) === -1) {
+    if (page.roles.indexOf(sessionService.role()) === -1) {
       return { allowed: false, redirect: 'unauthorized' };
     }
     return { allowed: true };
   }
 
+  function requireAuthentication() {
+    return sessionService.isAuthenticated();
+  }
+
   return {
-    authorize: authorize
+    authorize: authorize,
+    requireAuthentication: requireAuthentication
   };
 });

@@ -1,0 +1,96 @@
+<div class="dashboard-page investment-page">
+  <section class="dashboard-intro investment-intro">
+    <p class="dashboard-eyebrow">MUTUAL FUNDS</p>
+    <h1>Invest with<br>intention.</h1>
+    <p>Explore funds, compare their details, and choose how to invest.</p>
+  </section>
+
+  <div class="investment-content">
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading funds"></oj-progress-circle>
+      Loading funds and accounts…
+    </div>
+
+    <!-- ko ifnot: created -->
+    <section class="investment-filterbar summary-card" aria-label="Filter mutual funds">
+      <label>Category<select data-bind="options: categories, optionsCaption: 'All categories', value: category"></select></label>
+      <label>Risk level<select data-bind="options: risks, optionsCaption: 'All risk levels', value: riskLevel"></select></label>
+      <oj-button chroming="outlined" on-oj-action="[[applyFilters]]" disabled="[[isLoading]]">Apply filters</oj-button>
+    </section>
+
+    <div class="customer-summary-heading"><p class="dashboard-eyebrow">AVAILABLE FUNDS</p><h2>Choose a fund</h2></div>
+    <div class="investment-card-grid" data-bind="foreach: funds">
+      <article class="summary-card investment-holding-card">
+        <div class="investment-card-top"><span class="investment-pill" data-bind="text: category"></span><span class="investment-status" data-bind="text: riskLevel + ' risk'"></span></div>
+        <h3 data-bind="text: fundName"></h3>
+        <p class="summary-account" data-bind="text: fundHouse"></p>
+        <p class="summary-value" data-bind="text: $parent.nav(currentNav)"></p>
+        <p class="banking-help">Current NAV per unit</p>
+        <div class="investment-meta"><span data-bind="text: 'From ' + $parent.money(minLumpsumAmount)"></span><span data-bind="text: 'SIP from ' + $parent.money(minSipAmount)"></span></div>
+        <oj-button chroming="outlined" on-oj-action="[[$parent.chooseFund.bind($parent, $data)]]">Select fund</oj-button>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && !errorMessage() && funds().length === 0">No funds match these filters.</p>
+
+    <!-- ko if: selectedFund -->
+    <section id="fund-form" class="summary-card banking-form-card investment-form-card reveal-target" aria-labelledby="fund-form-title">
+      <p class="dashboard-eyebrow">INVEST IN THIS FUND</p>
+      <h2 id="fund-form-title" data-bind="text: selectedFund().fundName"></h2>
+      <p class="banking-help" data-bind="text: selectedFund().category + ' · ' + selectedFund().riskLevel + ' risk · Expense ratio ' + selectedFund().expenseRatio + '%' "></p>
+      <p class="banking-help" data-bind="text: 'Exit load: ' + selectedFund().exitLoadPercent + '% for ' + selectedFund().exitLoadPeriodDays + ' days.'"></p>
+      <p class="banking-help" data-bind="visible: selectedFund().category === 'ELSS'">ELSS investments have a three-year lock-in period.</p>
+      <div class="investment-mode-switch" role="group" aria-label="Investment method">
+        <label><input type="radio" name="fundMode" value="LUMP_SUM" data-bind="checked: mode"> One-time purchase</label>
+        <label><input type="radio" name="fundMode" value="SIP" data-bind="checked: mode"> Monthly SIP</label>
+      </div>
+      <div class="investment-form-grid">
+        <label>Debit from<select data-bind="options: accounts, optionsText: 'label', optionsValue: 'accountId', optionsCaption: 'Choose an active account', value: accountId"></select></label>
+        <label><span data-bind="text: isLumpSum() ? 'Investment amount (₹)' : 'Monthly installment (₹)'"></span><input type="text" inputmode="decimal" autocomplete="off" data-bind="value: amount, valueUpdate: 'input'"></label>
+        <!-- ko ifnot: isLumpSum -->
+        <label>Tenure in months (optional)<input type="number" min="1" step="1" data-bind="value: tenureMonths, valueUpdate: 'input'"></label>
+        <!-- /ko -->
+      </div>
+      <p class="banking-help" data-bind="text: isLumpSum() ? 'Preview the estimated units at the current NAV before buying.' : 'The first SIP installment is debited immediately. Later installments are scheduled monthly.'"></p>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review investment</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button></div>
+    </section>
+    <!-- /ko -->
+
+    <!-- ko if: isReviewCurrent -->
+    <section id="fund-review" class="summary-card investment-review reveal-target" aria-labelledby="fund-review-title">
+      <p class="dashboard-eyebrow">REVIEW BEFORE CONFIRMING</p>
+      <h2 id="fund-review-title" data-bind="text: isLumpSum() ? 'One-time purchase preview' : 'Monthly SIP summary'"></h2>
+      <dl class="banking-detail-list">
+        <div><dt>Fund</dt><dd data-bind="text: selectedFund().fundName"></dd></div>
+        <div><dt data-bind="text: isLumpSum() ? 'Amount now' : 'First installment now'"></dt><dd data-bind="text: money(amount())"></dd></div>
+        <!-- ko if: previewResult -->
+        <div><dt>Current NAV</dt><dd data-bind="text: nav(previewResult().currentNav)"></dd></div>
+        <div><dt>Estimated units</dt><dd data-bind="text: decimal(previewResult().unitsAllotted)"></dd></div>
+        <!-- /ko -->
+        <!-- ko ifnot: isLumpSum -->
+        <div><dt>SIP tenure</dt><dd data-bind="text: tenureMonths() ? tenureMonths() + ' months' : 'No fixed tenure' "></dd></div>
+        <!-- /ko -->
+      </dl>
+      <p class="banking-help">NAV and units can change before the purchase completes. Confirming debits the selected account.</p>
+      <oj-button chroming="solid" on-oj-action="[[confirm]]" disabled="[[isBusy]]">Confirm investment</oj-button>
+    </section>
+    <!-- /ko -->
+    <!-- /ko -->
+
+    <!-- ko if: created -->
+    <section id="fund-success" class="summary-card investment-review banking-success-card reveal-target" aria-labelledby="fund-success-title">
+      <p class="dashboard-eyebrow">INVESTMENT COMPLETE</p>
+      <h2 id="fund-success-title" data-bind="text: created().productName"></h2>
+      <p data-bind="text: isLumpSum() ? 'Your purchase is complete.' : 'Your SIP has started and the first installment was debited.'"></p>
+      <dl class="banking-detail-list">
+        <div><dt>Investment ID</dt><dd data-bind="text: created().investmentId"></dd></div>
+        <div><dt>Units allotted</dt><dd data-bind="text: decimal(created().units)"></dd></div>
+        <div><dt>NAV</dt><dd data-bind="text: nav(created().nav)"></dd></div>
+      </dl>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button><oj-button chroming="borderless" on-oj-action="[[startAgain]]">Explore more funds</oj-button></div>
+    </section>
+    <!-- /ko -->
+  </div>
+</div>

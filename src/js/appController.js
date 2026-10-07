@@ -18,19 +18,21 @@ define([
   'ojs/ojurlparamadapter',
   'ojs/ojresponsiveutils',
   'ojs/ojresponsiveknockoututils',
-  'ojs/ojarraydataprovider',
-  'ojs/ojdrawerpopup',
+  'ojs/ojarraytreedataprovider',
+  './utils/navigationService',
+  './utils/sessionService',
+  './utils/authGuard',
+  './config/roleRoutes',
+  // side-effect imports (no parameter)
   'ojs/ojmodule-element',
   'ojs/ojknockout',
+  'ojs/ojdrawerlayout',
+  'ojs/ojdrawerpopup',
   'ojs/ojnavigationlist',
   'ojs/ojavatar',
   'ojs/ojmenu',
   'ojs/ojbutton',
-  'ojs/ojtoolbar',
-  './utils/navigationService',
-  './utils/sessionService',
-  './utils/authGuard',
-  './config/roleRoutes'
+  'ojs/ojtoolbar'
 ], function (
   ko,
   Context,
@@ -41,103 +43,140 @@ define([
   UrlParamAdapter,
   ResponsiveUtils,
   ResponsiveKnockoutUtils,
-  ArrayDataProvider,
-  DrawerPopup,
-  ModuleElement,
-  ojKnockout,
-  ojNavigationList,
-  ojAvatar,
-  ojMenu,
-  ojButton,
-  ojToolbar,
+  ArrayTreeDataProvider,
   navigationService,
   sessionService,
   authGuard,
   roleRoutes
-) {
-  function ControllerViewModel() {
-    this.KnockoutTemplateUtils = KnockoutTemplateUtils;
-    this.manner = ko.observable('polite');
-    this.message = ko.observable();
-    this.accessDeniedMessage = ko.observable('');
+)  {
+     function ControllerViewModel() {
 
-    document.getElementById('globalBody').addEventListener('announce', (event) => {
-      this.message(event.detail.message);
-      this.manner(event.detail.manner);
-    }, false);
-    window.addEventListener('access-denied', (event) => {
-      this.accessDeniedMessage(event.detail.message || 'Access denied');
-    });
+      this.KnockoutTemplateUtils = KnockoutTemplateUtils;
 
-    var smQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.SM_ONLY);
-    this.smScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(smQuery);
-    var mdQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.MD_UP);
-    this.mdScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(mdQuery);
-
-    var routes = [
-      { path: '', redirect: 'login' },
-      { path: 'login', detail: { label: 'Login' } },
-      { path: 'register', detail: { label: 'Register' } },
-      { path: 'unauthorized', detail: { label: 'Unauthorized' } }
-    ].concat(roleRoutes.pages.map(function (page) {
-      return {
-        path: page.path,
-        detail: { label: page.label, iconClass: page.iconClass, roles: page.roles }
+      // Handle announcements sent when pages change, for Accessibility.
+      this.manner = ko.observable('polite');
+      this.message = ko.observable();
+      const announcementHandler = (event) => {
+          this.message(event.detail.message);
+          this.manner(event.detail.manner);
       };
-    }));
 
-    var router = new CoreRouter(routes, { urlAdapter: new UrlParamAdapter() });
-    navigationService.initialize(router);
-    sessionService.setExpiryHandler(function () {
-      navigationService.goTo('login');
-    });
-    router.beforeStateChange.subscribe(function (args) {
-      var decision = authGuard.authorize(args.state);
-      args.accept(decision.allowed);
-      if (!decision.allowed) {
-        window.setTimeout(function () {
-          navigationService.goTo(decision.redirect);
-        }, 0);
-      }
-    });
-    router.sync();
+      document.getElementById('globalBody').addEventListener('announce', announcementHandler, false);
 
-    this.moduleAdapter = new ModuleRouterAdapter(router);
-    this.selection = new KnockoutRouterAdapter(router);
-    this.isAuthenticated = sessionService.authenticated;
-    this.userLogin = sessionService.username;
-    this.userRole = sessionService.role;
-    this.userInitials = ko.pureComputed(function () {
-      return (sessionService.username() || 'U').slice(0, 2).toUpperCase();
-    });
-    this.navDataProvider = ko.pureComputed(function () {
-      var role = sessionService.role();
-      var items = roleRoutes.pages.filter(function (page) {
-        return page.roles.indexOf(role) !== -1;
-      }).map(function (page) {
-        return { path: page.path, detail: { label: page.label, iconClass: page.iconClass } };
+
+      // Media queries for responsive layouts
+      const smQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.SM_ONLY);
+      this.smScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(smQuery);
+      const lgQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.LG_UP);
+      this.lgScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(lgQuery);
+
+      const navData = [
+        { path: '', redirect: 'login' },
+        { path: 'login' },
+        { path: 'register' },
+        { path: 'unauthorized' }
+      ].concat(roleRoutes.pages.map((page) => ({ path: page.path })));
+      // Router setup
+      let router = new CoreRouter(navData, {
+        urlAdapter: new UrlParamAdapter()
       });
-      return new ArrayDataProvider(items, { keyAttributes: 'path' });
-    });
+      navigationService.initialize(router);
+      sessionService.setExpiryHandler(() => navigationService.goTo('login'));
+      router.beforeStateChange.subscribe((args) => {
+        const decision = authGuard.authorize(args.state);
+        args.accept(decision.allowed ? Promise.resolve() : Promise.reject(new Error('Route access denied')));
+        if (!decision.allowed) {
+          window.setTimeout(() => navigationService.goTo(decision.redirect), 0);
+        }
+      });
+      router.sync().catch(() => {});
 
-    this.sideDrawerOn = ko.observable(false);
-    this.mdScreen.subscribe(() => { this.sideDrawerOn(false); });
-    this.toggleDrawer = () => { this.sideDrawerOn(!this.sideDrawerOn()); };
-    this.handleNavClick = () => { this.sideDrawerOn(false); };
-    this.handleLogout = function () {
-      sessionService.clearSession();
-      navigationService.goTo('login');
-    };
-    this.handleUserMenuAction = function (event) {
-      if (event.detail.selectedValue === 'out') {
-        this.handleLogout();
+      this.moduleAdapter = new ModuleRouterAdapter(router);
+
+      this.selection = new KnockoutRouterAdapter(router);
+
+      const navItem = (path) => {
+        const page = roleRoutes.pages.find((entry) => entry.path === path);
+        return { path, detail: { label: page.label, iconClass: page.iconClass } };
+      };
+      const customerNavData = [
+        navItem('dashboard'),
+        navItem('customerSummary'),
+        { path: 'rewardsMenu', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+          children: [navItem('rewards'), navItem('rewardsWallet')] },
+        navItem('beneficiaries'),
+        navItem('fundTransfer'),
+        { path: 'investmentMenu', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+          children: [navItem('investments'), navItem('investmentDeposits'), navItem('mutualFunds')] }
+      ];
+      const adminNavData = roleRoutes.pages.filter((page) => page.roles.includes('ADMIN'))
+        .map((page) => navItem(page.path));
+      this.customerNavDataProvider = new ArrayTreeDataProvider(customerNavData, { keyAttributes: 'path' });
+      this.adminNavDataProvider = new ArrayTreeDataProvider(adminNavData, { keyAttributes: 'path' });
+      this.isAuthenticated = sessionService.authenticated;
+      this.isCustomer = ko.pureComputed(() => sessionService.role() === 'CUSTOMER');
+      this.isAdmin = ko.pureComputed(() => sessionService.role() === 'ADMIN');
+
+      // Drawer
+      this.sideDrawerOn = ko.observable(false);
+      this.adminDrawerOn = ko.observable(false);
+
+      // Close the menu when its display mode changes.
+      this.lgScreen.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
+      sessionService.role.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
+
+      // Open or close the menu from either menu icon.
+      this.toggleDrawer = () => {
+        this.sideDrawerOn(!this.sideDrawerOn());
       }
-    }.bind(this);
-    this.dismissAccessDenied = () => { this.accessDeniedMessage(''); };
-    this.appName = ko.observable('FinThink Bank');
-    this.footerLinks = [];
+      this.toggleAdminDrawer = () => {
+        this.adminDrawerOn(!this.adminDrawerOn());
+      };
+
+      this.handleNavSelection = (event) => {
+        const path = event.detail.value;
+        if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
+          return;
+        }
+        this.sideDrawerOn(false);
+        this.adminDrawerOn(false);
+        navigationService.goTo(path);
+      }
+
+      this.handleLogout = () => {
+        sessionService.clearSession();
+        navigationService.goTo('login');
+      };
+
+      this.handleUserMenuAction = (event) => {
+  // Reset Password is a menu placeholder until its page is connected.
+  if (event.detail.selectedValue !== 'out') {
+    return;
   }
 
-  Context.getPageContext().getBusyContext().applicationBootstrapComplete();
-  return new ControllerViewModel();
-});
+  this.handleLogout();
+};
+
+      // Header
+      // Application Name used in Branding Area
+      this.appName = ko.observable("FinThink Bank");
+      // User Info used in Global Navigation area
+      this.userLogin = sessionService.username;
+      this.userRole = sessionService.role;
+      this.userInitials = ko.pureComputed(() =>
+        (sessionService.username() || 'U').slice(0, 2).toUpperCase());
+      this.accessDeniedMessage = ko.observable('');
+      this.dismissAccessDenied = () => this.accessDeniedMessage('');
+      window.addEventListener('access-denied', (event) => {
+        this.accessDeniedMessage(event.detail.message || 'Access denied');
+      });
+
+      // Footer
+     this.footerLinks = [];
+     }
+     // release the application bootstrap busy state
+     Context.getPageContext().getBusyContext().applicationBootstrapComplete();
+
+     return new ControllerViewModel();
+  }
+);

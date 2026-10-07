@@ -85,10 +85,31 @@ define(['knockout'], function (ko) {
   }
 
   function getClaims() {
+    var token = getToken();
+    if (!token) return null;
+    try {
+      var part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(window.atob(part));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getCustomerId() {
+    var claims = getClaims();
+    var id = claims && Number(claims.customerId);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+  }
+
+  function isAdmin() {
+    var claims = getClaims();
+    return !!claims && String(claims.role).toUpperCase() === 'ADMIN';
+  }
+  
+  function getClaim() {
     var claims = decodeClaims(getToken());
     return claims && claims.exp * 1000 > Date.now() ? claims : null;
   }
-
   function getUsername() {
     return username();
   }
@@ -111,7 +132,9 @@ define(['knockout'], function (ko) {
     role: role,
     saveSession: saveSession,
     getToken: getToken,
-    getClaims: getClaims,
+    getCustomerId: getCustomerId,
+    isAdmin: isAdmin,
+    getClaims: getClaim,
     getUsername: getUsername,
     isAuthenticated: isAuthenticated,
     clearSession: clearSession,

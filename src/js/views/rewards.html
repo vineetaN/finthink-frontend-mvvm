@@ -1,0 +1,69 @@
+<div class="dashboard-page rewards-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">FINTHINK REWARDS</p>
+    <h1>Make more of<br>your points.</h1>
+    <p>Explore rewards available to you today.</p>
+  </section>
+
+  <section class="rewards-content" aria-label="Rewards catalogue">
+    <article class="balance-card rewards-points-card">
+      <p class="balance-label">AVAILABLE POINTS</p>
+      <p class="balance-amount" data-bind="text: availablePoints().toLocaleString('en-IN')"></p>
+      <oj-button class="rewards-points-action" chroming="solid" on-oj-action="[[goToWallet]]">View points wallet</oj-button>
+    </article>
+
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading rewards"></oj-progress-circle>
+      Loading rewards…
+    </div>
+    <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+    <div id="rewards-success" class="customer-summary-state rewards-success reveal-target" data-bind="visible: successMessage" role="status">
+      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    </div>
+
+    <div class="customer-summary-heading">
+      <p class="dashboard-eyebrow">AVAILABLE NOW</p>
+      <h2>Reward catalogue</h2>
+    </div>
+    <div class="rewards-grid" data-bind="foreach: rewards">
+      <article class="summary-card reward-card">
+        <p class="dashboard-eyebrow" data-bind="text: rewardType"></p>
+        <h3 data-bind="text: rewardName"></h3>
+        <p class="summary-account" data-bind="text: pointsRequired + ' points' "></p>
+        <p class="summary-value" data-bind="text: $parent.rewardValue($data)"></p>
+        <p class="reward-validity" data-bind="text: 'Available until ' + endDate"></p>
+        <oj-button chroming="outlined" on-oj-action="[[$parent.chooseReward.bind($parent, $data)]]">View reward</oj-button>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && rewards().length === 0 && !errorMessage()">No rewards are available right now.</p>
+
+    <!-- ko if: selectedReward -->
+    <section id="reward-detail" class="reward-detail summary-card reveal-target" aria-labelledby="reward-detail-title">
+      <p class="dashboard-eyebrow">REWARD DETAILS</p>
+      <h2 id="reward-detail-title" data-bind="text: selectedReward().rewardName"></h2>
+      <p data-bind="text: selectedReward().rewardType + ' · ' + selectedReward().pointsRequired + ' points'"></p>
+      <p data-bind="text: rewardValue(selectedReward())"></p>
+      <p class="reward-validity" data-bind="text: 'Valid ' + selectedReward().startDate + ' to ' + selectedReward().endDate"></p>
+
+      <!-- ko if: isCashback -->
+      <label for="rewardAccount">Credit cashback to</label>
+      <select id="rewardAccount" data-bind="options: accounts, optionsText: 'label', optionsValue: 'accountId', optionsCaption: 'Select an active account', value: selectedAccountId"></select>
+      <p data-bind="visible: accounts().length === 0">No active account is available for cashback.</p>
+      <!-- /ko -->
+
+      <p data-bind="visible: availablePoints() < selectedReward().pointsRequired">You need more points to redeem this reward.</p>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[requestRedeem]]" disabled="[[!canRedeem()]]">Redeem reward</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[closeReward]]">Close</oj-button>
+      </div>
+      <div id="reward-confirm" class="reward-confirm reveal-target" data-bind="visible: confirming">
+        <p data-bind="text: 'Use ' + selectedReward().pointsRequired + ' points to redeem this reward?' "></p>
+        <oj-button chroming="solid" on-oj-action="[[confirmRedeem]]" disabled="[[isBusy]]">Confirm redemption</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[cancelRedeem]]">Cancel</oj-button>
+      </div>
+    </section>
+    <!-- /ko -->
+  </section>
+</div>
