@@ -1,7 +1,7 @@
 <section class="card-management-page" aria-labelledby="cardPageTitle">
   <header class="card-page-heading">
     <div><p class="admin-eyebrow">ADMINISTRATION</p><h1 id="cardPageTitle">Card Management <span class="card-count"><oj-bind-text value="[[cards().length + ' cards']]"></oj-bind-text></span></h1></div>
-    <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh card list"><span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh</oj-button><oj-button on-oj-action="[[create]]" chroming="callToAction">Add Card</oj-button>
+    <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh card list"><span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh</oj-button><oj-button on-oj-action="[[create]]" chroming="callToAction">Release Card</oj-button>
   </header>
   <div class="card-live" role="status" aria-live="polite"><oj-bind-text value="[[liveMessage]]"></oj-bind-text></div>
   <div class="card-row-heading"><span>Cards</span><div class="card-scroll-actions"><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollLeft]]" disabled="[[atStart]]" aria-label="Scroll cards left"><span slot="startIcon" class="oj-ux-ico-chevron-left" aria-hidden="true"></span></oj-button><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollRight]]" disabled="[[atEnd]]" aria-label="Scroll cards right"><span slot="startIcon" class="oj-ux-ico-chevron-right" aria-hidden="true"></span></oj-button></div></div>
