@@ -8,12 +8,34 @@
 /*
  * Your application specific code will go here
  */
-define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraytreedataprovider',
-        'ojs/ojdrawerlayout', 'ojs/ojmodule-element', 'ojs/ojknockout','./utils/navigationService' , './utils/sessionService'],
-  function (
+define([
+  'knockout',
+  'ojs/ojcontext',
+  'ojs/ojknockouttemplateutils',
+  'ojs/ojcorerouter',
+  'ojs/ojmodulerouter-adapter',
+  'ojs/ojknockoutrouteradapter',
+  'ojs/ojurlparamadapter',
+  'ojs/ojresponsiveutils',
+  'ojs/ojresponsiveknockoututils',
+  'ojs/ojarraytreedataprovider',
+  './utils/navigationService',
+  './utils/sessionService',
+  './utils/authGuard',
+  './config/roleRoutes',
+  // side-effect imports (no parameter)
+  'ojs/ojmodule-element',
+  'ojs/ojknockout',
+  'ojs/ojdrawerlayout',
+  'ojs/ojdrawerpopup',
+  'ojs/ojnavigationlist',
+  'ojs/ojavatar',
+  'ojs/ojmenu',
+  'ojs/ojbutton',
+  'ojs/ojtoolbar'
+], function (
   ko,
   Context,
-  moduleUtils,
   KnockoutTemplateUtils,
   CoreRouter,
   ModuleRouterAdapter,
@@ -22,12 +44,11 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   ResponsiveUtils,
   ResponsiveKnockoutUtils,
   ArrayTreeDataProvider,
-  DrawerLayout,
-  ModuleElement,
-  ojKnockout,
   navigationService,
-  sessionService
-) {
+  sessionService,
+  authGuard,
+  roleRoutes
+)  {
      function ControllerViewModel() {
 
       this.KnockoutTemplateUtils = KnockoutTemplateUtils;
@@ -35,7 +56,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
       // Handle announcements sent when pages change, for Accessibility.
       this.manner = ko.observable('polite');
       this.message = ko.observable();
-      announcementHandler = (event) => {
+      const announcementHandler = (event) => {
           this.message(event.detail.message);
           this.manner(event.detail.manner);
       };
@@ -49,101 +70,68 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
       const lgQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.LG_UP);
       this.lgScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(lgQuery);
 
-      // let navData = [
-      //   { path: '', redirect: 'dashboard' },
-      //   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-      //   { path: 'incidents', detail: { label: 'Incidents', iconClass: 'oj-ux-ico-fire' } },
-      //   { path: 'customers', detail: { label: 'Customers', iconClass: 'oj-ux-ico-contact-group' } },
-      //   { path: 'about', detail: { label: 'About', iconClass: 'oj-ux-ico-information-s' } }
-      // ];
-
-
-     let navData = [
-  { path: '', redirect: 'login' },
-  { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
-  { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } },
-  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
-  { path: 'investments', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } },
-  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } }
-];
+      const navData = [
+        { path: '', redirect: 'login' },
+        { path: 'login' },
+        { path: 'register' },
+        { path: 'unauthorized' }
+      ].concat(roleRoutes.pages.map((page) => ({ path: page.path })));
       // Router setup
       let router = new CoreRouter(navData, {
         urlAdapter: new UrlParamAdapter()
       });
-      router.sync();
-
       navigationService.initialize(router);
+      sessionService.setExpiryHandler(() => navigationService.goTo('login'));
+      router.beforeStateChange.subscribe((args) => {
+        const decision = authGuard.authorize(args.state);
+        args.accept(decision.allowed ? Promise.resolve() : Promise.reject(new Error('Route access denied')));
+        if (!decision.allowed) {
+          window.setTimeout(() => navigationService.goTo(decision.redirect), 0);
+        }
+      });
+      router.sync().catch(() => {});
 
       this.moduleAdapter = new ModuleRouterAdapter(router);
 
       this.selection = new KnockoutRouterAdapter(router);
 
-      // Setup the navDataProvider with the routes, excluding the first redirected
-      // route.
-     const publicNavData = [
-  { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } }
-];
-
-const authenticatedNavData = [
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
-  {
-    path: 'rewardsMenu',
-    detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
-    children: [
-      { path: 'rewards', detail: { label: 'Rewards Catalogue', iconClass: 'oj-ux-ico-gift' } },
-      { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } }
-    ]
-  },
-  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
-  {
-    path: 'investmentMenu',
-    detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
-    children: [
-      { path: 'investments', detail: { label: 'View Investments', iconClass: 'oj-ux-ico-bar-chart' } },
-      { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
-      { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } }
-    ]
-  }
-];
-
-const adminNavData = [
-  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } },
-  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } }
-];
-
-this.isAuthenticated = sessionService.authenticated;
-
-this.navDataProvider = ko.pureComputed(() => {
-  const visibleNavData = sessionService.isAuthenticated()
-    ? authenticatedNavData.concat(sessionService.isAdmin() ? adminNavData : [])
-    : publicNavData;
-
-  return new ArrayTreeDataProvider(visibleNavData, {
-    keyAttributes: 'path'
-  });
-});
+      const navItem = (path) => {
+        const page = roleRoutes.pages.find((entry) => entry.path === path);
+        return { path, detail: { label: page.label, iconClass: page.iconClass } };
+      };
+      const customerNavData = [
+        navItem('dashboard'),
+        navItem('customerSummary'),
+        { path: 'rewardsMenu', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+          children: [navItem('rewards'), navItem('rewardsWallet')] },
+        navItem('beneficiaries'),
+        navItem('fundTransfer'),
+        { path: 'investmentMenu', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+          children: [navItem('investments'), navItem('investmentDeposits'), navItem('mutualFunds')] }
+      ];
+      const adminNavData = roleRoutes.pages.filter((page) => page.roles.includes('ADMIN'))
+        .map((page) => navItem(page.path));
+      this.customerNavDataProvider = new ArrayTreeDataProvider(customerNavData, { keyAttributes: 'path' });
+      this.adminNavDataProvider = new ArrayTreeDataProvider(adminNavData, { keyAttributes: 'path' });
+      this.isAuthenticated = sessionService.authenticated;
+      this.isCustomer = ko.pureComputed(() => sessionService.role() === 'CUSTOMER');
+      this.isAdmin = ko.pureComputed(() => sessionService.role() === 'ADMIN');
 
       // Drawer
       this.sideDrawerOn = ko.observable(false);
+      this.adminDrawerOn = ko.observable(false);
 
       // Close the menu when its display mode changes.
-      this.lgScreen.subscribe(() => { this.sideDrawerOn(false) });
+      this.lgScreen.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
+      sessionService.role.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
 
       // Open or close the menu from either menu icon.
       this.toggleDrawer = () => {
         this.sideDrawerOn(!this.sideDrawerOn());
       }
+      this.toggleAdminDrawer = () => {
+        this.adminDrawerOn(!this.adminDrawerOn());
+      };
 
       this.handleNavSelection = (event) => {
         const path = event.detail.value;
@@ -151,17 +139,22 @@ this.navDataProvider = ko.pureComputed(() => {
           return;
         }
         this.sideDrawerOn(false);
+        this.adminDrawerOn(false);
         navigationService.goTo(path);
       }
 
-      this.handleUserMenuAction = function (event) {
+      this.handleLogout = () => {
+        sessionService.clearSession();
+        navigationService.goTo('login');
+      };
+
+      this.handleUserMenuAction = (event) => {
   // Reset Password is a menu placeholder until its page is connected.
   if (event.detail.selectedValue !== 'out') {
     return;
   }
 
-  sessionService.clearSession();
-  navigationService.goTo('login');
+  this.handleLogout();
 };
 
       // Header
@@ -169,6 +162,14 @@ this.navDataProvider = ko.pureComputed(() => {
       this.appName = ko.observable("FinThink Bank");
       // User Info used in Global Navigation area
       this.userLogin = sessionService.username;
+      this.userRole = sessionService.role;
+      this.userInitials = ko.pureComputed(() =>
+        (sessionService.username() || 'U').slice(0, 2).toUpperCase());
+      this.accessDeniedMessage = ko.observable('');
+      this.dismissAccessDenied = () => this.accessDeniedMessage('');
+      window.addEventListener('access-denied', (event) => {
+        this.accessDeniedMessage(event.detail.message || 'Access denied');
+      });
 
       // Footer
      this.footerLinks = [];

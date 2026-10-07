@@ -60,13 +60,13 @@
       </div>
 
       <div class="finthink-drawer-scrim" style="display:none" aria-hidden="true"
-           data-bind="visible: sideDrawerOn() && !lgScreen(), click: toggleDrawer"></div>
+           data-bind="visible: isCustomer() && sideDrawerOn() && !lgScreen(), click: toggleDrawer"></div>
 
       <!-- Reflow the page beside the menu on wide screens. -->
       <oj-drawer-layout id="appDrawerLayout" class="finthink-app-layout"
                         start-opened="{{sideDrawerOn}}"
                         start-display="[[lgScreen() ? 'reflow' : 'overlay']]">
-        <div slot="start" class="finthink-side-panel" role="navigation" aria-label="Banking pages">
+        <div slot="start" class="finthink-side-panel" role="navigation" aria-label="Banking pages" data-bind="visible: isCustomer">
           <div class="finthink-side-panel-heading">
             <oj-button id="drawerCloseButton" chroming="borderless" display="icons"
                        on-oj-action="[[toggleDrawer]]" aria-label="Close menu" title="Close menu">
@@ -75,72 +75,76 @@
             </oj-button>
             <span>Banking menu</span>
           </div>
-          <oj-navigation-list id="navDrawerList" data="[[navDataProvider]]"
+          <oj-navigation-list id="navDrawerList" data="[[customerNavDataProvider]]"
                               drill-mode="collapsible"
                               item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
                               on-oj-selection-action="[[handleNavSelection]]"
                               selection="[[selection.path]]">
           </oj-navigation-list>
         </div>
+      <oj-drawer-popup id="navDrawer" edge="start" opened="{{adminDrawerOn}}"
+                       modality="modal" role="navigation" aria-label="Admin navigation"
+                       class="admin-mobile-drawer" data-bind="visible: isAdmin">
+        <oj-navigation-list id="mobileNavDrawerList" data="[[adminNavDataProvider]]"
+                            item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
+                            on-oj-selection-action="[[handleNavSelection]]" selection="[[selection.path]]"
+                            aria-label="Admin navigation">
+        </oj-navigation-list>
+      </oj-drawer-popup>
       <div id="pageContent" class="oj-web-applayout-page">
-        <!--
-           ** Oracle JET V21.0.0 web application header pattern.
-           ** Please see the demos under Cookbook/Patterns/App Shell: Web
-           ** and the CSS documentation under Support/API Docs/Non-Component Styling
-           ** on the JET website for more information on how to use this pattern.
-        -->
         <header role="banner" class="oj-web-applayout-header">
-          <div class="oj-web-applayout-max-width oj-flex-bar oj-sm-align-items-center">
-            <!-- Drawer toggle button -->
-            <div class="oj-flex-bar-start">
-              <oj-button id="drawerToggleButton" class="oj-button-lg" on-oj-action="[[toggleDrawer]]" chroming="borderless" aria-label="All pages">
+          <div class="admin-topbar">
+              <oj-button id="customerDrawerToggle" class="oj-button-lg" on-oj-action="[[toggleDrawer]]" chroming="borderless" aria-label="Banking pages" data-bind="visible: isCustomer">
                 <span slot="startIcon" class="oj-web-applayout-offcanvas-icon"></span>
                 <span>All pages</span>
               </oj-button>
+            <div class="admin-brand">
+              <span class="brand-mark" aria-hidden="true">F</span>
+              <div><span class="brand-name">FinThink Bank</span><span class="brand-context">Operations</span></div>
             </div>
-            <div class="oj-flex-bar-middle oj-sm-align-items-baseline">
-             
-            <h1 class="oj-sm-only-hide oj-web-applayout-header-title" title="FinThink Bank">
-  <oj-bind-text value="[[appName]]"></oj-bind-text>
-</h1>
-            </div>
-            <div class="oj-flex-bar-end">
-              <!-- Responsive Toolbar -->
-              <oj-toolbar data-bind="visible: isAuthenticated">
-                <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
-                  <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
-                  <span slot="endIcon" :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>
-                  <oj-menu
-  id="menu1"
-  slot="menu"
-  on-oj-menu-action="[[handleUserMenuAction]]">
-  <oj-option id="resetPassword" value="resetPassword">Reset Password</oj-option>
-  <oj-option id="out" value="out">Sign Out</oj-option>
-</oj-menu>
-                </oj-menu-button>
-              </oj-toolbar>
+            <oj-button id="adminDrawerToggle" class="mobile-nav-toggle oj-md-hide" on-oj-action="[[toggleAdminDrawer]]" chroming="borderless" display="icons" aria-label="Open admin navigation" data-bind="visible: isAdmin">
+              <span slot="startIcon" class="oj-web-applayout-offcanvas-icon"></span>
+            </oj-button>
+            <div class="admin-userbar" data-bind="visible: isAuthenticated">
+              <oj-avatar class="admin-avatar" initials="[[userInitials]]" size="xs" aria-label="Administrator avatar"></oj-avatar>
+              <div class="admin-identity">
+                <span class="admin-user-name"><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
+                <span class="admin-role-badge"><oj-bind-text value="[[userRole]]"></oj-bind-text></span>
+              </div>
+              <oj-menu-button id="userMenu" display="all" chroming="borderless" aria-label="Account menu">
+                Account
+                <oj-menu id="userMenuOptions" slot="menu" on-oj-menu-action="[[handleUserMenuAction]]">
+                  <oj-option id="resetPassword" value="resetPassword">Reset Password</oj-option>
+  <oj-option id="out" value="out">Sign out</oj-option>
+                </oj-menu>
+              </oj-menu-button>
+              <oj-button id="logoutButton" on-oj-action="[[handleLogout]]" chroming="outlined" aria-label="Sign out">Sign out</oj-button>
             </div>
           </div>
         </header>
-        <oj-module role="main" class="oj-web-applayout-max-width oj-web-applayout-content" config="[[moduleAdapter.koObservableConfig]]">
-        </oj-module>
-        <footer class="oj-web-applayout-footer" role="contentinfo">
-          <div class="oj-web-applayout-footer-item oj-web-applayout-max-width">
-            <ul>
-              <oj-bind-for-each data="[[footerLinks]]">
-                <template>
-                  <li>
-                    <a :id="[[$current.data.linkId]]" :href="[[$current.data.linkTarget]]">
-                      <oj-bind-text value="[[$current.data.name]]"></oj-bind-text>
-                    </a>
-                  </li>
-                </template>
-              </oj-bind-for-each>
-            </ul>
-          </div>
-          <div class="oj-web-applayout-footer-item oj-web-applayout-max-width oj-text-color-secondary oj-typography-body-sm">
-          © 2026 FinThink Bank. All rights reserved.
-          </div>
+
+        <div class="admin-workspace" data-bind="css: { 'admin-workspace-public': !isAdmin() }">
+          <aside class="admin-sidebar" data-bind="visible: isAdmin" aria-label="Primary navigation">
+            <p class="sidebar-label">WORKSPACE</p>
+            <oj-navigation-list id="adminNavigation" data="[[adminNavDataProvider]]"
+              item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
+              on-oj-selection-action="[[handleNavSelection]]"
+              selection="[[selection.path]]" aria-label="Admin navigation">
+            </oj-navigation-list>
+          </aside>
+          <main class="admin-main">
+            <div class="access-denied-banner" role="alert" data-bind="visible: accessDeniedMessage">
+              <span><oj-bind-text value="[[accessDeniedMessage]]"></oj-bind-text></span>
+              <oj-button chroming="borderless" display="icons" on-oj-action="[[dismissAccessDenied]]" aria-label="Dismiss access denied message">
+                <span slot="startIcon" class="oj-ux-ico-close" aria-hidden="true"></span>
+              </oj-button>
+            </div>
+            <oj-module role="main" class="oj-web-applayout-content" config="[[moduleAdapter.koObservableConfig]]">
+            </oj-module>
+          </main>
+        </div>
+        <footer class="admin-footer" role="contentinfo">
+          <span>FinThink Bank</span><span>© 2026</span>
         </footer>
       </div>
       </oj-drawer-layout>

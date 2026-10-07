@@ -1,0 +1,25 @@
+<oj-dialog id="investmentUpdateDialog" dialog-title="Update interest rate" modality="modal" on-oj-close="[[closed]]">
+  <div slot="body" class="investment-dialog-body">
+    <dl class="investment-dialog-context">
+      <div><dt>Product</dt><dd data-bind="text: product() && product().investmentName"></dd></div>
+      <div><dt>Product ID</dt><dd data-bind="text: product() && product().productId"></dd></div>
+      <div><dt>Current rate</dt><dd data-bind="text: product() && currentRateText()"></dd></div>
+    </dl>
+    <oj-label for="investmentRateInput">New interest rate (%)</oj-label>
+    <oj-input-number id="investmentRateInput" value="{{rateInput}}" on-raw-value-changed="[[rateInputChanged]]" min="0.01" max="[[maxRate]]" step="0.01" aria-required="true" virtual-keyboard="number"></oj-input-number>
+    <p class="investment-field-error" role="alert" data-bind="visible: showRateError, text: rateError"></p>
+    <p class="investment-field-error" role="alert" data-bind="visible: fieldError, text: fieldError"></p>
+    <div class="investment-dialog-error" role="alert" aria-live="assertive" data-bind="visible: requestError">
+      <p data-bind="text: requestError"></p>
+      <oj-button on-oj-action="[[reloadList]]" chroming="outlined" disabled="[[checking || saving]]" data-bind="visible: requiresReload">Reload list</oj-button>
+    </div>
+    <p class="investment-confirm-line" aria-live="polite" data-bind="visible: canSubmit, text: confirmationText"></p>
+  </div>
+  <div slot="footer" class="investment-dialog-actions">
+    <oj-button on-oj-action="[[cancel]]" chroming="borderless" disabled="[[saving]]">Cancel</oj-button>
+    <oj-button id="investmentConfirmButton" on-oj-action="[[confirm]]" chroming="callToAction" disabled="[[!canSubmit() || saving()]]" aria-label="Confirm update">
+      <oj-progress-circle slot="startIcon" size="sm" value="-1" aria-label="Updating interest rate" data-bind="visible: saving"></oj-progress-circle>
+      <span data-bind="text: saving() ? 'Updating...' : 'Confirm update'"></span>
+    </oj-button>
+  </div>
+</oj-dialog>

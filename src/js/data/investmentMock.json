@@ -1,0 +1,5 @@
+[
+  { "productId": 1, "investmentName": "FD", "interestRate": 6.5, "active": "Y", "prematurePenaltyRate": 0.5 },
+  { "productId": 2, "investmentName": "RD", "interestRate": 6, "active": "Y", "prematurePenaltyRate": 0.5 },
+  { "productId": 3, "investmentName": "Bond", "interestRate": 7.25, "active": "N", "prematurePenaltyRate": 1.00 }
+]

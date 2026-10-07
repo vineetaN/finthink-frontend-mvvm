@@ -1,0 +1,17 @@
+<article class="bank-card-item" data-bind="css: cardClass">
+  <div class="bank-card-face">
+    <div class="bank-card-top"><span data-bind="text: card.cardType"></span><span class="bank-card-badge" data-bind="text: card.cardStatus, css: statusClass"></span></div>
+    <span class="bank-card-number" data-bind="text: card.cardNumberMasked"></span>
+    <div class="bank-card-bottom"><span>VALID THRU<strong data-bind="text: expiryText"></strong><span class="bank-card-expired" data-bind="visible: expired">Expired</span></span><span>International<strong data-bind="text: card.internationalEnabled ? 'On' : 'Off'"></strong></span></div>
+    <span class="bank-card-ribbon" data-bind="visible: card.cardStatus === 'FROZEN'">Frozen</span><span class="bank-card-ribbon" data-bind="visible: card.cardStatus === 'BLOCKED'">Blocked</span>
+  </div>
+  <div class="bank-card-details"><div><span>Customer ID</span><strong data-bind="text: card.customerId"></strong></div><div><span>Account ID</span><strong data-bind="text: card.accountId"></strong></div><div class="bank-card-limit"><span>Daily limit</span><strong data-bind="text: limitText"></strong></div></div>
+  <div class="bank-card-actions" aria-live="polite">
+    <oj-progress-circle size="sm" value="-1" data-bind="visible: busy()" :aria-label="[['Updating card ending ' + lastFour]]"></oj-progress-circle>
+    <oj-bind-if test="[[knownStatus && card.cardStatus !== 'BLOCKED']]">
+      <oj-button chroming="outlined" on-oj-action="[[freeze]]" disabled="[[busy]]" :aria-label="[[(card.cardStatus === 'ACTIVE' ? 'Freeze' : 'Unfreeze') + ' card ending ' + lastFour]]"><oj-bind-text value="[[card.cardStatus === 'ACTIVE' ? 'Freeze' : 'Unfreeze']]"></oj-bind-text></oj-button>
+      <oj-button chroming="solid" data-bind="css: { 'card-danger-button': true }" on-oj-action="[[block]]" disabled="[[busy]]" :aria-label="[['Block card ending ' + lastFour]]">Block</oj-button>
+    </oj-bind-if>
+    <oj-bind-if test="[[card.cardStatus === 'BLOCKED']]"><span class="bank-card-blocked-note">This card is blocked</span></oj-bind-if>
+  </div>
+</article>
