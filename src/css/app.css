@@ -2463,6 +2463,7 @@ html[dir="rtl"] .demo-oracle-icon {
 }
 
 .biller-add-modal {
+  position: relative;
   width: min(100%, 720px);
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
