@@ -10,6 +10,7 @@ define([], function () {
     rewardCurrency: 'INR',
     rewardStatusField: 'status',
     cardApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    cardIssueEndpoint: '/banking-service/admin/cards/customers/{customerId}',
     cardActionPaths: { freeze: '/cards/{cardId}/freeze', unfreeze: '/cards/{cardId}/unfreeze', block: '/cards/{cardId}/block' },
     cardStatuses: { ACTIVE: 'ACTIVE', FROZEN: 'FROZEN', BLOCKED: 'BLOCKED' },
     cardCurrency: 'INR',

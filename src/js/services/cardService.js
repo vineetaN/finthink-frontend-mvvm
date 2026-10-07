@@ -15,6 +15,18 @@ define(['../config/apiConfig', 'text!../data/cardMock.json', './apiClient'], fun
       return rows.map(mapCardResponse);
     });
   }
+  function create(customerId, form) {
+    var payload = {
+      accountId: Number(form.accountId),
+      cardNumber: String(form.cardNumber),
+      cardType: String(form.cardType).toUpperCase(),
+      expiryDate: String(form.expiryDate).slice(0, 10),
+      dailyLimit: Number(form.dailyLimit),
+      internationalEnabled: form.internationalEnabled === true
+    };
+    var endpoint = config.cardIssueEndpoint.replace('{customerId}', encodeURIComponent(customerId));
+    return apiClient.post(endpoint, payload);
+  }
   function action(actionName, cardId) {
     var pathTemplate = config.cardActionPaths[actionName];
     if (!pathTemplate) return Promise.reject(new Error('Unsupported card action.'));
@@ -24,6 +36,6 @@ define(['../config/apiConfig', 'text!../data/cardMock.json', './apiClient'], fun
     card.cardStatus = actionName === 'freeze' ? config.cardStatuses.FROZEN : actionName === 'unfreeze' ? config.cardStatuses.ACTIVE : config.cardStatuses.BLOCKED;
     return Promise.resolve({});
   }
-  return { list: list, freeze: function (id) { return action('freeze', id); },
+  return { list: list, create: create, freeze: function (id) { return action('freeze', id); },
     unfreeze: function (id) { return action('unfreeze', id); }, block: function (id) { return action('block', id); }, mapCardResponse: mapCardResponse };
 });

@@ -1,7 +1,7 @@
 <section class="card-management-page" aria-labelledby="cardPageTitle">
   <header class="card-page-heading">
     <div><p class="admin-eyebrow">ADMINISTRATION</p><h1 id="cardPageTitle">Card Management <span class="card-count"><oj-bind-text value="[[cards().length + ' cards']]"></oj-bind-text></span></h1></div>
-    <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh card list"><span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh</oj-button>
+    <oj-button on-oj-action="[[refresh]]" chroming="outlined" aria-label="Refresh card list"><span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh</oj-button><oj-button on-oj-action="[[create]]" chroming="callToAction">Add Card</oj-button>
   </header>
   <div class="card-live" role="status" aria-live="polite"><oj-bind-text value="[[liveMessage]]"></oj-bind-text></div>
   <div class="card-row-heading"><span>Cards</span><div class="card-scroll-actions"><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollLeft]]" disabled="[[atStart]]" aria-label="Scroll cards left"><span slot="startIcon" class="oj-ux-ico-chevron-left" aria-hidden="true"></span></oj-button><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollRight]]" disabled="[[atEnd]]" aria-label="Scroll cards right"><span slot="startIcon" class="oj-ux-ico-chevron-right" aria-hidden="true"></span></oj-button></div></div>
@@ -11,6 +11,7 @@
   <div id="bankCardRow" class="bank-card-row" tabindex="0" role="region" aria-label="Cards, horizontally scrollable; use left and right arrow keys" on-scroll="[[updateScroll]]" on-keydown="[[rowKeydown]]" data-bind="visible: !loading() && !error() && cards().length > 0">
     <oj-bind-for-each data="[[cards]]"><template><div data-bind="component: { name: 'bank-card', params: { card: $current.data, busy: busyFor($current.data.cardId), currency: currency, onAction: askAction } }"></div></template></oj-bind-for-each>
   </div>
+  <card-create-form params="model: form"></card-create-form>
   <oj-dialog id="cardConfirmDialog" dialog-title="Confirm card action" modality="modal" on-oj-open="[[dialogOpened]]" on-oj-close="[[confirmClosed]]">
     <div slot="body"><p><oj-bind-text value="[[confirmMessage]]"></oj-bind-text></p><oj-bind-if test="[[confirmAction() === 'block']]"><label class="card-block-confirm"><input type="checkbox" data-bind="checked: blockAcknowledged, disable: submitting"> I understand this cannot be undone</label></oj-bind-if></div>
     <div slot="footer" class="card-dialog-actions"><oj-button on-oj-action="[[closeConfirm]]" chroming="borderless" disabled="[[submitting]]" :aria-label="[['Cancel action for card ending ' + (confirmCard() ? confirmCard().cardNumberMasked.slice(-4) : '')]]">Cancel</oj-button><oj-button id="cardConfirmButton" data-bind="css: { 'card-danger-button': confirmAction() === 'block' }" on-oj-action="[[applyAction]]" chroming="solid" disabled="[[!canConfirm()]]" :aria-label="[['Confirm ' + confirmAction() + ' for card ending ' + (confirmCard() ? confirmCard().cardNumberMasked.slice(-4) : '')]]">Confirm</oj-button></div>

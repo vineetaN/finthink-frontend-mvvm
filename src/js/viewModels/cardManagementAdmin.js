@@ -1,7 +1,10 @@
-define(['knockout', 'text!../components/bankCard.html', '../components/bankCard', '../services/cardService', '../config/apiConfig', '../utils/toastHelper', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojprogress-circle'],
-  function (ko, cardTemplate, BankCard, service, config, toastHelper) {
+define(['knockout', 'text!../components/bankCard.html', 'text!../components/cardCreateForm.html', '../components/bankCard', '../components/cardCreateForm', '../services/cardService', '../config/apiConfig', '../utils/toastHelper', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojprogress-circle', 'ojs/ojinputtext', 'ojs/ojinputnumber', 'ojs/ojselectsingle', 'ojs/ojdatetimepicker', 'ojs/ojlabel'],
+  function (ko, cardTemplate, formTemplate, BankCard, CardCreateForm, service, config, toastHelper) {
     'use strict';
     if (!ko.components.isRegistered('bank-card')) ko.components.register('bank-card', { viewModel: BankCard, template: cardTemplate });
+    if (!ko.components.isRegistered('card-create-form')) ko.components.register('card-create-form', {
+      viewModel: function (params) { return params.model; }, template: formTemplate
+    });
     function CardManagementViewModel() {
       var self = this;
       this.cards = ko.observableArray([]); this.loading = ko.observable(true); this.error = ko.observable('');
@@ -10,6 +13,9 @@ define(['knockout', 'text!../components/bankCard.html', '../components/bankCard'
       this.confirmCard = ko.observable(null); this.confirmAction = ko.observable('');
       this.blockAcknowledged = ko.observable(false); this.submitting = ko.observable(false); this.confirmTrigger = null;
       this.toastHelper = toastHelper.create(this.toast, this.liveMessage);
+      this.form = new CardCreateForm({
+        onSaved: function () { self.notify('Card released'); self.refresh(); }
+      });
       this.canConfirm = ko.pureComputed(function () { return !self.submitting() && (self.confirmAction() !== 'block' || self.blockAcknowledged()); });
       this.confirmMessage = ko.pureComputed(function () {
         var card = self.confirmCard(), action = self.confirmAction();
@@ -27,6 +33,7 @@ define(['knockout', 'text!../components/bankCard.html', '../components/bankCard'
       };
       this.scrollCards = function (direction) { var row = document.getElementById('bankCardRow'); if (row) row.scrollBy({ left: direction * 340, behavior: 'smooth' }); };
       this.scrollLeft = function () { self.scrollCards(-1); }; this.scrollRight = function () { self.scrollCards(1); };
+      this.create = function (event) { self.form.open(event.currentTarget); };
       this.rowKeydown = function (event) { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); self.scrollCards(event.key === 'ArrowLeft' ? -1 : 1); } };
       this.refresh = function () {
         self.loading(true); self.error(''); self.liveMessage('Loading cards');
