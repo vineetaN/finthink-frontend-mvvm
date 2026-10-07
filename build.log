@@ -1,0 +1,35 @@
+
+> frontend_mvm@1.0.0 build
+> ojet build web
+
+Cleaning staging path.
+Running before_build hook.
+Copy files to staging directory.
+Copy finished.
+Copy library files to staging directory.
+Copy finished.
+Copy reference components to staging directory.
+Copy finished.
+Copy local web components
+Copy local web components skipped
+Optimizing svg into SVG sprites.
+Svg optimization task finished.
+Running before_injection hook.
+Running typescript injection tasks.
+Task typescript injection finished.
+Compiling sass...
+Warning: Sass compile skipped: sass (or node-sass) is not installed. To install it, run ojet add sass.
+Running theme injection task.
+Task index.html theme path injection finished.
+Running font injection task.
+Task index.html font path injection finished.
+Running theme copy task.
+(node:22172) [DEP0187] DeprecationWarning: Passing invalid argument types to fs.existsSync is deprecated
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Theme copy task finished.
+Task index.html script injection finished
+Running injection tasks.
+Task main.js paths injection finished.
+runAllComponentHooks 
+Running after_build hook.
+Success: Build finished.

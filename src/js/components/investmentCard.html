@@ -1,0 +1,14 @@
+<article class="investment-card" data-bind="css: { 'investment-card-inactive': !investment.active }, attr: { 'data-product-id': investment.productId }">
+  <header class="investment-card-heading">
+    <p class="investment-card-eyebrow">INVESTMENT PRODUCT</p>
+    <h2 data-bind="text: investment.investmentName, attr: { title: investment.investmentName }"></h2>
+  </header>
+  <p class="investment-rate"><span data-bind="text: interestText"></span><span class="investment-rate-unit"> p.a.</span></p>
+  <p class="investment-penalty" data-bind="text: penaltyText"></p>
+  <div class="investment-card-footer">
+    <span class="investment-status" data-bind="css: { 'investment-status-active': investment.active }, text: investment.active ? 'Active' : 'Inactive'"></span>
+    <oj-button chroming="outlined" on-oj-action="[[edit]]" aria-label="Update interest rate">
+      <span slot="startIcon" class="oj-ux-ico-edit" aria-hidden="true"></span>Update interest
+    </oj-button>
+  </div>
+</article>

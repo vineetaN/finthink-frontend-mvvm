@@ -1,0 +1,19 @@
+<article class="reward-card" data-bind="css: { 'reward-card-inactive': !active }">
+  <div class="reward-card-top">
+    <h2 class="reward-card-title" data-bind="text: reward.rewardName, attr: { title: reward.rewardName }"></h2>
+    <span data-bind="text: reward.rewardType, css: typeClass"></span>
+  </div>
+  <div class="reward-card-metrics">
+    <div><span class="reward-card-label">Points required</span><strong data-bind="text: pointsText"></strong></div>
+    <div><span class="reward-card-label">Reward value</span><strong data-bind="text: valueText"></strong></div>
+  </div>
+  <p class="reward-card-validity"><span class="reward-card-label">Valid</span><span data-bind="text: startText + ' – ' + endText"></span><span class="reward-expired" data-bind="visible: expired">Expired</span></p>
+  <div class="reward-card-footer">
+    <span class="reward-status" data-bind="text: reward.status, css: { 'reward-status-active': active }"></span>
+    <div class="reward-card-buttons">
+      <oj-progress-circle size="sm" value="-1" aria-label="Updating reward" data-bind="visible: busy()"></oj-progress-circle>
+      <oj-button chroming="borderless" on-oj-action="[[edit]]" disabled="[[busy]]" :aria-label="[['Edit ' + reward.rewardName]]"><span slot="startIcon" class="oj-ux-ico-edit" aria-hidden="true"></span>Edit</oj-button>
+      <oj-button chroming="outlined" on-oj-action="[[toggle]]" disabled="[[busy]]" :aria-label="[[(active ? 'Deactivate ' : 'Activate ') + reward.rewardName]]"><oj-bind-text value="[[active ? 'Deactivate' : 'Activate']]"></oj-bind-text></oj-button>
+    </div>
+  </div>
+</article>

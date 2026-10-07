@@ -44,6 +44,139 @@ self.isSavingSettings = ko.observable(false);
 self.settingsError = ko.observable('');
 self.settingsSuccess = ko.observable('');
 
+self.revealDialogOpen = ko.observable(false);
+self.revealCard = ko.observable(null);
+self.revealStep = ko.observable('confirm');
+self.revealChallengeId = ko.observable('');
+self.revealOtp = ko.observable('');
+self.revealedCardNumber = ko.observable('');
+self.revealError = ko.observable('');
+self.isRequestingReveal = ko.observable(false);
+self.isVerifyingReveal = ko.observable(false);
+self.canVerifyRevealOtp = ko.pureComputed(function () {
+  return /^\d{6}$/.test(self.revealOtp().trim()) &&
+    !self.isVerifyingReveal() && !!self.revealChallengeId();
+});
+
+let revealHideTimerId = null;
+let revealRequestSequence = 0;
+
+function clearRevealHideTimer() {
+  if (revealHideTimerId !== null) {
+    window.clearTimeout(revealHideTimerId);
+    revealHideTimerId = null;
+  }
+}
+
+self.closeCardNumberReveal = function () {
+  revealRequestSequence += 1;
+  clearRevealHideTimer();
+  self.revealDialogOpen(false);
+  self.revealedCardNumber('');
+  self.revealOtp('');
+  self.revealChallengeId('');
+  self.revealCard(null);
+  self.revealError('');
+  self.isRequestingReveal(false);
+  self.isVerifyingReveal(false);
+};
+
+self.openCardNumberReveal = function (card) {
+  if (!card || !card.cardId) {
+    return;
+  }
+
+  self.closeCardNumberReveal();
+  self.revealCard(card);
+  self.revealStep('confirm');
+  self.revealDialogOpen(true);
+};
+
+self.sendCardNumberRevealOtp = function () {
+  const card = self.revealCard();
+  if (!card || !self.revealDialogOpen() || self.revealStep() !== 'confirm' ||
+      self.isRequestingReveal()) {
+    return;
+  }
+
+  const requestSequence = revealRequestSequence;
+  self.revealStep('requesting');
+  self.isRequestingReveal(true);
+
+  return cardService.requestCardNumberReveal(card.cardId)
+    .then(function (response) {
+      if (requestSequence !== revealRequestSequence) {
+        return;
+      }
+      if (!response || !response.challengeId) {
+        throw new Error('We could not start card verification. Please try again.');
+      }
+      self.revealChallengeId(response.challengeId);
+      self.revealStep('otp');
+    })
+    .catch(function (error) {
+      if (requestSequence !== revealRequestSequence) {
+        return;
+      }
+      self.revealStep('error');
+      self.revealError(error.status === 409
+        ? 'This card does not have an encrypted number available to show.'
+        : error.status === 429
+          ? 'Please wait before requesting another verification code.'
+          : (error.message || 'We could not send a verification code.'));
+    })
+    .finally(function () {
+      if (requestSequence === revealRequestSequence) {
+        self.isRequestingReveal(false);
+      }
+    });
+};
+
+self.verifyCardNumberReveal = function () {
+  const card = self.revealCard();
+  const otp = self.revealOtp().trim();
+  const challengeId = self.revealChallengeId();
+
+  if (!card || !self.canVerifyRevealOtp()) {
+    return;
+  }
+
+  const requestSequence = revealRequestSequence;
+  self.isVerifyingReveal(true);
+  self.revealError('');
+
+  return cardService.revealCardNumber(card.cardId, challengeId, otp)
+    .then(function (response) {
+      if (requestSequence !== revealRequestSequence) {
+        return;
+      }
+      if (!response || !response.cardNumber) {
+        throw new Error('The card number was not returned. Please try again.');
+      }
+      self.revealOtp('');
+      self.revealChallengeId('');
+      self.revealedCardNumber(response.cardNumber);
+      self.revealStep('visible');
+      clearRevealHideTimer();
+      revealHideTimerId = window.setTimeout(function () {
+        self.closeCardNumberReveal();
+      }, 30000);
+    })
+    .catch(function (error) {
+      if (requestSequence !== revealRequestSequence) {
+        return;
+      }
+      self.revealError(error.status === 400
+        ? 'Invalid or expired code. Please close and request a new code if needed.'
+        : (error.message || 'We could not verify the code.'));
+    })
+    .finally(function () {
+      if (requestSequence === revealRequestSequence) {
+        self.isVerifyingReveal(false);
+      }
+    });
+};
+
 let paymentOtpTimerId = null;
 
 self.paymentOtpResendSeconds = ko.observable(0);
@@ -324,6 +457,7 @@ self.openCardDetails = function (card) {
 };
 
 self.closeCardDetails = function () {
+  self.closeCardNumberReveal();
   self.selectedCard(null);
   self.detailError('');
   self.cardPayments([]);
@@ -526,6 +660,11 @@ self.closeCardSettings = function () {
       }
 
       self.loadCards();
+    };
+
+    self.disconnected = function () {
+      self.closeCardNumberReveal();
+      self.clearPaymentOtpCountdown();
     };
   }
 

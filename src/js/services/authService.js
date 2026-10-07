@@ -6,6 +6,14 @@ define(['./apiClient'], function (apiClient) {
   };
 
   return {
+    sendRegistrationOtp: function (email) {
+      return apiClient.post(
+        '/identification-service/auth/registrationOtp',
+        { email: email },
+        AUTH_OPTIONS
+      );
+    },
+
     register: function (payload) {
       return apiClient.post(
         '/identification-service/auth/userRegistration',

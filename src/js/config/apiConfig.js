@@ -2,6 +2,62 @@ define([], function () {
   'use strict';
 
   return {
-    apiGatewayBaseUrl: 'http://localhost:8080'
+    useMockDashboardData: true,
+   apiGatewayBaseUrl: 'http://localhost:8080',
+    rewardEndpoint: '/audit-admin-service/admin/rewards',
+    useMockRewardData: false,
+    rewardTypes: ['CASHBACK', 'VOUCHER', 'OFFER'],
+    rewardCurrency: 'INR',
+    rewardStatusField: 'status',
+    cardApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    cardIssueEndpoint: '/banking-service/admin/cards/customers/{customerId}',
+    cardActionPaths: { freeze: '/cards/{cardId}/freeze', unfreeze: '/cards/{cardId}/unfreeze', block: '/cards/{cardId}/block' },
+    cardStatuses: { ACTIVE: 'ACTIVE', FROZEN: 'FROZEN', BLOCKED: 'BLOCKED' },
+    cardCurrency: 'INR',
+    useMockCardData: false,
+    investmentBaseUrl: 'http://localhost:8080/investment-service/api/investments/admin',
+    useMockInvestmentData: false,
+    MAX_INTEREST_RATE: 100,
+    auditLogEndpoint: '/audit-admin-service/admin/audit-logs',
+    useMockAuditLogData: false,
+    CLIENT_SIDE_FILTERING: true,
+    auditLogPageSizes: [10, 20, 50],
+    auditLogActions: ['LOGIN', 'TRANSFER', 'BILL_PAYMENT', 'PAYMENT_OTP_SENT', 'PAYMENT_SUCCESS'],
+    auditLogModules: ['AUTHENTICATION', 'FUND_TRANSFER', 'BILL_PAYMENT', 'PAYMENT'],
+    auditLogParameterNames: {
+      page: 'page',
+      size: 'size',
+      sort: 'sort',
+      action: 'action',
+      module: 'moduleName',
+      customerId: 'actorCustomerId',
+      ipAddress: 'ipAddress',
+      fromDate: 'fromDate',
+      toDate: 'toDate',
+      search: 'search'
+    },
+    loanApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    loanEndpoint: '/loans',
+    useMockLoanData: false,
+    loanCurrency: 'INR',
+    LOAN_TYPES: [
+      { value: 'HOME', label: 'Home Loan', icon: 'home' },
+      { value: 'PERSONAL', label: 'Personal Loan', icon: 'person' },
+      { value: 'CAR', label: 'Car Loan', icon: 'car' },
+      { value: 'TWO_WHEELER', label: 'Two-Wheeler Loan', icon: 'bike' },
+      { value: 'EDUCATION', label: 'Education Loan', icon: 'school' },
+      { value: 'BUSINESS', label: 'Business Loan', icon: 'business' },
+      { value: 'GOLD', label: 'Gold Loan', icon: 'diamond' },
+      { value: 'LOAN_AGAINST_PROPERTY', label: 'Loan Against Property', icon: 'property' },
+      { value: 'AGRICULTURE', label: 'Agriculture Loan', icon: 'leaf' },
+      { value: 'CONSUMER_DURABLE', label: 'Consumer Durable Loan', icon: 'cart' }
+    ],
+    NORMALIZE_LOAN_TYPE: true,
+    MAX_LOAN_TYPE_LENGTH: 50,
+    MAX_INTEREST_RATE: 100,
+    MAX_TENURE_MONTHS: 480,
+    DUE_SOON_DAYS: 7,
+    HIGH_VALUE_THRESHOLD: 2500000,
+    AUTO_REFRESH_SECONDS: 60
   };
 });

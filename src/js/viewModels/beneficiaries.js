@@ -8,6 +8,7 @@ define([
     var self = this;
     self.beneficiaries = ko.observableArray([]);
     self.selected = ko.observable(null);
+    self.showAddForm = ko.observable(false);
     self.pendingRemoveId = ko.observable(null);
     self.beneficiaryName = ko.observable('');
     self.accountNumber = ko.observable('');
@@ -27,6 +28,19 @@ define([
       self.accountNumber('');
       self.ifscCode('');
       self.bankName('');
+    };
+
+    self.openAddForm = function () {
+      self.errorMessage('');
+      self.successMessage('');
+      self.showAddForm(true);
+    };
+
+    self.closeAddForm = function () {
+      if (self.isBusy()) return;
+      self.showAddForm(false);
+      self.clearForm();
+      self.errorMessage('');
     };
 
     self.load = function () {
@@ -66,6 +80,7 @@ define([
         bankName: bank
       }).then(function () {
         self.clearForm();
+        self.showAddForm(false);
         self.successMessage('Beneficiary added.');
         return beneficiaryService.list();
       }).then(function (items) { self.beneficiaries(items); })
@@ -85,8 +100,10 @@ define([
     };
 
     self.closeDetails = function () {
+      if (self.isBusy()) return;
       self.selected(null);
       self.pendingRemoveId(null);
+      self.errorMessage('');
     };
 
     self.toggleStatus = function () {

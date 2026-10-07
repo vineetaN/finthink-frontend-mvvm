@@ -11,7 +11,6 @@
 define([
   'knockout',
   'ojs/ojcontext',
-  'ojs/ojmodule-element-utils',
   'ojs/ojknockouttemplateutils',
   'ojs/ojcorerouter',
   'ojs/ojmodulerouter-adapter',
@@ -20,17 +19,24 @@ define([
   'ojs/ojresponsiveutils',
   'ojs/ojresponsiveknockoututils',
   'ojs/ojarraytreedataprovider',
-  'ojs/ojdrawerlayout',
-  'ojs/ojmodule-element',
-  'ojs/ojknockout',
   './utils/navigationService',
   './utils/sessionService',
-  './services/notificationService'
-],
-  function (
+  './utils/authGuard',
+  './config/roleRoutes',
+    './services/notificationService',
+  // side-effect imports (no parameter)
+  'ojs/ojmodule-element',
+  'ojs/ojknockout',
+  'ojs/ojdrawerlayout',
+  'ojs/ojdrawerpopup',
+  'ojs/ojnavigationlist',
+  'ojs/ojavatar',
+  'ojs/ojmenu',
+  'ojs/ojbutton',
+  'ojs/ojtoolbar'
+], function (
   ko,
   Context,
-  moduleUtils,
   KnockoutTemplateUtils,
   CoreRouter,
   ModuleRouterAdapter,
@@ -39,13 +45,12 @@ define([
   ResponsiveUtils,
   ResponsiveKnockoutUtils,
   ArrayTreeDataProvider,
-  DrawerLayout,
-  ModuleElement,
-  ojKnockout,
   navigationService,
   sessionService,
-   notificationService
-) {
+  authGuard,
+  roleRoutes,
+  notificationService
+)  {
      function ControllerViewModel() {
 
       this.KnockoutTemplateUtils = KnockoutTemplateUtils;
@@ -53,7 +58,7 @@ define([
       // Handle announcements sent when pages change, for Accessibility.
       this.manner = ko.observable('polite');
       this.message = ko.observable();
-      announcementHandler = (event) => {
+      const announcementHandler = (event) => {
           this.message(event.detail.message);
           this.manner(event.detail.manner);
       };
@@ -67,171 +72,159 @@ define([
       const lgQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.LG_UP);
       this.lgScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(lgQuery);
 
-      // let navData = [
-      //   { path: '', redirect: 'dashboard' },
-      //   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-      //   { path: 'incidents', detail: { label: 'Incidents', iconClass: 'oj-ux-ico-fire' } },
-      //   { path: 'customers', detail: { label: 'Customers', iconClass: 'oj-ux-ico-contact-group' } },
-      //   { path: 'about', detail: { label: 'About', iconClass: 'oj-ux-ico-information-s' } }
-      // ];
-
-
-     let navData = [
-  { path: '', redirect: 'login' },
-  { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'forgotPassword', detail: { label: 'Forgot Password' } },
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'changePassword', detail: { label: 'Change Password' } },
-  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
-  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
-  { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
-  { path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell-ring-s' } },
-  { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
-  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
-  { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } },
-  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
-  { path: 'investments', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } },
-  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } },
-  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } }
-];
+      const navData = [
+        { path: '', redirect: 'login' },
+        { path: 'login' },
+        { path: 'register' },
+        { path: 'forgotPassword' },
+        { path: 'unauthorized' }
+      ].concat(roleRoutes.pages.map((page) => ({ path: page.path })));
       // Router setup
       let router = new CoreRouter(navData, {
         urlAdapter: new UrlParamAdapter()
       });
-      router.sync();
-
       navigationService.initialize(router);
+      sessionService.setExpiryHandler(() => navigationService.goTo('login'));
+      router.beforeStateChange.subscribe((args) => {
+        const decision = authGuard.authorize(args.state);
+        args.accept(decision.allowed ? Promise.resolve() : Promise.reject(new Error('Route access denied')));
+        if (!decision.allowed) {
+          window.setTimeout(() => navigationService.goTo(decision.redirect), 0);
+        }
+      });
+      router.sync().catch(() => {});
 
       this.moduleAdapter = new ModuleRouterAdapter(router);
 
       this.selection = new KnockoutRouterAdapter(router);
 
-      // Setup the navDataProvider with the routes, excluding the first redirected
-      // route.
-     const publicNavData = [
-  { path: 'login', detail: { label: 'Login', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'register', detail: { label: 'Register', iconClass: 'oj-ux-ico-contact-group' } }
-];
+      const navItem = (path) => {
+        const page = roleRoutes.pages.find((entry) => entry.path === path);
+        return { path, detail: { label: page.label, iconClass: page.iconClass } };
+      };
 
-const authenticatedNavData = [
-  { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
- { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
-{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
-{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
-{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell-ring-s' } },
-{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
-  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
-  {
-    path: 'rewardsMenu',
-    detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
-    children: [
-      { path: 'rewards', detail: { label: 'Rewards Catalogue', iconClass: 'oj-ux-ico-gift' } },
-      { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } }
-    ]
-  },
-  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
-  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
-  {
-    path: 'investmentMenu',
-    detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
-    children: [
-      { path: 'investments', detail: { label: 'View Investments', iconClass: 'oj-ux-ico-bar-chart' } },
-      { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
-      { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } }
-    ]
-  }
-];
+      const customerNavData = [
+        navItem('dashboard'),
+        { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
+        { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
+        { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
+        { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
+        navItem('customerSummary'),
+        {
+          path: 'rewardsMenu',
+          detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+          children: [navItem('rewards'), navItem('rewardsWallet')]
+        },
+        navItem('beneficiaries'),
+        navItem('fundTransfer'),
+        {
+          path: 'investmentMenu',
+          detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+          children: [
+            navItem('investments'),
+            navItem('investmentDeposits'),
+            navItem('mutualFunds')
+          ]
+        }
+      ];
 
-const adminNavData = [
-  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } },
-  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } }
-];
+      const adminNavData = roleRoutes.pages
+       .filter((page) => page.roles.includes('ADMIN') && page.path !== 'changePassword')
+        .map((page) => navItem(page.path));
 
-this.isAuthenticated = sessionService.authenticated;
+      this.customerNavDataProvider = new ArrayTreeDataProvider(customerNavData, {
+        keyAttributes: 'path'
+      });
+      this.adminNavDataProvider = new ArrayTreeDataProvider(adminNavData, {
+        keyAttributes: 'path'
+      });
 
-this.unreadNotificationCount = notificationService.unreadCount;
+      this.isAuthenticated = sessionService.authenticated;
+      this.isCustomer = ko.pureComputed(() => sessionService.role() === 'CUSTOMER');
+      this.isAdmin = ko.pureComputed(() => sessionService.role() === 'ADMIN');
 
-this.refreshUnreadNotificationCount = function () {
-  if (!sessionService.isAuthenticated()) {
-    notificationService.clearUnreadCount();
-    return;
-  }
+      this.unreadNotificationCount = notificationService.unreadCount;
 
-  notificationService.getUnreadCount().catch(function () {
-    // Keep the last known badge count if the request temporarily fails.
-  });
-};
+      this.refreshUnreadNotificationCount = function () {
+        if (!sessionService.isAuthenticated()) {
+          notificationService.clearUnreadCount();
+          return;
+        }
 
-sessionService.authenticated.subscribe((isAuthenticated) => {
-  if (isAuthenticated) {
-    this.refreshUnreadNotificationCount();
-  } else {
-    notificationService.clearUnreadCount();
-  }
-});
+        notificationService.getUnreadCount().catch(function () {
+          // Keep the last known count if this request temporarily fails.
+        });
+      };
 
-this.refreshUnreadNotificationCount();
+      sessionService.authenticated.subscribe((isAuthenticated) => {
+        if (isAuthenticated) {
+          this.refreshUnreadNotificationCount();
+        } else {
+          notificationService.clearUnreadCount();
+        }
+      });
 
-this.navDataProvider = ko.pureComputed(() => {
-  const visibleNavData = sessionService.isAuthenticated()
-    ? authenticatedNavData.concat(sessionService.isAdmin() ? adminNavData : [])
-    : publicNavData;
-
-  return new ArrayTreeDataProvider(visibleNavData, {
-    keyAttributes: 'path'
-  });
-});
-
+      this.refreshUnreadNotificationCount();
       // Drawer
       this.sideDrawerOn = ko.observable(false);
+      this.adminDrawerOn = ko.observable(false);
 
       // Close the menu when its display mode changes.
-      this.lgScreen.subscribe(() => { this.sideDrawerOn(false) });
+      this.lgScreen.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
+      sessionService.role.subscribe(() => { this.sideDrawerOn(false); this.adminDrawerOn(false); });
 
       // Open or close the menu from either menu icon.
       this.toggleDrawer = () => {
         this.sideDrawerOn(!this.sideDrawerOn());
       }
+      this.toggleAdminDrawer = () => {
+        this.adminDrawerOn(!this.adminDrawerOn());
+      };
 
-this.handleNavSelection = (event) => {
-  const path = event.detail.value;
+      this.handleNavSelection = (event) => {
+        const path = event.detail.value;
 
-  if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
-    return;
-  }
+        if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
+          return;
+        }
 
-  this.sideDrawerOn(false);
-  navigationService.goTo(path);
-};
+        this.sideDrawerOn(false);
+        this.adminDrawerOn(false);
+        navigationService.goTo(path);
+      };
 
-this.goToNotifications = function () {
-  navigationService.goTo('notifications');
-};
+      this.goToNotifications = () => {
+        navigationService.goTo('notifications');
+      };
 
-this.handleUserMenuAction = function (event) {
-  const selectedValue = event.detail.selectedValue;
+      this.handleLogout = () => {
+        sessionService.clearSession();
+        navigationService.goTo('login');
+      };
 
-  if (selectedValue === 'changePassword') {
-    navigationService.goTo('changePassword');
-    return;
-  }
+      this.handleUserMenuAction = (event) => {
+        const selectedValue = event.detail.selectedValue;
 
-  if (selectedValue === 'out') {
-    sessionService.clearSession();
-    navigationService.goTo('login');
-  }
-};
+        if (selectedValue === 'changePassword') {
+          navigationService.goTo('changePassword');
+        } else if (selectedValue === 'out') {
+          this.handleLogout();
+        }
+      };
 
       // Header
       // Application Name used in Branding Area
       this.appName = ko.observable("FinThink Bank");
       // User Info used in Global Navigation area
       this.userLogin = sessionService.username;
+      this.userRole = sessionService.role;
+      this.userInitials = ko.pureComputed(() =>
+        (sessionService.username() || 'U').slice(0, 2).toUpperCase());
+      this.accessDeniedMessage = ko.observable('');
+      this.dismissAccessDenied = () => this.accessDeniedMessage('');
+      window.addEventListener('access-denied', (event) => {
+        this.accessDeniedMessage(event.detail.message || 'Access denied');
+      });
 
       // Footer
      this.footerLinks = [];

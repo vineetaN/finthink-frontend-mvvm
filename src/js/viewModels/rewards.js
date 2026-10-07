@@ -62,7 +62,6 @@ define([
       rewardService.get(reward.rewardId)
         .then(function (detail) {
           self.selectedReward(detail);
-          revealSection('reward-detail');
           if (detail.rewardType !== 'CASHBACK') return;
           var customerId = sessionService.getCustomerId();
           if (!customerId) throw new Error('Your session has no customer ID. Please sign in again.');
@@ -82,6 +81,7 @@ define([
     };
 
     self.closeReward = function () {
+      if (self.isBusy()) return;
       self.selectedReward(null);
       self.confirming(false);
       self.errorMessage('');
@@ -90,7 +90,6 @@ define([
     self.requestRedeem = function () {
       if (self.canRedeem()) {
         self.confirming(true);
-        revealSection('reward-confirm');
       }
     };
 

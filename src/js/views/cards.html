@@ -34,7 +34,20 @@
         <span class="customer-card-status" data-bind="text: cardStatus"></span>
       </div>
 
-      <p class="customer-card-number" data-bind="text: cardNumberMasked"></p>
+      <div class="customer-card-number-row">
+        <p class="customer-card-number" data-bind="text: cardNumberMasked"></p>
+        <button type="button" class="card-reveal-button card-reveal-button-on-card"
+                data-bind="click: $parent.openCardNumberReveal,
+                           attr: { 'aria-label': 'View card number for ' + cardNumberMasked }"
+                title="View card number">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12 C4 8 7 6 12 6 C17 6 20 8 22 12 C20 16 17 18 12 18 C7 18 4 16 2 12 Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span>View number</span>
+        </button>
+      </div>
 
       <div class="customer-card-details">
         <div>
@@ -57,6 +70,75 @@
     <!-- /ko -->
 
   </section>
+
+  <!-- ko if: revealDialogOpen -->
+  <div class="payment-modal-backdrop card-reveal-backdrop">
+    <section class="payment-modal card-reveal-modal" role="dialog" aria-modal="true"
+             aria-labelledby="card-reveal-title">
+      <div class="payment-modal-header">
+        <div>
+          <p class="cards-eyebrow">CARD SECURITY</p>
+          <h3 id="card-reveal-title">View card number</h3>
+        </div>
+        <button type="button" class="card-reveal-close" aria-label="Close card number dialog"
+                data-bind="click: closeCardNumberReveal">&times;</button>
+      </div>
+
+      <p class="card-form-description">
+        Card <strong data-bind="text: revealCard().cardNumberMasked"></strong>
+      </p>
+
+      <!-- ko if: revealStep() === 'confirm' -->
+      <p class="card-form-description">
+        To view your full card number, we’ll send a one-time verification code to your
+        registered email address. Would you like to receive the code?
+      </p>
+      <div class="payment-modal-actions">
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: closeCardNumberReveal">Cancel</button>
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: sendCardNumberRevealOtp">Send OTP</button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'requesting' -->
+      <p role="status">Sending a verification code to your registered email…</p>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'otp' -->
+      <p class="card-form-description">
+        Enter the six-digit code sent to your registered email. The code expires in five minutes.
+      </p>
+      <form data-bind="submit: verifyCardNumberReveal">
+        <label class="card-reveal-field" for="card-reveal-otp">Verification code</label>
+        <input id="card-reveal-otp" class="card-reveal-input" type="text"
+               inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+               placeholder="Six-digit code" data-bind="textInput: revealOtp">
+        <p class="card-action-error" role="alert"
+           data-bind="visible: revealError, text: revealError"></p>
+        <button type="submit" class="card-submit-payment-button"
+                data-bind="disable: !canVerifyRevealOtp(),
+                           text: isVerifyingReveal() ? 'Verifying…' : 'Verify and view number'">
+        </button>
+      </form>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'visible' -->
+      <p class="card-reveal-label">Card number</p>
+      <p class="card-revealed-number" data-bind="text: revealedCardNumber"></p>
+      <p class="card-form-note">For your security, this closes automatically after 30 seconds.</p>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: closeCardNumberReveal">Hide number now</button>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'error' -->
+      <p class="card-action-error" role="alert" data-bind="text: revealError"></p>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: closeCardNumberReveal">Close</button>
+      <!-- /ko -->
+    </section>
+  </div>
+  <!-- /ko -->
 
   <section class="card-detail-panel"
            data-bind="visible: isDetailLoading() || detailError() || selectedCard()">
@@ -89,6 +171,15 @@
         <div>
           <span>Card number</span>
           <strong data-bind="text: selectedCard().cardNumberMasked"></strong>
+          <button type="button" class="card-reveal-button card-reveal-button-in-details"
+                  data-bind="click: function () { openCardNumberReveal(selectedCard()); }">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12 C4 8 7 6 12 6 C17 6 20 8 22 12 C20 16 17 18 12 18 C7 18 4 16 2 12 Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            View number
+          </button>
         </div>
 
         <div>

@@ -1,0 +1,204 @@
+<section class="loan-page" aria-labelledby="loanPageTitle">
+  <header class="loan-page-header">
+    <div>
+      <p class="admin-eyebrow">ADMINISTRATION</p>
+      <h1 id="loanPageTitle">Loan Management</h1>
+      <p class="loan-subtitle">Review loans, track balances, and manage new applications.</p>
+    </div>
+    <div class="loan-page-actions">
+      <oj-button on-oj-action="[[refresh]]" chroming="outlined">
+        <span slot="startIcon" class="oj-ux-ico-refresh" aria-hidden="true"></span>Refresh
+      </oj-button>
+      <oj-button on-oj-action="[[exportCsv]]" chroming="outlined">
+        <span slot="startIcon" class="oj-ux-ico-download" aria-hidden="true"></span>Export CSV
+      </oj-button>
+      <oj-button on-oj-action="[[openCreateDialog]]" chroming="callToAction">Create Loan</oj-button>
+    </div>
+  </header>
+
+  <div class="loan-toolbar">
+    <div class="loan-meta">
+      <oj-label for="loanDensity">Row spacing</oj-label>
+      <oj-select-single id="loanDensity" value="{{density}}" data="[[densityOptions]]"></oj-select-single>
+    </div>
+    <div class="loan-last-updated" role="status" aria-live="polite">
+      <span>Last updated</span>
+      <strong><oj-bind-text value="[[lastUpdated() || '—']]"></oj-bind-text></strong>
+    </div>
+  </div>
+
+  <section class="loan-summary-section" aria-label="Loan overview">
+    <div class="loan-section-heading">
+      <div>
+        <h2>Portfolio overview</h2>
+        <p>Figures reflect the loans currently shown.</p>
+      </div>
+    </div>
+  <div class="loan-summary-grid">
+    <oj-bind-for-each data="[[summaryCards]]">
+      <template>
+        <div class="summary-card">
+          <div class="summary-card-title">
+            <span data-bind="text: $current.data.title"></span>
+          </div>
+          <div class="summary-card-value" data-bind="text: $current.data.value()"></div>
+        </div>
+      </template>
+    </oj-bind-for-each>
+  </div>
+  </section>
+
+  <section class="loan-filter-panel" aria-label="Loan filters">
+    <div class="loan-section-heading">
+      <div>
+        <h2>Filter loans</h2>
+        <p>Results update as you change a filter.</p>
+      </div>
+      <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear all</oj-button>
+    </div>
+  <div class="loan-filter-bar" role="search" aria-label="Loan filters">
+    <div class="loan-filter-search">
+      <oj-label for="loanSearch">Search account or customer</oj-label>
+      <oj-input-text id="loanSearch" value="{{search}}" clear-icon="conditional"></oj-input-text>
+    </div>
+    <div>
+      <oj-label for="loanTypeFilter">Loan type</oj-label>
+      <oj-select-single id="loanTypeFilter" value="{{loanTypeFilter}}" data="[[loanTypeOptions]]"></oj-select-single>
+    </div>
+    <div>
+      <oj-label for="loanStatusFilter">Status</oj-label>
+      <oj-select-single id="loanStatusFilter" value="{{statusFilter}}" data="[[statusOptions]]"></oj-select-single>
+    </div>
+  </div>
+  <details class="loan-more-filters">
+    <summary>More filters <span>Customer ID and autopay</span></summary>
+    <div class="loan-filter-bar loan-filter-extra">
+      <div>
+        <oj-label for="loanCustomerIdFilter">Customer ID</oj-label>
+        <oj-input-number id="loanCustomerIdFilter" value="{{customerIdFilter}}" min="1" max="999999999"></oj-input-number>
+      </div>
+      <div>
+        <oj-label for="loanAutopayFilter">Autopay</oj-label>
+        <oj-select-single id="loanAutopayFilter" value="{{autopayFilter}}" data="[[autopayOptions]]"></oj-select-single>
+      </div>
+    </div>
+  </details>
+  <div class="loan-quick-filters" aria-label="Quick filters" data-bind="foreach: quickFilters">
+    <button type="button" class="quick-filter-chip" data-bind="css: { active: $parent.isQuickFilterActive($data.key) }, click: function () { $parent.handleQuickFilterToggle($data.key); }, attr: { 'aria-pressed': $parent.isQuickFilterActive($data.key) }">
+      <span data-bind="text: $data.label"></span>
+    </button>
+  </div>
+  </section>
+
+  <section class="loan-results-panel" aria-label="Loan results">
+    <div class="loan-results-heading">
+      <div>
+        <h2>All loans</h2>
+        <p>Scroll horizontally to see all loan details.</p>
+      </div>
+      <div class="loan-table-status" role="status" aria-live="polite">
+    <oj-bind-text value="[[showingText]]"></oj-bind-text>
+      </div>
+    </div>
+
+  <oj-bind-if test="[[loading()]]">
+    <div class="loan-loader" role="status" aria-live="polite">Loading loan data...</div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[error()]]">
+    <div class="loan-error" role="alert">
+      <span data-bind="text: error"></span>
+      <oj-button on-oj-action="[[refresh]]">Retry</oj-button>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[!loading() && !error() && filteredRows().length === 0]]">
+    <div class="loan-empty">No loans found</div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[!loading() && !error() && filteredRows().length > 0]]">
+    <div class="loan-table-wrap">
+      <oj-table id="loanTable" aria-label="Loan management table" data="[[tableDataProvider]]" columns='[[tableColumns]]'></oj-table>
+    </div>
+  </oj-bind-if>
+  </section>
+
+  <div class="loan-toast" role="status" aria-live="polite" data-bind="visible: toastMessage, text: toastMessage"></div>
+
+  <oj-dialog id="loanCreateDialog" dialog-title="Create Loan" modality="modal">
+    <div slot="body">
+      <div class="loan-form-grid">
+        <div>
+          <oj-label for="loanCustomerIdInput">Customer ID</oj-label>
+          <oj-input-number id="loanCustomerIdInput" value="{{form.customerId}}" min="1" step="1"></oj-input-number>
+          <div class="field-error" data-bind="visible: formErrors().customerId, text: formErrors().customerId"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanTypeSelect">Loan type</oj-label>
+          <oj-select-single id="loanTypeSelect" value="{{form.loanType}}" data="[[loanTypePresetOptions]]"></oj-select-single>
+          <div class="field-error" data-bind="visible: formErrors().loanType, text: formErrors().loanType"></div>
+        </div>
+
+        <div data-bind="visible: showCustomLoanType()">
+          <oj-label for="loanCustomTypeInput">New loan type</oj-label>
+          <oj-input-text id="loanCustomTypeInput" value="{{form.customLoanType}}"></oj-input-text>
+          <div class="field-preview" data-bind="visible: previewNormalizedType, text: 'Will be saved as: ' + previewNormalizedType()"></div>
+          <div class="field-error" data-bind="visible: formErrors().customLoanType, text: formErrors().customLoanType"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanPrincipalInput">Principal amount</oj-label>
+          <oj-input-number id="loanPrincipalInput" value="{{form.principalAmount}}" min="0.01" step="0.01"></oj-input-number>
+          <div class="field-error" data-bind="visible: formErrors().principalAmount, text: formErrors().principalAmount"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanRateInput">Interest rate (%)</oj-label>
+          <oj-input-number id="loanRateInput" value="{{form.interestRate}}" min="0" max="100" step="0.01"></oj-input-number>
+          <div class="field-error" data-bind="visible: formErrors().interestRate, text: formErrors().interestRate"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanStartDateInput">Loan start date</oj-label>
+          <oj-input-date id="loanStartDateInput" value="{{form.loanStartDate}}"></oj-input-date>
+          <div class="field-error" data-bind="visible: formErrors().loanStartDate, text: formErrors().loanStartDate"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanTenureInput">Tenure (months)</oj-label>
+          <oj-input-number id="loanTenureInput" value="{{form.tenureMonths}}" min="1" max="480" step="1"></oj-input-number>
+          <div class="field-error" data-bind="visible: formErrors().tenureMonths, text: formErrors().tenureMonths"></div>
+        </div>
+
+        <div>
+          <oj-label for="loanNextEmiInput">Next EMI date</oj-label>
+          <oj-input-date id="loanNextEmiInput" value="{{form.nextEmiDate}}"></oj-input-date>
+          <div class="field-error" data-bind="visible: formErrors().nextEmiDate, text: formErrors().nextEmiDate"></div>
+        </div>
+      </div>
+
+      <div class="loan-estimate-panel" data-bind="visible: estimateSummary() && estimateSummary().isVisible">
+        <strong>Estimate only. The final EMI is calculated by the server.</strong>
+        <div>End date: <span data-bind="text: estimateSummary() ? estimateSummary().endDate : ''"></span></div>
+        <div>Indicative EMI: <span data-bind="text: estimateSummary() ? estimateSummary().emi : ''"></span></div>
+      </div>
+
+      <div class="field-error" data-bind="visible: formErrors().server, text: formErrors().server"></div>
+    </div>
+    <div slot="footer">
+      <oj-button on-oj-action="[[closeCreateDialog]]" chroming="borderless">Cancel</oj-button>
+      <oj-button on-oj-action="[[confirmCreate]]" chroming="callToAction">Submit</oj-button>
+    </div>
+  </oj-dialog>
+
+  <oj-dialog id="loanConfirmDialog" dialog-title="Confirm loan creation" modality="modal">
+    <div slot="body">
+      <p data-bind="text: confirmText"></p>
+    </div>
+    <div slot="footer">
+      <oj-button on-oj-action="[[closeConfirmCreateDialog]]" chroming="borderless">Back</oj-button>
+      <oj-button on-oj-action="[[submitCreate]]" chroming="callToAction">Confirm</oj-button>
+    </div>
+  </oj-dialog>
+</section>

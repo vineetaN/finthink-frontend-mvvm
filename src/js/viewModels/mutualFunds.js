@@ -1,9 +1,9 @@
 define([
   'knockout', '../services/investmentService', '../services/accountService',
   '../utils/investmentFormat', '../utils/authGuard', '../utils/sessionService',
-  '../utils/navigationService', '../utils/revealSection', 'ojs/ojbutton', 'ojs/ojprogress-circle'
+  '../utils/navigationService', 'ojs/ojbutton', 'ojs/ojprogress-circle'
 ], function (ko, investmentService, accountService, format, authGuard,
-             sessionService, navigationService, revealSection) {
+             sessionService, navigationService) {
   'use strict';
 
   function MutualFundsViewModel() {
@@ -95,7 +95,21 @@ define([
       self.previewResult(null);
       self.created(null);
       self.errorMessage('');
-      revealSection('fund-form');
+    };
+
+    self.closeFund = function () {
+      if (self.isBusy()) return;
+      self.selectedFund(null);
+      self.reviewKey('');
+      self.previewResult(null);
+      self.errorMessage('');
+    };
+
+    self.backToFundForm = function () {
+      if (self.isBusy()) return;
+      self.reviewKey('');
+      self.previewResult(null);
+      self.errorMessage('');
     };
 
     self.validate = function () {
@@ -123,7 +137,6 @@ define([
       self.previewResult(null);
       if (!self.isLumpSum()) {
         self.reviewKey(key);
-        revealSection('fund-review');
         return;
       }
       self.isBusy(true);
@@ -134,7 +147,6 @@ define([
         if (key === self.formKey()) {
           self.previewResult(result);
           self.reviewKey(key);
-          revealSection('fund-review');
         }
       }).catch(function (error) { self.errorMessage(error.message || 'Unable to preview purchase.'); })
         .finally(function () { self.isBusy(false); });
@@ -168,7 +180,6 @@ define([
         self.created(result);
         self.reviewKey('');
         self.previewResult(null);
-        revealSection('fund-success');
       }).catch(function (error) { self.errorMessage(error.message || 'Unable to complete investment.'); })
         .finally(function () { self.isBusy(false); });
     };

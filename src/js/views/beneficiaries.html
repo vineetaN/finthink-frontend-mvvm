@@ -6,32 +6,19 @@
   </section>
 
   <div class="banking-flow-content">
-    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage() && !showAddForm() && !selected()" role="alert">
       <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
     </div>
     <div class="banking-alert banking-alert-success" data-bind="visible: successMessage" role="status">
       <oj-bind-text value="[[successMessage]]"></oj-bind-text>
     </div>
 
-    <section class="summary-card banking-form-card" aria-labelledby="add-beneficiary-title">
-      <p class="dashboard-eyebrow">NEW RECIPIENT</p>
-      <h2 id="add-beneficiary-title">Add a beneficiary</h2>
-      <div class="banking-form-grid">
-        <label>Beneficiary name<input type="text" maxlength="100" autocomplete="name" data-bind="value: beneficiaryName, valueUpdate: 'input'"></label>
-        <label>Bank name<input type="text" maxlength="100" data-bind="value: bankName, valueUpdate: 'input'"></label>
-        <label>Account number<input type="text" minlength="6" maxlength="20" autocomplete="off" data-bind="value: accountNumber, valueUpdate: 'input'"></label>
-        <label>IFSC code<input type="text" maxlength="11" autocomplete="off" data-bind="value: ifscCode, valueUpdate: 'input'"></label>
+    <div class="customer-summary-heading beneficiary-list-heading">
+      <div>
+        <p class="dashboard-eyebrow">SAVED RECIPIENTS</p>
+        <h2>Your beneficiaries</h2>
       </div>
-      <p class="banking-help">Check the account number and IFSC carefully before saving.</p>
-      <div class="reward-actions">
-        <oj-button chroming="solid" on-oj-action="[[add]]" disabled="[[isBusy]]">Save beneficiary</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[clearForm]]">Clear</oj-button>
-      </div>
-    </section>
-
-    <div class="customer-summary-heading">
-      <p class="dashboard-eyebrow">SAVED RECIPIENTS</p>
-      <h2>Your beneficiaries</h2>
+      <button type="button" class="biller-primary-button" data-bind="click: openAddForm">+ Add a beneficiary</button>
     </div>
     <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
       <oj-progress-circle size="sm" value="-1" aria-label="Loading beneficiaries"></oj-progress-circle>
@@ -48,10 +35,42 @@
     </div>
     <p class="customer-summary-state" data-bind="visible: !isLoading() && beneficiaries().length === 0 && !errorMessage()">No beneficiaries saved yet.</p>
 
+    <div class="biller-modal-backdrop" data-bind="visible: showAddForm" role="dialog" aria-modal="true" aria-labelledby="add-beneficiary-title">
+    <section class="biller-add-modal beneficiary-modal">
+      <div class="biller-form-heading">
+        <div>
+          <p class="dashboard-eyebrow">NEW RECIPIENT</p>
+          <h2 id="add-beneficiary-title">Add a beneficiary</h2>
+        </div>
+        <button type="button" class="biller-payment-close" aria-label="Close add beneficiary form" title="Close"
+                data-bind="click: closeAddForm, disable: isBusy"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="banking-form-grid">
+        <label>Beneficiary name<input type="text" maxlength="100" autocomplete="name" data-bind="value: beneficiaryName, valueUpdate: 'input'"></label>
+        <label>Bank name<input type="text" maxlength="100" data-bind="value: bankName, valueUpdate: 'input'"></label>
+        <label>Account number<input type="text" minlength="6" maxlength="20" autocomplete="off" data-bind="value: accountNumber, valueUpdate: 'input'"></label>
+        <label>IFSC code<input type="text" maxlength="11" autocomplete="off" data-bind="value: ifscCode, valueUpdate: 'input'"></label>
+      </div>
+      <p class="banking-help">Check the account number and IFSC carefully before saving.</p>
+      <p class="banking-alert banking-alert-error" role="alert" data-bind="visible: errorMessage, text: errorMessage"></p>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[add]]" disabled="[[isBusy]]">Save beneficiary</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[clearForm]]" disabled="[[isBusy]]">Clear</oj-button>
+      </div>
+    </section>
+    </div>
+
     <!-- ko if: selected -->
-    <section class="summary-card banking-detail-card" aria-labelledby="beneficiary-detail-title">
-      <p class="dashboard-eyebrow">BENEFICIARY DETAILS</p>
-      <h2 id="beneficiary-detail-title" data-bind="text: selected().beneficiaryName"></h2>
+    <div class="biller-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="beneficiary-detail-title">
+    <section class="biller-add-modal beneficiary-modal">
+      <div class="biller-form-heading">
+        <div>
+          <p class="dashboard-eyebrow">BENEFICIARY DETAILS</p>
+          <h2 id="beneficiary-detail-title" data-bind="text: selected().beneficiaryName"></h2>
+        </div>
+        <button type="button" class="biller-payment-close" aria-label="Close beneficiary details" title="Close"
+                data-bind="click: closeDetails, disable: isBusy"><span aria-hidden="true">&times;</span></button>
+      </div>
       <dl class="banking-detail-list">
         <div><dt>Bank</dt><dd data-bind="text: selected().bankName"></dd></div>
         <div><dt>Account</dt><dd data-bind="text: maskAccount(selected().accountNumber)"></dd></div>
@@ -64,14 +83,15 @@
           <span data-bind="text: selected().status === 'ACTIVE' ? 'Deactivate' : 'Activate'"></span>
         </oj-button>
         <oj-button chroming="borderless" on-oj-action="[[askRemove]]" disabled="[[isBusy]]">Remove</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[closeDetails]]">Close</oj-button>
       </div>
+      <p class="banking-alert banking-alert-error" role="alert" data-bind="visible: errorMessage, text: errorMessage"></p>
       <div class="reward-confirm" data-bind="visible: pendingRemoveId">
         <p>Remove this beneficiary from active use? Previous transfer history will remain.</p>
         <oj-button chroming="solid" on-oj-action="[[remove]]" disabled="[[isBusy]]">Confirm removal</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[cancelRemove]]">Cancel</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[cancelRemove]]" disabled="[[isBusy]]">Cancel</oj-button>
       </div>
     </section>
+    </div>
     <!-- /ko -->
   </div>
 </div>

@@ -22,6 +22,7 @@ define([
       var token = sessionService.getToken();
 
       if (!token) {
+        sessionService.expireSession();
         return Promise.reject(
           new Error('Your session has expired. Please sign in again.')
         );
@@ -39,12 +40,17 @@ define([
       fetchOptions.body = JSON.stringify(payload);
     }
 
-    return fetch(apiConfig.apiGatewayBaseUrl + path, fetchOptions)
+    var url = /^https?:\/\//i.test(path) ? path : apiConfig.apiGatewayBaseUrl + path;
+    return fetch(url, fetchOptions)
       .then(function (response) {
         return parseResponse(response).then(function (body) {
           if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-              sessionService.clearSession();
+            if (response.status === 401 && requiresAuth) {
+              sessionService.expireSession();
+            } else if (response.status === 403) {
+              window.dispatchEvent(new CustomEvent('access-denied', {
+                detail: { message: 'Access denied' }
+              }));
             }
 
             var requestError = new Error(
@@ -55,6 +61,7 @@ define([
             );
 
             requestError.status = response.status;
+            requestError.body = body;
             throw requestError;
           }
 
