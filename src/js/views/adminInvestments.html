@@ -1,0 +1,42 @@
+<div class="dashboard-page investment-page">
+  <section class="dashboard-intro investment-intro">
+    <p class="dashboard-eyebrow">INVESTMENT ADMIN</p>
+    <h1>Manage deposit<br>rates with care.</h1>
+    <p>Review FD and RD products before changing an interest rate.</p>
+  </section>
+
+  <div class="investment-content">
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert"><oj-bind-text value="[[errorMessage]]"></oj-bind-text></div>
+    <div class="banking-alert banking-alert-success" data-bind="visible: successMessage" role="status"><oj-bind-text value="[[successMessage]]"></oj-bind-text></div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status"><oj-progress-circle size="sm" value="-1" aria-label="Loading products"></oj-progress-circle>Loading products…</div>
+
+    <div class="customer-summary-heading"><p class="dashboard-eyebrow">PRODUCT CATALOGUE</p><h2>Deposit products</h2></div>
+    <div class="investment-card-grid" data-bind="foreach: products">
+      <article class="summary-card investment-holding-card">
+        <div class="investment-card-top"><span class="investment-pill">DEPOSIT</span><span class="investment-status" data-bind="text: active === 'Y' ? 'ACTIVE' : 'INACTIVE'"></span></div>
+        <h3 data-bind="text: investmentName"></h3>
+        <p class="summary-account">Current interest rate</p>
+        <p class="summary-value" data-bind="text: interestRate + '%' "></p>
+        <p class="banking-help" data-bind="text: 'Early closure penalty rate: ' + prematurePenaltyRate + '%' "></p>
+        <oj-button chroming="outlined" on-oj-action="[[$parent.choose.bind($parent, $data)]]">Change rate</oj-button>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && !errorMessage() && products().length === 0">No FD or RD products were returned.</p>
+
+    <!-- ko if: selectedProduct -->
+    <section class="summary-card banking-form-card investment-form-card" aria-labelledby="rate-title">
+      <p class="dashboard-eyebrow">CHANGE INTEREST RATE</p>
+      <h2 id="rate-title" data-bind="text: selectedProduct().investmentName"></h2>
+      <p class="banking-help" data-bind="text: 'Current rate: ' + selectedProduct().interestRate + '%' "></p>
+      <div class="investment-form-grid"><label>New annual interest rate (%)<input type="text" inputmode="decimal" data-bind="value: interestRate, valueUpdate: 'input'"></label></div>
+      <p class="banking-help">This action updates the product rate and the rates on its active investments.</p>
+      <oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy]]">Review rate change</oj-button>
+      <div class="reward-confirm" data-bind="visible: confirming">
+        <p data-bind="text: 'Set ' + selectedProduct().investmentName + ' to ' + interestRate() + '%? This affects active investments for this product.'"></p>
+        <oj-button chroming="solid" on-oj-action="[[confirm]]" disabled="[[isBusy]]">Confirm change</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[cancel]]">Cancel</oj-button>
+      </div>
+    </section>
+    <!-- /ko -->
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<div class="dashboard-page rewards-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">REWARDS WALLET</p>
+    <h1>Every point<br>has a story.</h1>
+    <p>See what you earned and redeemed.</p>
+  </section>
+
+  <section class="rewards-content" aria-label="Rewards wallet">
+    <article class="balance-card rewards-points-card">
+      <p class="balance-label">AVAILABLE POINTS</p>
+      <p class="balance-amount" data-bind="text: availablePoints().toLocaleString('en-IN')"></p>
+      <oj-button class="rewards-points-action" chroming="solid" on-oj-action="[[goToRewards]]">Explore rewards</oj-button>
+    </article>
+
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading wallet"></oj-progress-circle>
+      Loading wallet…
+    </div>
+    <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+      <oj-button chroming="borderless" on-oj-action="[[load]]">Try again</oj-button>
+    </div>
+
+    <div class="customer-summary-heading">
+      <p class="dashboard-eyebrow">ACTIVITY</p>
+      <h2>Points history</h2>
+    </div>
+    <div class="rewards-history" data-bind="foreach: entries">
+      <article class="summary-card reward-history-row">
+        <div>
+          <p class="dashboard-eyebrow" data-bind="text: pointsType"></p>
+          <h3 data-bind="text: rewardName || description || 'Points activity'"></h3>
+          <p class="summary-account" data-bind="text: $parent.formatDate(createdAt)"></p>
+          <p class="summary-account" data-bind="visible: expiryDate, text: 'Expires ' + $parent.formatDate(expiryDate)"></p>
+        </div>
+        <div class="reward-history-values">
+          <strong data-bind="text: $parent.pointsLabel($data), css: { 'reward-negative': $parent.isNegativePoints($data) }"></strong>
+          <span data-bind="text: $parent.balanceAfterLabel($data)"></span>
+        </div>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && entries().length === 0 && !errorMessage()">No points activity yet. Eligible card and bill payments will appear here.</p>
+  </section>
+</div>

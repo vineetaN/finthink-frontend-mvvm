@@ -8,9 +8,25 @@
 /*
  * Your application specific code will go here
  */
-define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraydataprovider',
-        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','./utils/navigationService' , './utils/sessionService','./services/notificationService'
-      ],
+define([
+  'knockout',
+  'ojs/ojcontext',
+  'ojs/ojmodule-element-utils',
+  'ojs/ojknockouttemplateutils',
+  'ojs/ojcorerouter',
+  'ojs/ojmodulerouter-adapter',
+  'ojs/ojknockoutrouteradapter',
+  'ojs/ojurlparamadapter',
+  'ojs/ojresponsiveutils',
+  'ojs/ojresponsiveknockoututils',
+  'ojs/ojarraytreedataprovider',
+  'ojs/ojdrawerlayout',
+  'ojs/ojmodule-element',
+  'ojs/ojknockout',
+  './utils/navigationService',
+  './utils/sessionService',
+  './services/notificationService'
+],
   function (
   ko,
   Context,
@@ -22,8 +38,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   UrlParamAdapter,
   ResponsiveUtils,
   ResponsiveKnockoutUtils,
-  ArrayDataProvider,
-  DrawerPopup,
+  ArrayTreeDataProvider,
+  DrawerLayout,
   ModuleElement,
   ojKnockout,
   navigationService,
@@ -48,8 +64,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
       // Media queries for responsive layouts
       const smQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.SM_ONLY);
       this.smScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(smQuery);
-      const mdQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.MD_UP);
-      this.mdScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(mdQuery);
+      const lgQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.LG_UP);
+      this.lgScreen = ResponsiveKnockoutUtils.createMediaQueryObservable(lgQuery);
 
       // let navData = [
       //   { path: '', redirect: 'dashboard' },
@@ -68,10 +84,20 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
   { path: 'changePassword', detail: { label: 'Change Password' } },
   { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
-{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
-{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
+  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
+  { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
+  { path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
+  { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
+  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
+  { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } },
+  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
+  { path: 'investments', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } },
+  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } },
+  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } }
 ];
       // Router setup
       let router = new CoreRouter(navData, {
@@ -98,7 +124,32 @@ const authenticatedNavData = [
 { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
 { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
 { path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
-{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } }
+{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
+  { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
+  {
+    path: 'rewardsMenu',
+    detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+    children: [
+      { path: 'rewards', detail: { label: 'Rewards Catalogue', iconClass: 'oj-ux-ico-gift' } },
+      { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } }
+    ]
+  },
+  { path: 'beneficiaries', detail: { label: 'Beneficiaries', iconClass: 'oj-ux-ico-contact-group' } },
+  { path: 'fundTransfer', detail: { label: 'Fund Transfer', iconClass: 'oj-ux-ico-transfer-money' } },
+  {
+    path: 'investmentMenu',
+    detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+    children: [
+      { path: 'investments', detail: { label: 'View Investments', iconClass: 'oj-ux-ico-bar-chart' } },
+      { path: 'investmentDeposits', detail: { label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart' } },
+      { path: 'mutualFunds', detail: { label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart' } }
+    ]
+  }
+];
+
+const adminNavData = [
+  { path: 'adminRewards', detail: { label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings' } },
+  { path: 'adminInvestments', detail: { label: 'Investment Rates', iconClass: 'oj-ux-ico-settings' } }
 ];
 
 this.isAuthenticated = sessionService.authenticated;
@@ -128,10 +179,10 @@ this.refreshUnreadNotificationCount();
 
 this.navDataProvider = ko.pureComputed(() => {
   const visibleNavData = sessionService.isAuthenticated()
-    ? authenticatedNavData
+    ? authenticatedNavData.concat(sessionService.isAdmin() ? adminNavData : [])
     : publicNavData;
 
-  return new ArrayDataProvider(visibleNavData, {
+  return new ArrayTreeDataProvider(visibleNavData, {
     keyAttributes: 'path'
   });
 });
@@ -139,13 +190,25 @@ this.navDataProvider = ko.pureComputed(() => {
       // Drawer
       this.sideDrawerOn = ko.observable(false);
 
-      // Close drawer on medium and larger screens
-      this.mdScreen.subscribe(() => { this.sideDrawerOn(false) });
+      // Close the menu when its display mode changes.
+      this.lgScreen.subscribe(() => { this.sideDrawerOn(false) });
 
-      // Called by navigation drawer toggle button and after selection of nav drawer item
+      // Open or close the menu from either menu icon.
       this.toggleDrawer = () => {
         this.sideDrawerOn(!this.sideDrawerOn());
       }
+
+  this.handleNavSelection = (event) => {
+  const path = event.detail.value;
+
+  if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
+    return;
+  }
+
+  this.sideDrawerOn(false);
+  navigationService.goTo(path);
+};
+
 this.handleUserMenuAction = function (event) {
   const selectedValue = event.detail.selectedValue;
 

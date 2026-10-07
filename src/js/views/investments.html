@@ -1,0 +1,108 @@
+<div class="dashboard-page investment-page">
+  <section class="dashboard-intro investment-intro">
+    <p class="dashboard-eyebrow">YOUR INVESTMENTS</p>
+    <h1>See how your<br>money is growing.</h1>
+    <p>Track deposits and mutual funds in one calm view.</p>
+  </section>
+
+  <div class="investment-content">
+    <div class="investment-hero-grid">
+      <article class="balance-card investment-total-card">
+        <p class="balance-label">ACTIVE AMOUNT INVESTED</p>
+        <p class="balance-amount" data-bind="text: money(totalInvested())"></p>
+        <p class="balance-caption" data-bind="text: items().length + ' active investments' "></p>
+      </article>
+      <article class="summary-card investment-next-card">
+        <p class="dashboard-eyebrow">GROW YOUR MONEY</p>
+        <h2>Find your next move.</h2>
+        <p>Start a fixed or recurring deposit, or explore mutual funds.</p>
+        <div class="reward-actions">
+          <oj-button chroming="solid" on-oj-action="[[goToDeposits]]">Start a deposit</oj-button>
+          <oj-button chroming="outlined" on-oj-action="[[goToFunds]]">Explore funds</oj-button>
+        </div>
+      </article>
+    </div>
+
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+      <oj-button chroming="borderless" on-oj-action="[[load]]">Retry</oj-button>
+    </div>
+    <div id="investment-success" class="banking-alert banking-alert-success reveal-target" data-bind="visible: successMessage" role="status">
+      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    </div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading investments"></oj-progress-circle>
+      Loading investments…
+    </div>
+
+    <div class="customer-summary-heading"><p class="dashboard-eyebrow">PORTFOLIO</p><h2>Active investments</h2></div>
+    <div class="investment-card-grid" data-bind="foreach: items">
+      <article class="summary-card investment-holding-card">
+        <div class="investment-card-top"><span class="investment-pill" data-bind="text: investmentType === 'MUTUAL_FUND' ? 'MUTUAL FUND' : investmentType"></span><span class="investment-status" data-bind="text: status"></span></div>
+        <h3 data-bind="text: productName"></h3>
+        <p class="summary-account" data-bind="text: investmentType === 'RD' ? 'Monthly installment' : 'Amount invested'"></p>
+        <p class="summary-value" data-bind="text: $parent.money(investmentType === 'RD' ? monthlyAmount : principal)"></p>
+        <div class="investment-meta">
+          <span data-bind="text: investmentType === 'MUTUAL_FUND' ? 'Units ' + $parent.decimal(units) : 'Rate ' + rate + '%' "></span>
+          <span data-bind="text: maturityDate ? 'Matures ' + $parent.date(maturityDate) : 'Started ' + $parent.date(startDate)"></span>
+        </div>
+        <oj-button chroming="outlined" on-oj-action="[[$parent.view.bind($parent, $data)]]">View details</oj-button>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && !errorMessage() && items().length === 0">You have no active investments yet.</p>
+
+    <!-- ko if: selected -->
+    <section id="investment-detail" class="summary-card investment-detail reveal-target" aria-labelledby="investment-detail-title">
+      <p class="dashboard-eyebrow">INVESTMENT DETAILS</p>
+      <h2 id="investment-detail-title" data-bind="text: selected().productName"></h2>
+      <dl class="banking-detail-list">
+        <div><dt>Type</dt><dd data-bind="text: selected().investmentType"></dd></div>
+        <div><dt>Invested</dt><dd data-bind="text: money(selected().principal)"></dd></div>
+        <div><dt>Started</dt><dd data-bind="text: date(selected().startDate)"></dd></div>
+        <div><dt>Maturity date</dt><dd data-bind="text: date(selected().maturityDate)"></dd></div>
+        <!-- ko ifnot: isFund -->
+        <div><dt>Interest rate</dt><dd data-bind="text: selected().rate + '%' "></dd></div>
+        <div><dt>Estimated maturity amount</dt><dd data-bind="text: money(selected().maturityAmount)"></dd></div>
+        <!-- /ko -->
+        <!-- ko if: isFund -->
+        <div><dt>Units held</dt><dd data-bind="text: decimal(selected().units)"></dd></div>
+        <!-- /ko -->
+      </dl>
+
+      <!-- ko if: isFund -->
+      <!-- ko if: valuation -->
+      <div class="investment-valuation">
+        <p class="dashboard-eyebrow">CURRENT VALUATION</p>
+        <div class="investment-metrics">
+          <div><span>Current value</span><strong data-bind="text: money(valuation().currentValue)"></strong></div>
+          <div><span>Gain or loss</span><strong data-bind="text: money(valuation().gainLoss)"></strong></div>
+          <div><span>Current NAV</span><strong data-bind="text: nav(valuation().currentNav)"></strong></div>
+        </div>
+      </div>
+      <!-- /ko -->
+      <div class="investment-form-grid">
+        <label>Redeem
+          <select data-bind="value: redeemMode"><option value="ALL">All units</option><option value="PARTIAL">Some units</option></select>
+        </label>
+        <!-- ko if: redeemMode() === 'PARTIAL' -->
+        <label>Units to redeem<input type="text" inputmode="decimal" data-bind="value: unitsToRedeem, valueUpdate: 'input'"></label>
+        <!-- /ko -->
+      </div>
+      <p class="banking-help">The amount credited uses the NAV at redemption and may include an exit load. ELSS funds may have a lock-in period.</p>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[askRedeem]]" disabled="[[isBusy]]">Redeem units</oj-button><oj-button chroming="borderless" on-oj-action="[[closeDetails]]">Close</oj-button></div>
+      <!-- /ko -->
+
+      <!-- ko ifnot: isFund -->
+      <p class="banking-help">Closing before maturity may reduce the return and apply a penalty. The bank calculates the final credit when you confirm.</p>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[askClose]]" disabled="[[isBusy]]">Close early</oj-button><oj-button chroming="borderless" on-oj-action="[[closeDetails]]">Close</oj-button></div>
+      <!-- /ko -->
+
+      <div id="investment-confirm" class="reward-confirm reveal-target" data-bind="visible: confirmAction">
+        <p data-bind="text: confirmAction() === 'CLOSE' ? 'Close this deposit before maturity? A penalty may apply.' : 'Redeem the selected fund units? The final amount depends on the current NAV and any exit load.'"></p>
+        <oj-button chroming="solid" on-oj-action="[[confirm]]" disabled="[[isBusy]]">Confirm</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[cancelAction]]">Cancel</oj-button>
+      </div>
+    </section>
+    <!-- /ko -->
+  </div>
+</div>

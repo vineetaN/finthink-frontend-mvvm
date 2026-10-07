@@ -6,6 +6,14 @@ define(['./apiClient'], function (apiClient) {
   }
 
   return {
-    getMyAccounts: getMyAccounts
-  };
+  getMyAccounts: getMyAccounts,
+
+  getCustomerSummary: function (customerId) {
+    return apiClient.get(
+      '/banking-service/accounts/customer/' +
+      encodeURIComponent(customerId) +
+      '/summary'
+    );
+  }
+};
 });
