@@ -83,11 +83,11 @@ define([
   { path: 'forgotPassword', detail: { label: 'Forgot Password' } },
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
   { path: 'changePassword', detail: { label: 'Change Password' } },
-  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
-  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
-  { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
-  { path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
-  { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
+  { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
+  { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
+  { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
+  { path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell-ring-s' } },
+  { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
   { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
   { path: 'rewards', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' } },
   { path: 'rewardsWallet', detail: { label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet' } },
@@ -120,11 +120,11 @@ define([
 
 const authenticatedNavData = [
   { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
- { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-credit-card' } },
-{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-list' } },
-{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell' } },
-{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-list' } },
+ { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
+{ path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
+{ path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
+{ path: 'notifications', detail: { label: 'Notifications', iconClass: 'oj-ux-ico-bell-ring-s' } },
+{ path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
   { path: 'customerSummary', detail: { label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group' } },
   {
     path: 'rewardsMenu',
@@ -198,7 +198,7 @@ this.navDataProvider = ko.pureComputed(() => {
         this.sideDrawerOn(!this.sideDrawerOn());
       }
 
-  this.handleNavSelection = (event) => {
+this.handleNavSelection = (event) => {
   const path = event.detail.value;
 
   if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
@@ -207,6 +207,10 @@ this.navDataProvider = ko.pureComputed(() => {
 
   this.sideDrawerOn(false);
   navigationService.goTo(path);
+};
+
+this.goToNotifications = function () {
+  navigationService.goTo('notifications');
 };
 
 this.handleUserMenuAction = function (event) {

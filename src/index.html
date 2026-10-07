@@ -37,8 +37,9 @@
 		<!-- endinjector -->
 
     <!-- This contains icon fonts used by the starter template -->
-		<!-- injector:font -->
+    <!-- injector:font -->
 		<!-- endinjector:font -->
+    <link rel="stylesheet" href="https://static.oracle.com/cdn/fnd/gallery/2404.0.0/images/iconfont/ojuxIconFont.min.css" id="finthinkIconFont" />
 
     <!-- This is where you would add any app specific styling -->
     <link rel="stylesheet" href="css/app.css" type="text/css"/>
@@ -49,7 +50,14 @@
     <script type="text/html" id="navTemplate">
   <li>
     <a href="#">
-      <span :class="[[$data.detail.iconClass]]"></span>
+      <span :class="[[$data.detail.iconClass]]"
+            data-bind="visible: $data.path !== 'notifications'"></span>
+      <svg class="finthink-bell-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true" data-bind="visible: $data.path === 'notifications'">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"></path>
+        <path d="M10 21h4M3 5l-1 2m19-2 1 2"></path>
+      </svg>
 
       <span class="app-nav-label">
         <oj-bind-text value="[[$data.detail.label]]"></oj-bind-text>
@@ -118,6 +126,23 @@
             <div class="oj-flex-bar-end">
               <!-- Responsive Toolbar -->
               <oj-toolbar data-bind="visible: isAuthenticated">
+                <div class="header-notification-action">
+                  <oj-button id="headerNotifications" chroming="borderless" display="icons"
+                             on-oj-action="[[goToNotifications]]"
+                             aria-label="Notifications" title="Notifications">
+                    <svg slot="startIcon" class="finthink-bell-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                         aria-hidden="true">
+                      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"></path>
+                      <path d="M10 21h4M3 5l-1 2m19-2 1 2"></path>
+                    </svg>
+                    <span>Notifications</span>
+                  </oj-button>
+                  <span class="notification-nav-badge header-notification-badge"
+                        data-bind="visible: unreadNotificationCount() > 0,
+                                   text: unreadNotificationCount"
+                        aria-hidden="true"></span>
+                </div>
                 <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
                   <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
                   <span slot="endIcon" :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>

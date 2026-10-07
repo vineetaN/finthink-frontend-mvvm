@@ -2005,6 +2005,28 @@ html[dir="rtl"] .demo-oracle-icon {
   line-height: 1;
 }
 
+.header-notification-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.65rem;
+}
+
+.finthink-bell-icon {
+  display: inline-block;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+
+.header-notification-badge {
+  position: absolute;
+  top: -0.1rem;
+  right: -0.2rem;
+  pointer-events: none;
+}
+
 .biller-page-actions,
 .biller-form-heading {
   display: flex;
