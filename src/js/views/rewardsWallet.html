@@ -9,7 +9,7 @@
     <article class="balance-card rewards-points-card">
       <p class="balance-label">AVAILABLE POINTS</p>
       <p class="balance-amount" data-bind="text: availablePoints().toLocaleString('en-IN')"></p>
-      <oj-button chroming="outlined" on-oj-action="[[goToRewards]]">Explore rewards</oj-button>
+      <oj-button class="rewards-points-action" chroming="solid" on-oj-action="[[goToRewards]]">Explore rewards</oj-button>
     </article>
 
     <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
@@ -34,8 +34,8 @@
           <p class="summary-account" data-bind="visible: expiryDate, text: 'Expires ' + $parent.formatDate(expiryDate)"></p>
         </div>
         <div class="reward-history-values">
-          <strong data-bind="text: $parent.pointsLabel($data), css: { 'reward-negative': Number(points) < 0 }"></strong>
-          <span data-bind="text: Number(availablePoints).toLocaleString('en-IN') + ' after' "></span>
+          <strong data-bind="text: $parent.pointsLabel($data), css: { 'reward-negative': $parent.isNegativePoints($data) }"></strong>
+          <span data-bind="text: $parent.balanceAfterLabel($data)"></span>
         </div>
       </article>
     </div>

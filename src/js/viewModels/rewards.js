@@ -1,8 +1,8 @@
 define([
   'knockout', '../services/rewardService', '../services/accountService',
-  '../utils/authGuard', '../utils/sessionService', '../utils/navigationService',
+  '../utils/authGuard', '../utils/sessionService', '../utils/navigationService', '../utils/revealSection',
   'ojs/ojbutton', 'ojs/ojprogress-circle'
-], function (ko, rewardService, accountService, authGuard, sessionService, navigationService) {
+], function (ko, rewardService, accountService, authGuard, sessionService, navigationService, revealSection) {
   'use strict';
 
   function RewardsViewModel() {
@@ -62,6 +62,7 @@ define([
       rewardService.get(reward.rewardId)
         .then(function (detail) {
           self.selectedReward(detail);
+          revealSection('reward-detail');
           if (detail.rewardType !== 'CASHBACK') return;
           var customerId = sessionService.getCustomerId();
           if (!customerId) throw new Error('Your session has no customer ID. Please sign in again.');
@@ -87,7 +88,10 @@ define([
     };
 
     self.requestRedeem = function () {
-      if (self.canRedeem()) self.confirming(true);
+      if (self.canRedeem()) {
+        self.confirming(true);
+        revealSection('reward-confirm');
+      }
     };
 
     self.cancelRedeem = function () { self.confirming(false); };
@@ -105,6 +109,7 @@ define([
             (result.referenceNo ? ' Reference: ' + result.referenceNo : ''));
           self.selectedReward(null);
           self.confirming(false);
+          revealSection('rewards-success');
         })
         .catch(function (error) { self.errorMessage(error.message || 'Redemption failed.'); })
         .finally(function () { self.isBusy(false); });

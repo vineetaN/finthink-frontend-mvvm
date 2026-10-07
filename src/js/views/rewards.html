@@ -9,7 +9,7 @@
     <article class="balance-card rewards-points-card">
       <p class="balance-label">AVAILABLE POINTS</p>
       <p class="balance-amount" data-bind="text: availablePoints().toLocaleString('en-IN')"></p>
-      <oj-button chroming="outlined" on-oj-action="[[goToWallet]]">View points wallet</oj-button>
+      <oj-button class="rewards-points-action" chroming="solid" on-oj-action="[[goToWallet]]">View points wallet</oj-button>
     </article>
 
     <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
@@ -19,7 +19,7 @@
     <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage" role="alert">
       <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
     </div>
-    <div class="customer-summary-state rewards-success" data-bind="visible: successMessage" role="status">
+    <div id="rewards-success" class="customer-summary-state rewards-success reveal-target" data-bind="visible: successMessage" role="status">
       <oj-bind-text value="[[successMessage]]"></oj-bind-text>
     </div>
 
@@ -40,7 +40,7 @@
     <p class="customer-summary-state" data-bind="visible: !isLoading() && rewards().length === 0 && !errorMessage()">No rewards are available right now.</p>
 
     <!-- ko if: selectedReward -->
-    <section class="reward-detail summary-card" aria-labelledby="reward-detail-title">
+    <section id="reward-detail" class="reward-detail summary-card reveal-target" aria-labelledby="reward-detail-title">
       <p class="dashboard-eyebrow">REWARD DETAILS</p>
       <h2 id="reward-detail-title" data-bind="text: selectedReward().rewardName"></h2>
       <p data-bind="text: selectedReward().rewardType + ' · ' + selectedReward().pointsRequired + ' points'"></p>
@@ -58,7 +58,7 @@
         <oj-button chroming="solid" on-oj-action="[[requestRedeem]]" disabled="[[!canRedeem()]]">Redeem reward</oj-button>
         <oj-button chroming="borderless" on-oj-action="[[closeReward]]">Close</oj-button>
       </div>
-      <div class="reward-confirm" data-bind="visible: confirming">
+      <div id="reward-confirm" class="reward-confirm reveal-target" data-bind="visible: confirming">
         <p data-bind="text: 'Use ' + selectedReward().pointsRequired + ' points to redeem this reward?' "></p>
         <oj-button chroming="solid" on-oj-action="[[confirmRedeem]]" disabled="[[isBusy]]">Confirm redemption</oj-button>
         <oj-button chroming="borderless" on-oj-action="[[cancelRedeem]]">Cancel</oj-button>

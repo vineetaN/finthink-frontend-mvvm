@@ -21,6 +21,12 @@ define([
     self.pointsLabel = function (entry) {
       return (Number(entry.points) > 0 ? '+' : '') + Number(entry.points).toLocaleString('en-IN');
     };
+    self.isNegativePoints = function (entry) {
+      return Number(entry.points) < 0;
+    };
+    self.balanceAfterLabel = function (entry) {
+      return Number(entry.availablePoints).toLocaleString('en-IN') + ' after';
+    };
     self.load = function () {
       if (!authGuard.requireAuthentication()) return;
       self.isLoading(true);

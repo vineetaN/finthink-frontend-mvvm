@@ -1,0 +1,76 @@
+<div class="dashboard-page investment-page">
+  <section class="dashboard-intro investment-intro">
+    <p class="dashboard-eyebrow">FIXED &amp; RECURRING DEPOSITS</p>
+    <h1>Build tomorrow,<br>one deposit at a time.</h1>
+    <p>Choose a one-time deposit or a monthly plan.</p>
+  </section>
+
+  <div class="investment-content">
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading accounts"></oj-progress-circle>
+      Loading your accounts…
+    </div>
+
+    <!-- ko ifnot: created -->
+    <div class="investment-mode-switch" role="group" aria-label="Deposit type">
+      <label><input type="radio" name="depositMode" value="FD" data-bind="checked: mode"> Fixed deposit</label>
+      <label><input type="radio" name="depositMode" value="RD" data-bind="checked: mode"> Recurring deposit</label>
+    </div>
+    <section class="summary-card banking-form-card investment-form-card" aria-labelledby="deposit-form-title">
+      <p class="dashboard-eyebrow">NEW INVESTMENT</p>
+      <h2 id="deposit-form-title" data-bind="text: isFd() ? 'Create a fixed deposit' : 'Create a recurring deposit'"></h2>
+      <p class="banking-help" data-bind="text: isFd() ? 'A single amount is debited when you create the deposit.' : 'The first monthly installment is debited now; later installments are scheduled automatically.'"></p>
+      <div class="investment-form-grid">
+        <label>Debit from
+          <select data-bind="options: accounts, optionsText: 'label', optionsValue: 'accountId', optionsCaption: 'Choose an active account', value: accountId"></select>
+        </label>
+        <label><span data-bind="text: isFd() ? 'Deposit amount (₹)' : 'Monthly installment (₹)'"></span>
+          <input type="text" inputmode="decimal" autocomplete="off" data-bind="value: amount, valueUpdate: 'input'">
+        </label>
+        <label>Tenure in months<input type="number" min="1" step="1" data-bind="value: tenureMonths, valueUpdate: 'input'"></label>
+        <label>At maturity
+          <select data-bind="value: onMaturityAction"><option value="LIQUIDATE">Credit my account</option><option value="AUTO_RENEW">Renew for another term</option></select>
+        </label>
+      </div>
+      <p class="banking-help">The bank’s active FD or RD product is selected automatically. FD maturity estimates come from the bank’s preview API.</p>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review deposit</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View investments</oj-button></div>
+    </section>
+
+    <!-- ko if: isReviewCurrent -->
+    <section id="deposit-review" class="summary-card investment-review reveal-target" aria-labelledby="deposit-review-title">
+      <p class="dashboard-eyebrow">REVIEW BEFORE CONFIRMING</p>
+      <h2 id="deposit-review-title" data-bind="text: isFd() ? 'Fixed deposit preview' : 'Recurring deposit summary'"></h2>
+      <dl class="banking-detail-list">
+        <div><dt data-bind="text: isFd() ? 'Deposit amount' : 'Monthly installment'"></dt><dd data-bind="text: money(amount())"></dd></div>
+        <div><dt>Tenure</dt><dd data-bind="text: tenureMonths() + ' months' "></dd></div>
+        <div><dt>At maturity</dt><dd data-bind="text: onMaturityAction() === 'AUTO_RENEW' ? 'Auto renew' : 'Credit account'"></dd></div>
+        <!-- ko if: previewResult -->
+        <div><dt>Interest rate</dt><dd data-bind="text: previewResult().rate + '%' "></dd></div>
+        <div><dt>Estimated maturity amount</dt><dd data-bind="text: money(previewResult().maturityAmount)"></dd></div>
+        <div><dt>Maturity date</dt><dd data-bind="text: date(previewResult().maturityDate)"></dd></div>
+        <!-- /ko -->
+      </dl>
+      <p class="banking-help" data-bind="text: isFd() ? 'The shown maturity amount is an estimate. Confirming debits your account now.' : 'No RD preview endpoint is available. Confirming debits the first installment now.'"></p>
+      <oj-button chroming="solid" on-oj-action="[[create]]" disabled="[[isBusy]]">Confirm and create</oj-button>
+    </section>
+    <!-- /ko -->
+    <!-- /ko -->
+
+    <!-- ko if: created -->
+    <section id="deposit-success" class="summary-card investment-review banking-success-card reveal-target" aria-labelledby="deposit-success-title">
+      <p class="dashboard-eyebrow">INVESTMENT CREATED</p>
+      <h2 id="deposit-success-title" data-bind="text: created().productName"></h2>
+      <p>Your deposit has been created and the initial amount has been debited.</p>
+      <dl class="banking-detail-list">
+        <div><dt>Investment ID</dt><dd data-bind="text: created().investmentId"></dd></div>
+        <div><dt>Amount</dt><dd data-bind="text: money(created().monthlyAmount || created().principal)"></dd></div>
+        <div><dt>Maturity date</dt><dd data-bind="text: date(created().maturityDate)"></dd></div>
+      </dl>
+      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[goToPortfolio]]">View investments</oj-button><oj-button chroming="borderless" on-oj-action="[[startAgain]]">Start another</oj-button></div>
+    </section>
+    <!-- /ko -->
+  </div>
+</div>

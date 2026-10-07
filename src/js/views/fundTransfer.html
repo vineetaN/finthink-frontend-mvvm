@@ -1,0 +1,93 @@
+<div class="dashboard-page banking-flow-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">FUND TRANSFER</p>
+    <h1>Move money<br>with confidence.</h1>
+    <p>Choose a recipient, then confirm with a code sent to your email.</p>
+  </section>
+
+  <div class="banking-flow-content">
+    <ol class="banking-steps" aria-label="Transfer progress">
+      <li data-bind="css: { 'is-current': stage() === 'form' }">01 · Transfer details</li>
+      <li data-bind="css: { 'is-current': stage() === 'otp' }">02 · Verify code</li>
+      <li data-bind="css: { 'is-current': stage() === 'done' }">03 · Confirmation</li>
+    </ol>
+
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading transfer choices"></oj-progress-circle>
+      Loading your accounts and beneficiaries…
+    </div>
+
+    <!-- ko if: stage() === 'form' -->
+    <section class="summary-card banking-form-card" aria-labelledby="transfer-form-title">
+      <p class="dashboard-eyebrow">STEP 01 / 03</p>
+      <h2 id="transfer-form-title">Transfer details</h2>
+      <div class="banking-form-grid">
+        <label>From account
+          <select data-bind="options: accounts, optionsText: 'label', optionsValue: 'accountId', optionsCaption: 'Choose an active account', value: sourceAccountId"></select>
+        </label>
+        <label>Pay to
+          <select data-bind="value: paymentMode">
+            <option value="BENEFICIARY">Saved beneficiary</option>
+            <option value="DIRECT">Direct recipient</option>
+          </select>
+        </label>
+        <!-- ko if: isBeneficiaryMode -->
+        <label>Beneficiary
+          <select data-bind="options: beneficiaries, optionsText: 'label', optionsValue: 'beneficiaryId', optionsCaption: 'Choose a beneficiary', value: beneficiaryId"></select>
+        </label>
+        <!-- /ko -->
+        <!-- ko ifnot: isBeneficiaryMode -->
+        <label>Recipient account number<input type="text" maxlength="20" autocomplete="off" data-bind="value: recipientAccountNumber, valueUpdate: 'input'"></label>
+        <label>Recipient IFSC<input type="text" maxlength="11" autocomplete="off" data-bind="value: recipientIfscCode, valueUpdate: 'input'"></label>
+        <!-- /ko -->
+        <label>Amount (₹)<input type="text" inputmode="decimal" autocomplete="off" data-bind="value: amount, valueUpdate: 'input'"></label>
+        <label>Description (optional)<input type="text" maxlength="250" data-bind="value: description, valueUpdate: 'input'"></label>
+      </div>
+      <p class="banking-help">Direct recipients must have an account in this banking system. Check the details before requesting a code.</p>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[initiate]]" disabled="[[isBusy() || isLoading()]]">Send verification code</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[goToBeneficiaries]]">Manage beneficiaries</oj-button>
+      </div>
+    </section>
+    <!-- /ko -->
+
+    <!-- ko if: stage() === 'otp' -->
+    <section class="summary-card banking-form-card" aria-labelledby="transfer-otp-title">
+      <p class="dashboard-eyebrow">STEP 02 / 03</p>
+      <h2 id="transfer-otp-title">Verify your transfer</h2>
+      <p class="banking-help">A six-digit code was sent to your registered email. It expires in five minutes.</p>
+      <dl class="banking-detail-list">
+        <div><dt>Recipient</dt><dd data-bind="text: pendingPayment().recipientName"></dd></div>
+        <div><dt>Account</dt><dd data-bind="text: pendingPayment().recipientAccountNumber"></dd></div>
+        <div><dt>IFSC</dt><dd data-bind="text: pendingPayment().recipientIfscCode"></dd></div>
+        <div><dt>Amount</dt><dd data-bind="text: formatMoney(pendingPayment().amount)"></dd></div>
+      </dl>
+      <label class="banking-otp-label">Verification code
+        <input type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-bind="value: otp, valueUpdate: 'input'">
+      </label>
+      <p class="banking-help">Money moves only after you verify this code. If it expires, start a new transfer.</p>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[verify]]" disabled="[[isBusy]]">Confirm transfer</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[startOver]]" disabled="[[isBusy]]">Start over</oj-button>
+      </div>
+    </section>
+    <!-- /ko -->
+
+    <!-- ko if: stage() === 'done' -->
+    <section class="summary-card banking-form-card banking-success-card" aria-labelledby="transfer-done-title">
+      <p class="dashboard-eyebrow">STEP 03 / 03 · SUCCESS</p>
+      <h2 id="transfer-done-title">Transfer complete.</h2>
+      <p data-bind="text: confirmation().message"></p>
+      <dl class="banking-detail-list">
+        <div><dt>Amount</dt><dd data-bind="text: formatMoney(confirmation().amount)"></dd></div>
+        <div><dt>Reference</dt><dd data-bind="text: confirmation().referenceNo"></dd></div>
+        <div><dt>Transaction ID</dt><dd data-bind="text: confirmation().debitTransactionId"></dd></div>
+      </dl>
+      <oj-button chroming="outlined" on-oj-action="[[startOver]]">Make another transfer</oj-button>
+    </section>
+    <!-- /ko -->
+  </div>
+</div>

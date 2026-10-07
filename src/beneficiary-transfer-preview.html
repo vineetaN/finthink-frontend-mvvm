@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beneficiaries and Fund Transfer Preview | FinThink Bank</title>
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    body { margin: 0; }
+    .preview-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; padding: 1rem clamp(1.25rem, 6vw, 6.5rem); background: #083641; color: white; }
+    .preview-bar strong { margin-right: auto; letter-spacing: .08em; }
+    .preview-bar button { padding: .65rem 1rem; border: 1px solid #8ac6bc; border-radius: 4px; background: transparent; color: white; cursor: pointer; font: inherit; }
+    .preview-bar button[aria-selected="true"] { background: #d9f5ed; color: #083641; }
+    .preview-note { margin: 0; padding: .65rem 1.25rem; background: #fff1c7; color: #564518; text-align: center; }
+    main button { padding: .7rem 1.1rem; border: 1px solid #0a7169; border-radius: 4px; background: #0a7169; color: white; cursor: pointer; font: 600 .95rem Arial, sans-serif; }
+    main button:hover { background: #07554e; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <nav class="preview-bar" aria-label="Preview pages">
+    <strong>FINTHINK BANK</strong>
+    <button type="button" data-page="beneficiaries" aria-selected="true">Beneficiaries</button>
+    <button type="button" data-page="transfer" aria-selected="false">Fund Transfer</button>
+  </nav>
+  <p class="preview-note">Visual preview · The names, account numbers, and balance below are sample data. Buttons do not send requests.</p>
+
+  <main id="beneficiaries" class="dashboard-page banking-flow-page">
+    <section class="dashboard-intro"><p class="dashboard-eyebrow">BENEFICIARY MANAGEMENT</p><h1>People you<br>pay, in one place.</h1><p>Save recipients and manage who can receive your transfers.</p></section>
+    <div class="banking-flow-content">
+      <section class="summary-card banking-form-card">
+        <p class="dashboard-eyebrow">NEW RECIPIENT</p><h2>Add a beneficiary</h2>
+        <div class="banking-form-grid">
+          <label>Beneficiary name<input type="text" placeholder="e.g. Ananya Sharma"></label>
+          <label>Bank name<input type="text" placeholder="e.g. HDFC Bank"></label>
+          <label>Account number<input type="text" placeholder="6–20 letters or digits"></label>
+          <label>IFSC code<input type="text" placeholder="e.g. HDFC0123456"></label>
+        </div>
+        <p class="banking-help">Check the account number and IFSC carefully before saving.</p>
+        <div class="reward-actions"><button type="button">Save beneficiary</button></div>
+      </section>
+      <div class="customer-summary-heading"><p class="dashboard-eyebrow">SAVED RECIPIENTS</p><h2>Your beneficiaries</h2></div>
+      <div class="banking-card-grid">
+        <article class="summary-card banking-person-card"><p class="dashboard-eyebrow">ACTIVE</p><h3>Ananya Sharma</h3><p class="summary-account">HDFC Bank · •••• 9012</p><p class="banking-help">HDFC0123456</p><button type="button">View details</button></article>
+        <article class="summary-card banking-person-card"><p class="dashboard-eyebrow">INACTIVE</p><h3>Rohan Mehta</h3><p class="summary-account">ICICI Bank · •••• 4821</p><p class="banking-help">ICIC0001234</p><button type="button">View details</button></article>
+      </div>
+    </div>
+  </main>
+
+  <main id="transfer" class="dashboard-page banking-flow-page" hidden>
+    <section class="dashboard-intro"><p class="dashboard-eyebrow">FUND TRANSFER</p><h1>Move money<br>with confidence.</h1><p>Choose a recipient, then confirm with a code sent to your email.</p></section>
+    <div class="banking-flow-content">
+      <ol class="banking-steps"><li class="is-current">01 · Transfer details</li><li>02 · Verify code</li><li>03 · Confirmation</li></ol>
+      <section class="summary-card banking-form-card">
+        <p class="dashboard-eyebrow">STEP 01 / 03</p><h2>Transfer details</h2>
+        <div class="banking-form-grid">
+          <label>From account<select><option>Savings •••• 4821 · ₹84,680.42</option></select></label>
+          <label>Pay to<select><option>Saved beneficiary</option><option>Direct recipient</option></select></label>
+          <label>Beneficiary<select><option>Ananya Sharma · •••• 9012</option></select></label>
+          <label>Amount (₹)<input type="text" placeholder="2500.00"></label>
+          <label>Description (optional)<input type="text" placeholder="Monthly rent"></label>
+        </div>
+        <p class="banking-help">Direct recipients must have an account in this banking system. Check the details before requesting a code.</p>
+        <div class="reward-actions"><button type="button" onclick="showOtp()">Send verification code</button></div>
+      </section>
+      <section id="previewOtp" class="summary-card banking-form-card" style="margin-top:1.5rem" hidden>
+        <p class="dashboard-eyebrow">STEP 02 / 03</p><h2>Verify your transfer</h2>
+        <p class="banking-help">A six-digit code was sent to your registered email. It expires in five minutes.</p>
+        <dl class="banking-detail-list"><div><dt>Recipient</dt><dd>Ananya Sharma</dd></div><div><dt>Account</dt><dd>****9012</dd></div><div><dt>Amount</dt><dd>₹2,500.00</dd></div></dl>
+        <label class="banking-otp-label">Verification code<input type="text" maxlength="6" placeholder="123456"></label>
+        <p class="banking-help">This is only a visual preview. No money will move.</p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    function showPage(page) {
+      ['beneficiaries', 'transfer'].forEach(function (id) {
+        document.getElementById(id).hidden = id !== page;
+        document.querySelector('[data-page="' + id + '"]').setAttribute('aria-selected', id === page);
+      });
+      window.scrollTo(0, 0);
+    }
+    function showOtp() { document.getElementById('previewOtp').hidden = false; }
+    document.querySelectorAll('.preview-bar button').forEach(function (button) {
+      button.addEventListener('click', function () { showPage(button.dataset.page); });
+    });
+  </script>
+</body>
+</html>
