@@ -2,19 +2,21 @@ define([], function () {
   'use strict';
 
   return {
-    apiGatewayBaseUrl: 'http://localhost:8080',
+    apiGatewayBaseUrl: '',
+    //API Gateway base URL for local development, uncomment the below line and comment the above line to use local API Gateway
+    //sapiGatewayBaseUrl: 'http://localhost:8080',
     rewardEndpoint: '/audit-admin-service/admin/rewards',
     useMockRewardData: false,
     rewardTypes: ['CASHBACK', 'VOUCHER', 'OFFER'],
     rewardCurrency: 'INR',
     rewardStatusField: 'status',
-    cardApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    cardApiBaseUrl: '/audit-admin-service/admin',
     cardIssueEndpoint: '/banking-service/admin/cards/customers/{customerId}',
     cardActionPaths: { freeze: '/cards/{cardId}/freeze', unfreeze: '/cards/{cardId}/unfreeze', block: '/cards/{cardId}/block' },
     cardStatuses: { ACTIVE: 'ACTIVE', FROZEN: 'FROZEN', BLOCKED: 'BLOCKED' },
     cardCurrency: 'INR',
     useMockCardData: false,
-    investmentBaseUrl: 'http://localhost:8080/investment-service/api/investments/admin',
+    investmentBaseUrl: '/investment-service/api/investments/admin',
     useMockInvestmentData: false,
     MAX_INTEREST_RATE: 100,
     auditLogEndpoint: '/audit-admin-service/admin/audit-logs',
@@ -35,7 +37,7 @@ define([], function () {
       toDate: 'toDate',
       search: 'search'
     },
-    loanApiBaseUrl: 'http://localhost:8080/audit-admin-service/admin',
+    loanApiBaseUrl: '/audit-admin-service/admin',
     loanEndpoint: '/loans',
     useMockLoanData: false,
     loanCurrency: 'INR',
