@@ -14,7 +14,7 @@ define([], function () {
       { path: 'cardManagementAdmin', label: 'Card Management', iconClass: 'oj-ux-ico-object-card', roles: ['ADMIN'] },
       { path: 'rewardManagementAdmin', label: 'Reward Management', iconClass: 'oj-ux-ico-star', roles: ['ADMIN'] },
       // UI role checks are for user experience only; the backend must enforce ADMIN on every admin endpoint.
-      { path: 'investmentManagementAdmin', label: 'Investment Management', iconClass: 'oj-ux-ico-chart-spark', roles: ['ADMIN'] },
+      { path: 'investmentManagementAdmin', label: 'Investments', iconClass: 'oj-ux-ico-chart-spark', roles: ['ADMIN'] },
       { path: 'dashboard', label: 'Dashboard', iconClass: 'oj-ux-ico-bargraph', roles: ['CUSTOMER'] },
 
       { path: 'cards', label: 'Cards', iconClass: 'oj-ux-ico-cc-card', roles: ['CUSTOMER'] },
