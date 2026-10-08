@@ -1084,6 +1084,17 @@ html[dir="rtl"] .demo-oracle-icon {
   font-weight: 700;
 }
 
+.notification-AllRead-mark-button {
+  margin-top: 1.21rem;
+  padding: 0.75rem 1.1rem;
+  border: 1px solid #0b5961;
+  background: #0b5961;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .card-submit-payment-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
