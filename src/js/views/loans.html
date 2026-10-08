@@ -140,6 +140,7 @@
         <!-- /ko -->
       </div>
 
+      <!-- ko if: selectedLoan().loanStatus === 'ACTIVE' -->
       <section class="loan-autopay-entry">
         <div>
           <p class="cards-eyebrow">EMI AUTOPAY</p>
@@ -152,6 +153,19 @@
           <span data-bind="text: selectedLoan().autopayEnabled ? 'Change AutoPay account' : 'Enable AutoPay'"></span>
         </button>
       </section>
+
+      <section class="loan-autopay-entry loan-foreclosure-entry">
+        <div>
+          <p class="cards-eyebrow">EARLY REPAYMENT</p>
+          <h3>Foreclose this loan</h3>
+          <p>Review the full payoff amount before closing your loan.</p>
+        </div>
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: openForeclosureDialog">
+          View foreclosure quote
+        </button>
+      </section>
+      <!-- /ko -->
 
       <section class="repayment-schedule">
         <p class="cards-eyebrow">REPAYMENT SCHEDULE</p>
@@ -375,5 +389,124 @@
 
     </section>
   </div>
+
+  <!-- ko if: isForeclosureDialogOpen -->
+  <div class="payment-modal-backdrop loan-foreclosure-backdrop">
+    <section class="payment-modal loan-foreclosure-modal" role="dialog" aria-modal="true"
+             aria-labelledby="loan-foreclosure-title">
+      <div class="payment-modal-header">
+        <div>
+          <p class="cards-eyebrow">LOAN FORECLOSURE</p>
+          <h3 id="loan-foreclosure-title" data-bind="text: foreclosureStep() === 'success' ? 'Loan closed' : 'Close your loan early'"></h3>
+          <p class="card-form-note" data-bind="text: foreclosureLoan().loanAccountNo"></p>
+        </div>
+        <button type="button" class="card-reveal-close" aria-label="Close foreclosure dialog"
+                data-bind="click: closeForeclosureDialog, disable: isForeclosureBusy">&times;</button>
+      </div>
+
+      <!-- ko if: foreclosureStep() === 'loading' -->
+      <p class="card-form-description" role="status">Loading your foreclosure quote and accounts…</p>
+      <!-- /ko -->
+
+      <!-- ko if: foreclosureStep() === 'error' -->
+      <p class="card-action-error" role="alert" data-bind="text: foreclosureError"></p>
+      <button type="button" class="payment-secondary-button" data-bind="click: loadForeclosureDetails">Try again</button>
+      <!-- /ko -->
+
+      <!-- ko if: foreclosureStep() === 'select' -->
+      <p class="card-form-description">This quote includes the balance and any interest or penalties due today. The final amount is recalculated when you confirm with your code.</p>
+      <dl class="loan-foreclosure-quote">
+        <div><dt>Outstanding balance</dt><dd data-bind="text: formatCurrency(foreclosureQuote().outstandingAmount)"></dd></div>
+        <div><dt>Due interest</dt><dd data-bind="text: formatCurrency(foreclosureQuote().dueInterestAmount)"></dd></div>
+        <div><dt>Overdue penalty</dt><dd data-bind="text: formatCurrency(foreclosureQuote().overduePenaltyAmount)"></dd></div>
+        <div><dt>Foreclosure penalty</dt><dd data-bind="text: formatCurrency(foreclosureQuote().foreclosurePenalty)"></dd></div>
+        <div class="loan-foreclosure-total"><dt>Estimated total payable</dt><dd data-bind="text: formatCurrency(foreclosureQuote().totalPayable)"></dd></div>
+      </dl>
+
+      <h4 class="loan-foreclosure-subtitle">Choose an account to debit</h4>
+      <p class="card-form-note" data-bind="visible: foreclosureAccounts().length === 0">No active accounts are available.</p>
+      <div class="autopay-account-list" data-bind="foreach: foreclosureAccounts">
+        <label class="autopay-account-option">
+          <input type="radio" name="foreclosureAccount"
+                 data-bind="checked: $parent.selectedForeclosureAccountId, checkedValue: accountId">
+          <span>
+            <strong data-bind="text: accountType + ' • ' + accountMasked"></strong>
+            <small data-bind="text: 'Available balance: ' + $parent.formatCurrency(availableBalance)"></small>
+          </span>
+        </label>
+      </div>
+      <p class="card-action-error" role="alert"
+         data-bind="visible: selectedForeclosureAccount() && !canReviewForeclosure()">
+        This account does not have enough available balance for the quoted amount.
+      </p>
+      <p class="card-action-error" role="alert" data-bind="visible: foreclosureError, text: foreclosureError"></p>
+      <div class="payment-modal-actions loan-foreclosure-actions">
+        <button type="button" class="payment-secondary-button" data-bind="click: closeForeclosureDialog">Cancel</button>
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: reviewForeclosure, enable: canReviewForeclosure">Continue</button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: foreclosureStep() === 'review' -->
+      <p class="card-form-description">Please check these details carefully. An OTP will be sent to your registered email; entering it will authorize payment and close the loan.</p>
+      <div class="payment-review">
+        <div><span>Loan account</span><strong data-bind="text: foreclosureLoan().loanAccountNo"></strong></div>
+        <div><span>Debit account</span><strong data-bind="text: selectedForeclosureAccount().accountType + ' • ' + selectedForeclosureAccount().accountMasked"></strong></div>
+        <div><span>Available balance</span><strong data-bind="text: formatCurrency(selectedForeclosureAccount().availableBalance)"></strong></div>
+        <div><span>Estimated total payable</span><strong data-bind="text: formatCurrency(foreclosureQuote().totalPayable)"></strong></div>
+      </div>
+      <p class="card-form-note">The final amount may change before OTP verification. The backend checks your balance again before debiting.</p>
+      <p class="card-action-error" role="alert" data-bind="visible: foreclosureError, text: foreclosureError"></p>
+      <div class="payment-modal-actions loan-foreclosure-actions">
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: backToForeclosureAccount, disable: isForeclosureBusy">Back</button>
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: sendForeclosureOtp, disable: isForeclosureBusy">
+          <span data-bind="text: isForeclosureBusy() ? 'Sending code…' : 'Confirm and send OTP'"></span>
+        </button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: foreclosureStep() === 'otp' -->
+      <p class="card-form-description">Enter the six-digit code sent to your registered email. Verifying it will debit the selected account and close this loan.</p>
+      <label class="card-form-field" for="foreclosure-otp">Verification code</label>
+      <input id="foreclosure-otp" class="card-reveal-input" type="text" inputmode="numeric"
+             maxlength="6" autocomplete="one-time-code" placeholder="Six-digit code"
+             data-bind="textInput: foreclosureOtp">
+      <p class="card-action-error" role="alert" data-bind="visible: foreclosureError, text: foreclosureError"></p>
+      <p class="card-form-note" data-bind="visible: foreclosureResendSeconds() > 0,
+          text: 'You can request another code in ' + foreclosureResendSeconds() + ' seconds.'"></p>
+      <p class="payment-success-message" role="status"
+         data-bind="visible: foreclosureResendMessage, text: foreclosureResendMessage"></p>
+      <div class="payment-modal-actions loan-foreclosure-actions">
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: resendForeclosureOtp,
+                           disable: foreclosureResendSeconds() > 0 || isForeclosureBusy()">
+          Resend code
+        </button>
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: verifyForeclosureOtp,
+                           disable: !canVerifyForeclosureOtp() || isForeclosureBusy()">
+          <span data-bind="text: isForeclosureBusy() ? 'Verifying…' : 'Verify and foreclose loan'"></span>
+        </button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: foreclosureStep() === 'success' -->
+      <p class="payment-success-message" role="status">Your loan has been foreclosed successfully.</p>
+      <div class="payment-review">
+        <div><span>Amount paid</span><strong data-bind="text: formatCurrency(foreclosureReceipt().amountPaid)"></strong></div>
+        <div><span>Reference number</span><strong data-bind="text: foreclosureReceipt().referenceNo"></strong></div>
+        <div><span>Loan status</span><strong data-bind="text: foreclosureReceipt().loanStatus"></strong></div>
+        <div><span>Transaction date</span><strong data-bind="text: formatDate(foreclosureReceipt().transactionDate)"></strong></div>
+      </div>
+      <div class="payment-modal-actions loan-foreclosure-actions">
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: closeForeclosureDialog">Done</button>
+      </div>
+      <!-- /ko -->
+    </section>
+  </div>
+  <!-- /ko -->
   </div>
 </div>

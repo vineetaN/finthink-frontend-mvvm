@@ -189,10 +189,31 @@ define([
     );
   }
 
-  function resendAutoPayOtp(authorizationId) {
+  function resendLoanOtp(authorizationId) {
     return apiClient.post(
       '/banking-service/loans/authorizations/' +
         authorizationId + '/resend'
+    );
+  }
+
+  function getForeclosureQuote(loanId) {
+    return apiClient.get(
+      '/banking-service/loans/' + loanId + '/foreclosure-quote'
+    );
+  }
+
+  function initiateForeclosure(loanId, sourceAccountId) {
+    return apiClient.post(
+      '/banking-service/loans/' + loanId + '/foreclose/initiate',
+      { sourceAccountId: sourceAccountId }
+    );
+  }
+
+  function verifyForeclosureOtp(loanId, authorizationId, otp) {
+    return apiClient.post(
+      '/banking-service/loans/' + loanId +
+        '/foreclose/authorizations/' + authorizationId + '/verify',
+      { otp: otp }
     );
   }
 
@@ -210,6 +231,10 @@ define([
     getRepaymentSchedule: getRepaymentSchedule,
     initiateAutoPay: initiateAutoPay,
     verifyAutoPayOtp: verifyAutoPayOtp,
-    resendAutoPayOtp: resendAutoPayOtp
+    resendAutoPayOtp: resendLoanOtp,
+    resendLoanOtp: resendLoanOtp,
+    getForeclosureQuote: getForeclosureQuote,
+    initiateForeclosure: initiateForeclosure,
+    verifyForeclosureOtp: verifyForeclosureOtp
   };
 });

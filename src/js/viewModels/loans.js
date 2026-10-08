@@ -22,6 +22,23 @@ define([
     self.isRepaymentsLoading = ko.observable(false);
     self.repaymentsError = ko.observable('');
 
+    self.isForeclosureDialogOpen = ko.observable(false);
+    self.foreclosureLoan = ko.observable(null);
+    self.foreclosureStep = ko.observable('loading');
+    self.foreclosureQuote = ko.observable(null);
+    self.foreclosureAccounts = ko.observableArray([]);
+    self.selectedForeclosureAccountId = ko.observable(null);
+    self.foreclosureError = ko.observable('');
+    self.isForeclosureLoading = ko.observable(false);
+    self.isForeclosureBusy = ko.observable(false);
+    self.foreclosureAuthorizationId = ko.observable(null);
+    self.foreclosureOtp = ko.observable('');
+    self.foreclosureReceipt = ko.observable(null);
+    self.foreclosureResendSeconds = ko.observable(0);
+    self.foreclosureResendMessage = ko.observable('');
+    let foreclosureResendTimer = null;
+    let foreclosureLoadId = 0;
+
     self.isAutoPayDialogOpen = ko.observable(false);
     self.autoPayAccounts = ko.observableArray([]);
     self.selectedAutoPayAccountId = ko.observable(null);
@@ -171,11 +188,229 @@ self.startAutoPayResendTimer = function () {
     };
 
     self.closeLoanDetails = function () {
+      if (self.isForeclosureBusy()) {
+        return;
+      }
       self.selectedLoan(null);
       self.detailError('');
       self.repayments([]);
       self.repaymentsError('');
       self.closeAutoPayDialog();
+      self.closeForeclosureDialog();
+    };
+
+    self.selectedForeclosureAccount = ko.pureComputed(function () {
+      const accountId = self.selectedForeclosureAccountId();
+      return self.foreclosureAccounts().find(function (account) {
+        return String(account.accountId) === String(accountId);
+      }) || null;
+    });
+
+    self.canReviewForeclosure = ko.pureComputed(function () {
+      const account = self.selectedForeclosureAccount();
+      const quote = self.foreclosureQuote();
+      return !!account && !!quote &&
+        Number(account.availableBalance) >= Number(quote.totalPayable);
+    });
+
+    self.canVerifyForeclosureOtp = ko.pureComputed(function () {
+      return /^\d{6}$/.test(self.foreclosureOtp().trim());
+    });
+
+    self.clearForeclosureResendTimer = function () {
+      if (foreclosureResendTimer) {
+        window.clearInterval(foreclosureResendTimer);
+        foreclosureResendTimer = null;
+      }
+      self.foreclosureResendSeconds(0);
+    };
+
+    self.startForeclosureResendTimer = function () {
+      self.clearForeclosureResendTimer();
+      self.foreclosureResendSeconds(60);
+      foreclosureResendTimer = window.setInterval(function () {
+        const remaining = self.foreclosureResendSeconds();
+        if (remaining <= 1) {
+          self.clearForeclosureResendTimer();
+        } else {
+          self.foreclosureResendSeconds(remaining - 1);
+        }
+      }, 1000);
+    };
+
+    self.loadForeclosureDetails = function () {
+      const loan = self.foreclosureLoan();
+      if (!loan || self.isForeclosureLoading()) {
+        return;
+      }
+      const loadId = ++foreclosureLoadId;
+      self.foreclosureStep('loading');
+      self.foreclosureError('');
+      self.isForeclosureLoading(true);
+      return Promise.all([
+        loanService.getForeclosureQuote(loan.loanId),
+        accountService.getMyAccounts()
+      ]).then(function (results) {
+        if (loadId !== foreclosureLoadId) {
+          return;
+        }
+        self.foreclosureQuote(results[0]);
+        self.foreclosureAccounts(Array.isArray(results[1])
+          ? results[1].filter(function (account) {
+              return account.status === 'ACTIVE';
+            })
+          : []);
+        self.foreclosureStep('select');
+      }).catch(function (error) {
+        if (loadId !== foreclosureLoadId) {
+          return;
+        }
+        self.foreclosureError(error.message ||
+          'We could not load the foreclosure quote and accounts. Please try again.');
+        self.foreclosureStep('error');
+      }).finally(function () {
+        if (loadId === foreclosureLoadId) {
+          self.isForeclosureLoading(false);
+        }
+      });
+    };
+
+    self.openForeclosureDialog = function () {
+      const loan = self.selectedLoan();
+      if (!loan || loan.loanStatus !== 'ACTIVE') {
+        return;
+      }
+      self.foreclosureLoan(loan);
+      self.foreclosureQuote(null);
+      self.foreclosureAccounts([]);
+      self.selectedForeclosureAccountId(null);
+      self.foreclosureAuthorizationId(null);
+      self.foreclosureOtp('');
+      self.foreclosureReceipt(null);
+      self.foreclosureResendMessage('');
+      self.isForeclosureDialogOpen(true);
+      return self.loadForeclosureDetails();
+    };
+
+    self.closeForeclosureDialog = function () {
+      if (self.isForeclosureBusy()) {
+        return;
+      }
+      foreclosureLoadId += 1;
+      self.clearForeclosureResendTimer();
+      self.isForeclosureDialogOpen(false);
+      self.isForeclosureLoading(false);
+      self.foreclosureLoan(null);
+      self.foreclosureQuote(null);
+      self.foreclosureAccounts([]);
+      self.selectedForeclosureAccountId(null);
+      self.foreclosureAuthorizationId(null);
+      self.foreclosureOtp('');
+      self.foreclosureReceipt(null);
+      self.foreclosureError('');
+      self.foreclosureResendMessage('');
+    };
+
+    self.reviewForeclosure = function () {
+      if (!self.canReviewForeclosure()) {
+        self.foreclosureError('Select an active account with enough available balance.');
+        return;
+      }
+      self.foreclosureError('');
+      self.foreclosureStep('review');
+    };
+
+    self.backToForeclosureAccount = function () {
+      self.foreclosureError('');
+      self.foreclosureStep('select');
+    };
+
+    self.sendForeclosureOtp = function () {
+      const loan = self.foreclosureLoan();
+      const account = self.selectedForeclosureAccount();
+      if (self.isForeclosureBusy() || self.foreclosureStep() !== 'review' ||
+          !loan || !account || !self.canReviewForeclosure()) {
+        return;
+      }
+      self.isForeclosureBusy(true);
+      self.foreclosureError('');
+      return loanService.initiateForeclosure(loan.loanId, account.accountId)
+        .then(function (response) {
+          if (!response || !response.authorizationId) {
+            throw new Error('The verification request was not created. Please try again.');
+          }
+          self.foreclosureAuthorizationId(response.authorizationId);
+          self.foreclosureOtp('');
+          self.foreclosureStep('otp');
+          self.startForeclosureResendTimer();
+        }).catch(function (error) {
+          self.foreclosureError(error.message ||
+            'We could not send the verification code. Please try again.');
+        }).finally(function () {
+          self.isForeclosureBusy(false);
+        });
+    };
+
+    self.verifyForeclosureOtp = function () {
+      const loan = self.foreclosureLoan();
+      const authorizationId = self.foreclosureAuthorizationId();
+      const otp = self.foreclosureOtp().trim();
+      if (self.isForeclosureBusy() || self.foreclosureStep() !== 'otp') {
+        return;
+      }
+      if (!loan || !authorizationId) {
+        self.foreclosureError('This request is no longer available. Please start again.');
+        return;
+      }
+      if (!/^\d{6}$/.test(otp)) {
+        self.foreclosureError('Enter the six-digit verification code.');
+        return;
+      }
+      self.isForeclosureBusy(true);
+      self.foreclosureError('');
+      return loanService.verifyForeclosureOtp(loan.loanId, authorizationId, otp)
+        .then(function (receipt) {
+          self.foreclosureReceipt(receipt);
+          self.foreclosureAuthorizationId(null);
+          self.foreclosureOtp('');
+          self.clearForeclosureResendTimer();
+          self.foreclosureStep('success');
+          self.loadLoans();
+          loanService.getLoan(loan.loanId).then(function (updatedLoan) {
+            self.selectedLoan(updatedLoan);
+            self.loadRepayments(updatedLoan.loanId);
+          }).catch(function () {
+            // The receipt remains available even if refreshing details fails.
+          });
+        }).catch(function (error) {
+          self.foreclosureError(error.status
+            ? (error.message || 'The code could not be verified. Check it and try again.')
+            : 'We could not confirm the result. Check your loan status before trying again.');
+        }).finally(function () {
+          self.isForeclosureBusy(false);
+        });
+    };
+
+    self.resendForeclosureOtp = function () {
+      const authorizationId = self.foreclosureAuthorizationId();
+      if (!authorizationId || self.foreclosureStep() !== 'otp' ||
+          self.foreclosureResendSeconds() > 0 || self.isForeclosureBusy()) {
+        return;
+      }
+      self.isForeclosureBusy(true);
+      self.foreclosureError('');
+      self.foreclosureResendMessage('');
+      return loanService.resendLoanOtp(authorizationId)
+        .then(function () {
+          self.foreclosureOtp('');
+          self.foreclosureResendMessage('A new verification code has been sent.');
+          self.startForeclosureResendTimer();
+        }).catch(function (error) {
+          self.foreclosureError(error.message ||
+            'We could not resend the verification code.');
+        }).finally(function () {
+          self.isForeclosureBusy(false);
+        });
     };
 
     self.openAutoPayDialog = function () {
