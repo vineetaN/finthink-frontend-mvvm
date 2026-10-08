@@ -17,10 +17,6 @@
   </header>
 
   <div class="loan-toolbar">
-    <div class="loan-meta">
-      <oj-label for="loanDensity">Row spacing</oj-label>
-      <oj-select-single id="loanDensity" value="{{density}}" data="[[densityOptions]]"></oj-select-single>
-    </div>
     <div class="loan-last-updated" role="status" aria-live="polite">
       <span>Last updated</span>
       <strong><oj-bind-text value="[[lastUpdated() || '—']]"></oj-bind-text></strong>
@@ -138,13 +134,6 @@
           <oj-label for="loanTypeSelect">Loan type</oj-label>
           <oj-select-single id="loanTypeSelect" value="{{form.loanType}}" data="[[loanTypePresetOptions]]"></oj-select-single>
           <div class="field-error" data-bind="visible: formErrors().loanType, text: formErrors().loanType"></div>
-        </div>
-
-        <div data-bind="visible: showCustomLoanType()">
-          <oj-label for="loanCustomTypeInput">New loan type</oj-label>
-          <oj-input-text id="loanCustomTypeInput" value="{{form.customLoanType}}"></oj-input-text>
-          <div class="field-preview" data-bind="visible: previewNormalizedType, text: 'Will be saved as: ' + previewNormalizedType()"></div>
-          <div class="field-error" data-bind="visible: formErrors().customLoanType, text: formErrors().customLoanType"></div>
         </div>
 
         <div>

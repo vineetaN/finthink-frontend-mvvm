@@ -56,7 +56,6 @@ define([
     this.loanTypeFilter = ko.observable('');
     this.statusFilter = ko.observable('');
     this.autopayFilter = ko.observable('');
-    this.density = ko.observable('comfortable');
     this.activeQuickFilters = ko.observableArray([]);
     this.columnState = ko.observable({
       loanId: true,
@@ -88,48 +87,33 @@ define([
       source.forEach(function (item) {
         options.push({ value: item.value, label: item.label });
       });
-      var seen = {};
-      self.rows().forEach(function (loan) {
-        var value = String(loan.loanType || '').trim();
-        if (!value || seen[value.toUpperCase()]) {
-          return;
-        }
-        seen[value.toUpperCase()] = true;
-        options.push({ value: value, label: value });
-      });
-      return options;
+      return new ArrayDataProvider(options, { keyAttributes: 'value' });
     });
 
     this.statusOptions = ko.pureComputed(function () {
       var options = [{ value: '', label: 'All' }];
-      var seen = {};
+      var seen = { '': true };
       self.rows().forEach(function (loan) {
         var value = String(loan.loanStatus || '').trim();
-        if (!value || seen[value]) {
+        var key = value.toUpperCase();
+        if (!value || seen[key]) {
           return;
         }
-        seen[value] = true;
+        seen[key] = true;
         options.push({ value: value, label: value });
       });
-      return options;
+      return new ArrayDataProvider(options, { keyAttributes: 'value' });
     });
 
-    this.autopayOptions = [
+    this.autopayOptions = new ArrayDataProvider([
       { value: '', label: 'All' },
       { value: 'enabled', label: 'Enabled' },
       { value: 'disabled', label: 'Disabled' }
-    ];
-    this.densityOptions = [
-      { value: 'comfortable', label: 'Comfortable' },
-      { value: 'compact', label: 'Compact' }
-    ];
+    ], { keyAttributes: 'value' });
     this.loanTypePresetOptions = new ArrayDataProvider([
       { value: 'HOME', label: 'Home Loan' },
       { value: 'PERSONAL', label: 'Personal Loan' },
-      { value: 'CAR', label: 'Car Loan' },
-      { value: 'BUSINESS', label: 'Business Loan' },
-      { value: 'EDUCATION', label: 'Education Loan' },
-      { value: 'OTHER', label: 'Other (enter a new type)' }
+      { value: 'CAR', label: 'Car Loan' }
     ], { keyAttributes: 'value' });
 
     this.tableColumns = ko.pureComputed(function () {
@@ -163,7 +147,7 @@ define([
         var matchesKeyword = !keyword || loanAccount.indexOf(keyword) !== -1 || String(loan.customerId || '').indexOf(keyword) !== -1;
         var matchesCustomer = !customerId || String(loan.customerId) === customerId;
         var matchesType = !typeFilter || String(loan.loanType || '').toUpperCase() === typeFilter.toUpperCase();
-        var matchesStatus = !statusFilter || String(loan.loanStatus || '') === statusFilter;
+        var matchesStatus = !statusFilter || String(loan.loanStatus || '').trim().toUpperCase() === statusFilter.toUpperCase();
         var matchesAutopay = !autopayFilter || (autopayFilter === 'enabled' ? Boolean(loan.autopayEnabled) : !loan.autopayEnabled);
 
         var withinFilter = matchesKeyword && matchesCustomer && matchesType && matchesStatus && matchesAutopay;
@@ -231,7 +215,6 @@ define([
     this.form = {
       customerId: ko.observable(null),
       loanType: ko.observable('HOME'),
-      customLoanType: ko.observable(''),
       principalAmount: ko.observable(null),
       interestRate: ko.observable(null),
       loanStartDate: ko.observable(''),
@@ -241,18 +224,6 @@ define([
     this.formErrors = ko.observable({});
       this.confirmText = ko.observable('');
     this.pendingCreate = ko.observable(null);
-
-    this.showCustomLoanType = ko.pureComputed(function () {
-      return String(self.form.loanType() || '').toUpperCase() === 'OTHER';
-    });
-
-    this.previewNormalizedType = ko.pureComputed(function () {
-      var customValue = String(self.form.customLoanType() || '').trim();
-      if (!customValue) {
-        return '';
-      }
-      return loanService.normalizeLoanType(customValue, apiConfig.NORMALIZE_LOAN_TYPE !== false);
-    });
 
     this.estimateSummary = ko.pureComputed(function () {
       var principal = Number(self.form.principalAmount() || 0);
@@ -404,7 +375,6 @@ define([
     this.openCreateDialog = function () {
       self.form.customerId(null);
       self.form.loanType('HOME');
-      self.form.customLoanType('');
       self.form.principalAmount(null);
       self.form.interestRate(null);
       self.form.loanStartDate('');
@@ -435,7 +405,7 @@ define([
     this.validateCreateForm = function () {
       var values = {
         customerId: self.form.customerId(),
-        loanType: self.showCustomLoanType() ? self.form.customLoanType() : self.form.loanType(),
+        loanType: self.form.loanType(),
         principalAmount: self.form.principalAmount(),
         interestRate: self.form.interestRate(),
         loanStartDate: self.form.loanStartDate(),
@@ -448,14 +418,7 @@ define([
       if (!Number.isInteger(customerId) || customerId <= 0) {
         errors.customerId = 'Customer ID is required.';
       }
-      if (self.showCustomLoanType()) {
-        var customValue = String(values.loanType || '').trim();
-        if (!customValue) {
-          errors.customLoanType = 'Loan type is required.';
-        } else if (customValue.length > apiConfig.MAX_LOAN_TYPE_LENGTH) {
-          errors.customLoanType = 'Loan type is too long.';
-        }
-      } else if (!String(values.loanType || '').trim()) {
+      if (!String(values.loanType || '').trim()) {
         errors.loanType = 'Please select a loan type.';
       }
       var principalAmount = Number(values.principalAmount);
@@ -488,7 +451,7 @@ define([
         return;
       }
 
-      var typeValue = self.showCustomLoanType() ? self.previewNormalizedType() : String(self.form.loanType() || '');
+      var typeValue = String(self.form.loanType() || '');
       var label = typeValue || 'Loan';
       self.confirmText('Create a ' + formatMoney(Number(self.form.principalAmount() || 0), apiConfig.loanCurrency) + ' ' + label + ' for customer ' + self.form.customerId() + ' at ' + Number(self.form.interestRate()) + '% for ' + self.form.tenureMonths() + ' months?');
       self.pendingCreate({

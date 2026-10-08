@@ -3814,19 +3814,22 @@ body.oj-web-applayout-body {
 
 .audit-item {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr);
-  gap: 0.15rem 0.7rem;
+  grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr);
+  gap: 0.2rem 0.9rem;
   padding: 0.75rem 0;
   border-top: 1px solid #edf1ee;
 }
 
 .audit-type {
+  min-width: 0;
   grid-row: span 2;
   align-self: start;
   padding-top: 0.1rem;
   color: #18725f;
   font-size: 0.7rem;
   font-weight: 750;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .audit-detail { min-width: 0; }
@@ -3851,6 +3854,12 @@ body.oj-web-applayout-body {
 }
 
 .audit-item time { grid-column: 2; }
+
+@media (max-width: 600px) {
+  .audit-item { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
+  .audit-type { grid-row: auto; }
+  .audit-item time { grid-column: 1; }
+}
 
 .placeholder-page {
   min-height: 340px;
@@ -4059,7 +4068,6 @@ body.oj-web-applayout-body {
   .brand-mark { width: 32px; }
   .brand-name { font-size: 0.88rem; }
   .brand-context { font-size: 0.66rem; }
-  .audit-item { grid-template-columns: 62px minmax(0, 1fr); }
 }
 
 /* Audit Log */
@@ -4138,9 +4146,7 @@ body.oj-web-applayout-body {
 .loan-subtitle { margin: .55rem 0 0; color: #647673; font-size: .92rem; }
 .loan-page-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
 .loan-page-actions oj-button { --oj-button-border-radius: 7px; }
-.loan-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.3rem; color: #647673; font-size: .8rem; }
-.loan-meta { display: flex; align-items: center; gap: .5rem; }
-.loan-meta oj-select-single { width: 145px; }
+.loan-toolbar { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.3rem; color: #647673; font-size: .8rem; }
 .loan-last-updated { display: flex; align-items: center; gap: .35rem; }
 .loan-last-updated strong { color: #31584b; }
 .loan-summary-section { margin-bottom: 1.35rem; }

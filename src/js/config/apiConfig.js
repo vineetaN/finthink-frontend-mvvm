@@ -2,7 +2,6 @@ define([], function () {
   'use strict';
 
   return {
-    useMockDashboardData: true,
     apiGatewayBaseUrl: 'http://localhost:8080',
     rewardEndpoint: '/audit-admin-service/admin/rewards',
     useMockRewardData: false,
@@ -43,14 +42,7 @@ define([], function () {
     LOAN_TYPES: [
       { value: 'HOME', label: 'Home Loan', icon: 'home' },
       { value: 'PERSONAL', label: 'Personal Loan', icon: 'person' },
-      { value: 'CAR', label: 'Car Loan', icon: 'car' },
-      { value: 'TWO_WHEELER', label: 'Two-Wheeler Loan', icon: 'bike' },
-      { value: 'EDUCATION', label: 'Education Loan', icon: 'school' },
-      { value: 'BUSINESS', label: 'Business Loan', icon: 'business' },
-      { value: 'GOLD', label: 'Gold Loan', icon: 'diamond' },
-      { value: 'LOAN_AGAINST_PROPERTY', label: 'Loan Against Property', icon: 'property' },
-      { value: 'AGRICULTURE', label: 'Agriculture Loan', icon: 'leaf' },
-      { value: 'CONSUMER_DURABLE', label: 'Consumer Durable Loan', icon: 'cart' }
+      { value: 'CAR', label: 'Car Loan', icon: 'car' }
     ],
     NORMALIZE_LOAN_TYPE: true,
     MAX_LOAN_TYPE_LENGTH: 50,
