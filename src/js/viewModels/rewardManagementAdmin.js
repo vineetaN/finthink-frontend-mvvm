@@ -31,8 +31,6 @@ define([
     this.liveMessage = ko.observable('');
     this.toast = ko.observable('');
     this.busyIds = ko.observableArray([]);
-    this.atStart = ko.observable(true);
-    this.atEnd = ko.observable(true);
     this.currency = config.rewardCurrency;
     this.typeOptions = options(config.rewardTypes);
     this.statusOptions = options(['ACTIVE', 'INACTIVE']);
@@ -63,28 +61,14 @@ define([
       window.clearTimeout(self.toastTimer);
       self.toastTimer = window.setTimeout(function () { self.toast(''); }, 5000);
     };
-    this.updateScroll = function () {
-      var row = document.getElementById('rewardCardRow');
-      if (!row) return;
-      self.atStart(row.scrollLeft <= 2);
-      self.atEnd(row.scrollLeft + row.clientWidth >= row.scrollWidth - 2);
-    };
-    this.scrollCards = function (direction) {
-      var row = document.getElementById('rewardCardRow');
-      if (row) row.scrollBy({ left: direction * 320, behavior: 'smooth' });
-    };
-    this.scrollLeft = function () { self.scrollCards(-1); };
-    this.scrollRight = function () { self.scrollCards(1); };
-    this.rowKeydown = function (event) {
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        event.preventDefault(); self.scrollCards(event.key === 'ArrowLeft' ? -1 : 1);
-      }
-    };
     this.refresh = function () {
       self.loading(true); self.error(''); self.liveMessage('Loading rewards');
-      return service.list().then(function (rows) {
-        self.rewards(rows); self.liveMessage(self.showingText());
-        window.setTimeout(self.updateScroll, 0);
+      return service.listAdmin().then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('Invalid admin rewards response.');
+        self.rewards(rows.map(function (item) {
+          return Object.assign({}, item, { status: String(item.status || '').toUpperCase() });
+        }));
+        self.liveMessage(self.showingText());
       }).catch(function (error) {
         self.error(errorMessage(error)); self.liveMessage(self.error());
       }).finally(function () { self.loading(false); });
@@ -104,12 +88,15 @@ define([
       self.closeConfirm();
       var next = reward.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
       self.busyIds.push(reward.rewardId);
-      service.updateStatus(reward.rewardId, next).then(function () {
+      service.setStatus(reward.rewardId, next).then(function () {
         if (self.form.selected() && self.form.selected().rewardId === reward.rewardId) {
           self.form.selected(Object.assign({}, self.form.selected(), { status: next }));
         }
         self.notify(next === 'ACTIVE' ? 'Reward activated' : 'Reward deactivated');
-        self.refresh();
+        self.rewards(self.rewards().map(function (item) {
+          return item.rewardId === reward.rewardId ? Object.assign({}, item, { status: next }) : item;
+        }));
+        return self.refresh();
       }).catch(function (error) { self.notify(errorMessage(error)); })
         .finally(function () { self.busyIds.remove(reward.rewardId); });
     };

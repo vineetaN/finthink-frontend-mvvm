@@ -66,6 +66,11 @@ html[dir="rtl"] .demo-oracle-icon {
   min-width: 0;
 }
 
+.finthink-app-layout .oj-drawer-layout-middle-section,
+.finthink-app-layout .oj-drawer-layout-main-content {
+  overflow: visible;
+}
+
 #appDrawerLayout .oj-drawer-reflow-wrapper.oj-drawer-reflow.oj-drawer-start {
   border: 0;
   background: transparent;
@@ -757,7 +762,14 @@ body.oj-web-applayout-body {
   color: var(--admin-ink);
 }
 
+.finthink-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
 .admin-topbar {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -765,6 +777,14 @@ body.oj-web-applayout-body {
   padding: 0 2rem;
   border-bottom: 1px solid var(--admin-line);
   background: var(--admin-paper);
+  box-shadow: 0 4px 14px rgba(23, 43, 43, 0.06);
+}
+
+.admin-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-right: auto;
 }
 
 .admin-brand,
@@ -811,6 +831,15 @@ body.oj-web-applayout-body {
   gap: 0.75rem;
 }
 
+.profile-menu {
+  --oj-button-borderless-chrome-text-color: var(--admin-ink);
+}
+
+.profile-menu .admin-identity {
+  min-width: 0;
+  padding: 0.25rem 0.1rem;
+}
+
 .admin-identity {
   align-items: flex-start;
   flex-direction: column;
@@ -844,6 +873,50 @@ body.oj-web-applayout-body {
 #logoutButton {
   --oj-button-outlined-chrome-border-color: #b9cbc3;
   --oj-button-outlined-chrome-text-color: #22554a;
+}
+
+.password-change-dialog {
+  width: min(28rem, calc(100vw - 2rem));
+}
+
+.password-change-body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.password-change-body p {
+  margin: 0;
+  color: var(--admin-muted);
+  line-height: 1.5;
+}
+
+.password-change-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.password-change-field oj-input-password,
+.password-change-field oj-input-text {
+  display: block;
+  width: 100%;
+}
+
+.password-change-message {
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  background: #e8f1ed;
+  color: #145b4e !important;
+}
+
+.password-change-message.password-change-error {
+  background: #fff0ed;
+  color: #a12622 !important;
+}
+
+.password-change-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
 }
 
 .mobile-nav-toggle {
@@ -1209,9 +1282,9 @@ body.oj-web-applayout-body {
 .reward-filters oj-input-text, .reward-filters oj-select-single { width: 100%; }
 .reward-results-heading p { margin: 0; color: #52675f; }
 .reward-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.reward-card-row { display: flex; overflow-x: auto; gap: 16px; scroll-snap-type: x proximity; padding: 0.8rem 0.15rem 1.2rem; margin-top: 0.4rem; }
+.reward-card-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 45px; max-height: 60vh; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 0.8rem 0.5rem 1.2rem 0.15rem; margin-top: 0.4rem; }
 .reward-card-row:focus-visible { outline: 3px solid #268b72; outline-offset: 3px; border-radius: 10px; }
-.reward-card-row > div { flex: 0 0 300px; scroll-snap-align: start; }
+.reward-card-row > div { min-width: 0; }
 .reward-card { display: flex; flex-direction: column; min-height: 260px; height: 100%; padding: 1.1rem; border: 1px solid #c9ddd3; border-radius: 14px; background: #fff; box-shadow: 0 4px 15px #173d2710; }
 .reward-card-inactive { border-color: #d5d9d7; background: #f7f8f7; color: #53625d; }
 .reward-card-top { min-width: 0; }
@@ -1232,8 +1305,8 @@ body.oj-web-applayout-body {
 .reward-status-active { background: #dcf5e7; color: #12633f; }
 .reward-card-buttons { display: flex; align-items: center; gap: 0.15rem; }
 .reward-state { margin-top: 1rem; padding: 2rem; text-align: center; background: #fff; border: 1px solid #e5ebe7; border-radius: 14px; }
-.reward-skeleton-row { display: flex; gap: 16px; overflow: hidden; margin-top: 1rem; }
-.reward-skeleton { flex: 0 0 300px; height: 260px; border-radius: 14px; background: linear-gradient(90deg, #e7ece9, #f5f7f6, #e7ece9); background-size: 200% 100%; animation: reward-shimmer 1.5s infinite; }
+.reward-skeleton-row { display: grid; gap: 16px; max-height: 60vh; overflow: hidden; margin-top: 1rem; }
+.reward-skeleton { height: 260px; border-radius: 14px; background: linear-gradient(90deg, #e7ece9, #f5f7f6, #e7ece9); background-size: 200% 100%; animation: reward-shimmer 1.5s infinite; }
 @keyframes reward-shimmer { to { background-position: -200% 0; } }
 .reward-form-dialog { width: min(680px, calc(100vw - 2rem)); }
 .reward-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem 1rem; }
@@ -1293,6 +1366,7 @@ body.oj-web-applayout-body {
   .investment-dialog-context { grid-template-columns: 1fr; gap: 0.5rem; }
 }
 @media (max-width: 700px) { .reward-heading { align-items: flex-start; flex-direction: column; } .reward-filters { grid-template-columns: 1fr; } .reward-form-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .reward-card-row { grid-template-columns: minmax(0, 1fr); } }
 
 /* Card Management */
 .card-management-page { min-width: 0; }
@@ -1358,11 +1432,11 @@ body.oj-web-applayout-body {
 @media (max-width: 767px) {
   .admin-topbar { min-height: 64px; padding: 0 1rem; }
   .mobile-nav-toggle { display: inline-flex; order: -1; }
-  .admin-brand { margin-right: auto; }
-  .admin-userbar { gap: 0.4rem; }
-  .admin-identity { display: none; }
-  #userMenu { display: none; }
-  #logoutButton { min-width: 0; }
+  .admin-brand-group { gap: 0.5rem; }
+  .admin-userbar { gap: 0.35rem; }
+  .admin-identity { min-width: 0; }
+  .admin-user-name { max-width: 110px; font-size: 0.78rem; }
+  .admin-role-badge { font-size: 0.58rem; }
   .admin-workspace { display: block; min-height: calc(100vh - 114px); }
   .admin-sidebar { display: none !important; }
   .admin-mobile-drawer { display: block; }
@@ -1376,6 +1450,13 @@ body.oj-web-applayout-body {
 }
 
 @media (max-width: 480px) {
+  .admin-topbar { padding: 0 0.5rem; }
+  .admin-brand { gap: 0.45rem; }
+  .brand-mark { width: 32px; }
+  .brand-name { font-size: 0.82rem; }
+  .brand-context { display: none; }
+  .admin-user-name { max-width: 76px; }
+  .admin-role-badge { display: none; }
   .metric-grid { grid-template-columns: 1fr 1fr; gap: 0.55rem; }
   .module-grid { gap: 0.55rem; }
   .module-tile::part(button) { min-height: 156px; padding: 0.8rem; }

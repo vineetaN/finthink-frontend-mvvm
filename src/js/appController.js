@@ -23,6 +23,7 @@ define([
   './utils/sessionService',
   './utils/authGuard',
   './config/roleRoutes',
+  './services/authService',
   // side-effect imports (no parameter)
   'ojs/ojmodule-element',
   'ojs/ojknockout',
@@ -31,7 +32,10 @@ define([
   'ojs/ojnavigationlist',
   'ojs/ojavatar',
   'ojs/ojmenu',
+  'ojs/ojdialog',
   'ojs/ojbutton',
+  'ojs/ojinputtext',
+  'ojs/ojlabel',
   'ojs/ojtoolbar'
 ], function (
   ko,
@@ -47,7 +51,8 @@ define([
   navigationService,
   sessionService,
   authGuard,
-  roleRoutes
+  roleRoutes,
+  authService
 )  {
      function ControllerViewModel() {
 
@@ -149,13 +154,101 @@ define([
       };
 
       this.handleUserMenuAction = (event) => {
-  // Reset Password is a menu placeholder until its page is connected.
-  if (event.detail.selectedValue !== 'out') {
-    return;
-  }
+        if (event.detail.selectedValue === 'out') {
+          this.handleLogout();
+        } else if (event.detail.selectedValue === 'changePassword') {
+          this.openPasswordChange();
+        }
+      };
 
-  this.handleLogout();
-};
+      this.passwordChangeStep = ko.observable('current');
+      this.currentPassword = ko.observable('');
+      this.passwordChangeOtp = ko.observable('');
+      this.newPassword = ko.observable('');
+      this.passwordChangeMessage = ko.observable('');
+      this.passwordChangeError = ko.observable(false);
+      this.passwordChangePending = ko.observable(false);
+
+      this.openPasswordChange = () => {
+        this.resetPasswordChange();
+        document.getElementById('passwordChangeDialog').open();
+      };
+      this.closePasswordChange = () => {
+        document.getElementById('passwordChangeDialog').close();
+      };
+      this.beforeClosePasswordChange = (event) => {
+        if (this.passwordChangePending()) {
+          event.preventDefault();
+        }
+      };
+      this.resetPasswordChange = () => {
+        this.passwordChangeStep('current');
+        this.currentPassword('');
+        this.passwordChangeOtp('');
+        this.newPassword('');
+        this.passwordChangeMessage('');
+        this.passwordChangeError(false);
+        this.passwordChangePending(false);
+      };
+      this.submitPasswordChange = () => {
+        this.passwordChangeMessage('');
+        this.passwordChangeError(false);
+
+        if (this.passwordChangeStep() === 'current') {
+          if (!this.currentPassword()) {
+            this.passwordChangeError(true);
+            this.passwordChangeMessage('Enter your current password.');
+            return;
+          }
+
+          this.passwordChangePending(true);
+          authService.initiatePasswordChange({
+            currentPassword: this.currentPassword()
+          }).then((response) => {
+            this.passwordChangeStep('confirm');
+            this.passwordChangeMessage(
+              response.message || 'A verification code has been sent to your registered contact.'
+            );
+          }).catch((error) => {
+            this.passwordChangeError(true);
+            this.passwordChangeMessage(error.message || 'Could not request a verification code.');
+          }).finally(() => {
+            this.passwordChangePending(false);
+          });
+          return;
+        }
+
+        if (this.passwordChangeStep() !== 'confirm') {
+          return;
+        }
+        if (!/^[0-9]{6}$/.test(this.passwordChangeOtp())) {
+          this.passwordChangeError(true);
+          this.passwordChangeMessage('Enter the six-digit verification code.');
+          return;
+        }
+        if (this.newPassword().length < 8 || this.newPassword().length > 100) {
+          this.passwordChangeError(true);
+          this.passwordChangeMessage('Your new password must be between 8 and 100 characters.');
+          return;
+        }
+
+        this.passwordChangePending(true);
+        authService.confirmPasswordChange({
+          otp: this.passwordChangeOtp(),
+          newPassword: this.newPassword()
+        }).then((response) => {
+          this.passwordChangeStep('complete');
+          this.passwordChangeMessage(response.message || 'Your password has been changed.');
+          this.currentPassword('');
+          this.passwordChangeOtp('');
+          this.newPassword('');
+        }).catch((error) => {
+          this.passwordChangeError(true);
+          this.passwordChangeMessage(error.message || 'Could not change your password.');
+        }).finally(() => {
+          this.passwordChangePending(false);
+        });
+      };
 
       // Header
       // Application Name used in Branding Area

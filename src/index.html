@@ -92,36 +92,72 @@
         </oj-navigation-list>
       </oj-drawer-popup>
       <div id="pageContent" class="oj-web-applayout-page">
-        <header role="banner" class="oj-web-applayout-header">
+        <header role="banner" class="oj-web-applayout-header finthink-sticky-header">
           <div class="admin-topbar">
+            <div class="admin-brand-group">
               <oj-button id="customerDrawerToggle" class="oj-button-lg" on-oj-action="[[toggleDrawer]]" chroming="borderless" aria-label="Banking pages" data-bind="visible: isCustomer">
                 <span slot="startIcon" class="oj-web-applayout-offcanvas-icon"></span>
                 <span>All pages</span>
               </oj-button>
-            <div class="admin-brand">
-              <span class="brand-mark" aria-hidden="true">F</span>
-              <div><span class="brand-name">FinThink Bank</span><span class="brand-context">Operations</span></div>
+              <div class="admin-brand">
+                <span class="brand-mark" aria-hidden="true">F</span>
+                <div><span class="brand-name">FinThink Bank</span><span class="brand-context">Operations</span></div>
+              </div>
             </div>
+              
             <oj-button id="adminDrawerToggle" class="mobile-nav-toggle oj-md-hide" on-oj-action="[[toggleAdminDrawer]]" chroming="borderless" display="icons" aria-label="Open admin navigation" data-bind="visible: isAdmin">
               <span slot="startIcon" class="oj-web-applayout-offcanvas-icon"></span>
             </oj-button>
             <div class="admin-userbar" data-bind="visible: isAuthenticated">
               <oj-avatar class="admin-avatar" initials="[[userInitials]]" size="xs" aria-label="Administrator avatar"></oj-avatar>
-              <div class="admin-identity">
-                <span class="admin-user-name"><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
-                <span class="admin-role-badge"><oj-bind-text value="[[userRole]]"></oj-bind-text></span>
-              </div>
-              <oj-menu-button id="userMenu" display="all" chroming="borderless" aria-label="Account menu">
-                Account
+              <oj-menu-button id="userMenu" class="profile-menu" display="all" chroming="borderless" aria-label="Profile menu">
+                <span class="admin-identity">
+                  <span class="admin-user-name"><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
+                  <span class="admin-role-badge"><oj-bind-text value="[[userRole]]"></oj-bind-text></span>
+                </span>
                 <oj-menu id="userMenuOptions" slot="menu" on-oj-menu-action="[[handleUserMenuAction]]">
-                  <oj-option id="resetPassword" value="resetPassword">Reset Password</oj-option>
-  <oj-option id="out" value="out">Sign out</oj-option>
+                  <oj-option id="changePassword" value="changePassword">Change password</oj-option>
+                  <oj-option id="out" value="out">Sign out</oj-option>
                 </oj-menu>
               </oj-menu-button>
-              <oj-button id="logoutButton" on-oj-action="[[handleLogout]]" chroming="outlined" aria-label="Sign out">Sign out</oj-button>
             </div>
           </div>
         </header>
+
+        <oj-dialog id="passwordChangeDialog" dialog-title="Change password" modality="modal"
+                   cancel-behavior="icon" on-oj-before-close="[[beforeClosePasswordChange]]"
+                   on-oj-close="[[resetPasswordChange]]" class="password-change-dialog">
+          <div slot="body" class="password-change-body">
+            <p data-bind="visible: passwordChangeStep() === 'current'">
+              Enter your current password to request a verification code.
+            </p>
+            <p data-bind="visible: passwordChangeStep() === 'confirm'">
+              Enter the six-digit verification code and your new password.
+            </p>
+            <div class="password-change-field" data-bind="visible: passwordChangeStep() === 'current'">
+              <oj-label for="currentPasswordInput">Current password</oj-label>
+              <oj-input-password id="currentPasswordInput" value="{{currentPassword}}" autocomplete="current-password"></oj-input-password>
+            </div>
+            <div class="password-change-field" data-bind="visible: passwordChangeStep() === 'confirm'">
+              <oj-label for="passwordChangeOtpInput">Verification code</oj-label>
+              <oj-input-text id="passwordChangeOtpInput" value="{{passwordChangeOtp}}" inputmode="numeric"
+                             max-length="6" autocomplete="one-time-code"></oj-input-text>
+              <oj-label for="newPasswordInput">New password</oj-label>
+              <oj-input-password id="newPasswordInput" value="{{newPassword}}" autocomplete="new-password"></oj-input-password>
+            </div>
+            <p class="password-change-message" role="status" data-bind="text: passwordChangeMessage, css: { 'password-change-error': passwordChangeError() }, visible: passwordChangeMessage"></p>
+          </div>
+          <div slot="footer" class="password-change-actions">
+            <oj-button chroming="outlined" on-oj-action="[[closePasswordChange]]"
+                       data-bind="visible: passwordChangeStep() !== 'complete', disabled: passwordChangePending">Cancel</oj-button>
+            <oj-button chroming="callToAction" on-oj-action="[[submitPasswordChange]]"
+                       data-bind="visible: passwordChangeStep() !== 'complete', disabled: passwordChangePending">
+              <span data-bind="text: passwordChangeStep() === 'current' ? 'Send code' : 'Update password'"></span>
+            </oj-button>
+            <oj-button chroming="callToAction" on-oj-action="[[closePasswordChange]]"
+                       data-bind="visible: passwordChangeStep() === 'complete'">Done</oj-button>
+          </div>
+        </oj-dialog>
 
         <div class="admin-workspace" data-bind="css: { 'admin-workspace-public': !isAdmin() }">
           <aside class="admin-sidebar" data-bind="visible: isAdmin" aria-label="Primary navigation">

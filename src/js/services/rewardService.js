@@ -1,8 +1,8 @@
-define(['./apiClient'], function (apiClient) {
+define(['./apiClient', '../config/apiConfig'], function (apiClient, apiConfig) {
   'use strict';
 
   var base = '/banking-service/api/rewards';
-  var adminBase = '/banking-service/admin/rewards';
+  var adminBase = apiConfig.rewardEndpoint;
 
   return {
     list: function () { return apiClient.get(base); },

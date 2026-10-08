@@ -28,6 +28,20 @@ define(['./apiClient'], function (apiClient) {
         payload,
         AUTH_OPTIONS
       );
+    },
+
+    initiatePasswordChange: function (payload) {
+      return apiClient.post(
+        '/identification-service/auth/account/password/change/initiate',
+        payload
+      );
+    },
+
+    confirmPasswordChange: function (payload) {
+      return apiClient.post(
+        '/identification-service/auth/account/password/change/confirm',
+        payload
+      );
     }
   };
 });

@@ -24,8 +24,8 @@ define([], function () {
       { path: 'investments', label: 'View Investments', iconClass: 'oj-ux-ico-bar-chart', roles: ['CUSTOMER'] },
       { path: 'investmentDeposits', label: 'FD & RD', iconClass: 'oj-ux-ico-bar-chart', roles: ['CUSTOMER'] },
       { path: 'mutualFunds', label: 'Mutual Funds', iconClass: 'oj-ux-ico-bar-chart', roles: ['CUSTOMER'] },
-      { path: 'adminRewards', label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings', roles: ['ADMIN'] },
-      { path: 'adminInvestments', label: 'Investment Rates', iconClass: 'oj-ux-ico-settings', roles: ['ADMIN'] }
+      // { path: 'adminRewards', label: 'Admin Rewards', iconClass: 'oj-ux-ico-settings', roles: ['ADMIN'] },
+      // { path: 'adminInvestments', label: 'Investment Rates', iconClass: 'oj-ux-ico-settings', roles: ['ADMIN'] }
     ]
   };
 });

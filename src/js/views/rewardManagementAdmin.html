@@ -8,13 +8,13 @@
     <div><oj-label for="rewardTypeFilter">Reward type</oj-label><oj-select-single id="rewardTypeFilter" data="[[typeOptions]]" value="{{typeFilter}}"></oj-select-single></div>
     <div><oj-label for="rewardStatusFilter">Status</oj-label><oj-select-single id="rewardStatusFilter" data="[[statusOptions]]" value="{{statusFilter}}"></oj-select-single></div>
   </div>
-  <div class="reward-results-heading"><p><oj-bind-text value="[[showingText]]"></oj-bind-text></p><div class="reward-scroll-actions"><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollLeft]]" disabled="[[atStart]]" aria-label="Scroll rewards left"><span slot="startIcon" class="oj-ux-ico-chevron-left" aria-hidden="true"></span></oj-button><oj-button display="icons" chroming="outlined" on-oj-action="[[scrollRight]]" disabled="[[atEnd]]" aria-label="Scroll rewards right"><span slot="startIcon" class="oj-ux-ico-chevron-right" aria-hidden="true"></span></oj-button></div></div>
+  <div class="reward-results-heading"><p><oj-bind-text value="[[showingText]]"></oj-bind-text></p></div>
   <div class="reward-live" role="status" aria-live="polite"><oj-bind-text value="[[liveMessage]]"></oj-bind-text></div>
   <oj-bind-if test="[[loading()]]"><div class="reward-skeleton-row" role="status" aria-label="Loading rewards"><div class="reward-skeleton"></div><div class="reward-skeleton"></div><div class="reward-skeleton"></div></div></oj-bind-if>
   <oj-bind-if test="[[error()]]"><div class="reward-state" role="alert"><p><oj-bind-text value="[[error]]"></oj-bind-text></p><oj-button on-oj-action="[[refresh]]">Retry</oj-button></div></oj-bind-if>
   <oj-bind-if test="[[!loading() && !error() && rewards().length === 0]]"><div class="reward-state">No rewards yet. Create the first one.</div></oj-bind-if>
   <oj-bind-if test="[[!loading() && !error() && rewards().length > 0 && filteredRewards().length === 0]]"><div class="reward-state">No rewards match the filters.</div></oj-bind-if>
-  <div id="rewardCardRow" class="reward-card-row" tabindex="0" role="region" aria-label="Rewards, horizontally scrollable; use left and right arrow keys" on-scroll="[[updateScroll]]" on-keydown="[[rowKeydown]]" data-bind="visible: !loading() && !error() && filteredRewards().length > 0">
+  <div id="rewardCardRow" class="reward-card-row" tabindex="0" role="region" aria-label="Rewards, vertically scrollable" data-bind="visible: !loading() && !error() && filteredRewards().length > 0">
     <oj-bind-for-each data="[[filteredRewards]]"><template><div data-bind="component: { name: 'reward-card', params: { reward: $current.data, busy: busyFor($current.data.rewardId), currency: currency, onEdit: edit, onStatus: askStatus } }"></div></template></oj-bind-for-each>
   </div>
   <reward-form params="model: form"></reward-form>
