@@ -67,7 +67,8 @@
     <!-- /ko -->
   </section>
 
-  <section class="loan-detail-panel"
+  <section id="loan-detail-panel" class="loan-detail-panel" tabindex="-1"
+           aria-label="Selected loan details"
            data-bind="visible: isDetailLoading() || detailError() || selectedLoan()">
 
     <div class="cards-loading" data-bind="visible: isDetailLoading">

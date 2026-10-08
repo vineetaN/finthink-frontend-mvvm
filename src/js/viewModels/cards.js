@@ -447,6 +447,12 @@ self.openCardDetails = function (card) {
     .then(function (response) {
       self.selectedCard(response);
       self.loadCardPaymentHistory(response.cardId);
+      window.setTimeout(function () {
+        var detailPanel = document.getElementById('card-detail-panel');
+        if (detailPanel) {
+          detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 0);
     })
     .catch(function (error) {
       self.detailError(error.message || 'We could not load this card.');

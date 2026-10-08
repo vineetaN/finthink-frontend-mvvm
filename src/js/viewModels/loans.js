@@ -153,6 +153,12 @@ self.startAutoPayResendTimer = function () {
         .then(function (response) {
           self.selectedLoan(response);
           self.loadRepayments(response.loanId);
+          window.setTimeout(function () {
+            var detailPanel = document.getElementById('loan-detail-panel');
+            if (detailPanel) {
+              detailPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 0);
         })
         .catch(function (error) {
           self.detailError(

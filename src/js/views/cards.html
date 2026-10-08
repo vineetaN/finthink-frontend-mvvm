@@ -120,7 +120,7 @@
       <p class="card-form-description">
         Enter the six-digit code sent to your registered email. The code expires in five minutes.
       </p>
-      <form data-bind="submit: verifyCardNumberReveal">
+      <form class="card-reveal-otp-form" data-bind="submit: verifyCardNumberReveal">
         <label class="card-reveal-field" for="card-reveal-otp">Verification code</label>
         <input id="card-reveal-otp" class="card-reveal-input" type="text"
                inputmode="numeric" maxlength="6" autocomplete="one-time-code"
@@ -152,6 +152,9 @@
   <!-- /ko -->
 
   <section class="card-detail-panel"
+           id="card-detail-panel"
+           tabindex="-1"
+           aria-label="Selected card details"
            data-bind="visible: isDetailLoading() || detailError() || selectedCard()">
 
     <div class="cards-loading" data-bind="visible: isDetailLoading">

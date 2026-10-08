@@ -781,6 +781,7 @@ html[dir="rtl"] .demo-oracle-icon {
   margin-top: 2rem;
   border: 1px solid #d6e3e1;
   background: #ffffff;
+  scroll-margin-top: 6rem;
 }
 
 .card-detail-content {
@@ -1136,7 +1137,20 @@ html[dir="rtl"] .demo-oracle-icon {
 }
 
 .card-reveal-modal {
+  box-sizing: border-box;
+  width: min(42rem, 100%);
   border-radius: 0.75rem;
+}
+
+.card-reveal-modal .payment-modal-header {
+  align-items: flex-start;
+  margin-bottom: 1.15rem;
+}
+
+.card-reveal-modal .card-form-description {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .card-reveal-close {
@@ -1160,15 +1174,35 @@ html[dir="rtl"] .demo-oracle-icon {
 }
 
 .card-reveal-input {
+  box-sizing: border-box;
   width: 100%;
-  min-height: 3rem;
-  margin-bottom: 1rem;
+  min-height: 3.25rem;
+  margin: 0;
   padding: 0.65rem 0.8rem;
   border: 1px solid #8ca8a8;
   border-radius: 0.3rem;
   font: inherit;
   font-size: 1.1rem;
   letter-spacing: 0.15em;
+}
+
+.card-reveal-otp-form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.card-reveal-otp-form .card-reveal-field {
+  margin: 0.25rem 0 0;
+}
+
+.card-reveal-otp-form .card-action-error {
+  margin: 0;
+}
+
+.card-reveal-otp-form .card-submit-payment-button {
+  justify-self: start;
+  max-width: 100%;
+  margin-top: 0.5rem;
 }
 
 .card-revealed-number {
@@ -1412,6 +1446,7 @@ html[dir="rtl"] .demo-oracle-icon {
 
 .loan-detail-panel {
   margin-top: 2rem;
+  scroll-margin-top: 6rem;
   border: 1px solid #d6e3e1;
   background: #ffffff;
 }
