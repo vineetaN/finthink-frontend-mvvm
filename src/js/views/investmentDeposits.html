@@ -36,7 +36,7 @@
         </label>
       </div>
       <p class="banking-help">The bank’s active FD or RD product is selected automatically. FD maturity estimates come from the bank’s preview API.</p>
-      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review deposit</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View investments</oj-button></div>
+      <div class="reward-actions"><oj-button class="investment-soft-action" chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review deposit</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View investments</oj-button></div>
     </section>
 
     <!-- ko if: isReviewCurrent -->

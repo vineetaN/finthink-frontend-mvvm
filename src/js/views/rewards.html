@@ -16,33 +16,62 @@
       <oj-progress-circle size="sm" value="-1" aria-label="Loading rewards"></oj-progress-circle>
       Loading rewards…
     </div>
-    <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage" role="alert">
+    <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage() && !selectedReward()" role="alert">
       <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
     </div>
     <div id="rewards-success" class="customer-summary-state rewards-success reveal-target" data-bind="visible: successMessage" role="status">
       <oj-bind-text value="[[successMessage]]"></oj-bind-text>
     </div>
 
-    <div class="customer-summary-heading">
-      <p class="dashboard-eyebrow">AVAILABLE NOW</p>
-      <h2>Reward catalogue</h2>
+    <div id="rewards-catalogue-heading" class="customer-summary-heading catalogue-heading reveal-target">
+      <div>
+        <p class="dashboard-eyebrow">AVAILABLE NOW</p>
+        <h2>Reward catalogue</h2>
+      </div>
+      <span class="catalogue-count" data-bind="text: rewards().length + (rewards().length === 1 ? ' reward' : ' rewards')"></span>
     </div>
-    <div class="rewards-grid" data-bind="foreach: rewards">
+    <div class="rewards-grid" data-bind="foreach: visibleRewards">
       <article class="summary-card reward-card">
-        <p class="dashboard-eyebrow" data-bind="text: rewardType"></p>
+        <div class="catalogue-card-top">
+          <span class="catalogue-type-badge" data-bind="text: rewardType"></span>
+          <span class="catalogue-reward-id" data-bind="text: '#' + rewardId"></span>
+        </div>
         <h3 data-bind="text: rewardName"></h3>
-        <p class="summary-account" data-bind="text: pointsRequired + ' points' "></p>
+        <p class="catalogue-cost" data-bind="text: pointsRequired.toLocaleString('en-IN') + ' points to redeem' "></p>
         <p class="summary-value" data-bind="text: $parent.rewardValue($data)"></p>
         <p class="reward-validity" data-bind="text: 'Available until ' + endDate"></p>
-        <oj-button chroming="outlined" on-oj-action="[[$parent.chooseReward.bind($parent, $data)]]">View reward</oj-button>
+        <oj-button class="catalogue-view-button" chroming="solid" on-oj-action="[[$parent.chooseReward.bind($parent, $data)]]">View reward</oj-button>
       </article>
     </div>
+    <nav class="wallet-pagination catalogue-pagination" aria-label="Reward catalogue pages" data-bind="visible: pageCount() > 1">
+      <p data-bind="text: 'Showing ' + firstRewardNumber() + '–' + lastRewardNumber() + ' of ' + rewards().length + ' rewards'"></p>
+      <div class="wallet-pagination-controls">
+        <button type="button" data-bind="click: previousPage, disable: currentPage() === 1 || isBusy()" aria-label="Previous page">Previous</button>
+        <div class="wallet-pagination-pages" data-bind="foreach: pageNumbers">
+          <button type="button" data-bind="text: $data, click: $parent.changePage.bind($parent, $data), disable: $parent.isBusy(), css: { 'is-current': $data === $parent.currentPage() }, attr: { 'aria-label': 'Page ' + $data, 'aria-current': $data === $parent.currentPage() ? 'page' : null }"></button>
+        </div>
+        <button type="button" data-bind="click: nextPage, disable: currentPage() === pageCount() || isBusy()" aria-label="Next page">Next</button>
+      </div>
+    </nav>
     <p class="customer-summary-state" data-bind="visible: !isLoading() && rewards().length === 0 && !errorMessage()">No rewards are available right now.</p>
 
     <!-- ko if: selectedReward -->
-    <section id="reward-detail" class="reward-detail summary-card reveal-target" aria-labelledby="reward-detail-title">
-      <p class="dashboard-eyebrow">REWARD DETAILS</p>
-      <h2 id="reward-detail-title" data-bind="text: selectedReward().rewardName"></h2>
+    <div class="biller-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reward-detail-title">
+    <section id="reward-detail" class="biller-add-modal reward-detail reward-detail-modal" aria-labelledby="reward-detail-title">
+      <div class="biller-form-heading">
+        <div>
+          <p class="dashboard-eyebrow">REWARD DETAILS</p>
+          <h2 id="reward-detail-title" data-bind="text: selectedReward().rewardName"></h2>
+        </div>
+        <button type="button" class="biller-payment-close" aria-label="Close reward details" title="Close"
+                data-bind="click: closeReward, disable: isBusy"><span aria-hidden="true">&times;</span></button>
+      </div>
+
+      <div class="reward-history-meta">
+        <span data-bind="text: selectedReward().rewardType"></span>
+        <span class="reward-history-id" data-bind="text: 'Reward ID #' + selectedReward().rewardId"></span>
+        <span data-bind="text: selectedReward().pointsRequired.toLocaleString('en-IN') + ' points to redeem'"></span>
+      </div>
       <p data-bind="text: selectedReward().rewardType + ' · ' + selectedReward().pointsRequired + ' points'"></p>
       <p data-bind="text: rewardValue(selectedReward())"></p>
       <p class="reward-validity" data-bind="text: 'Valid ' + selectedReward().startDate + ' to ' + selectedReward().endDate"></p>
@@ -54,16 +83,17 @@
       <!-- /ko -->
 
       <p data-bind="visible: availablePoints() < selectedReward().pointsRequired">You need more points to redeem this reward.</p>
-      <div class="reward-actions">
+      <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage, text: errorMessage" role="alert"></div>
+      <div class="reward-actions" data-bind="visible: !confirming()">
         <oj-button chroming="solid" on-oj-action="[[requestRedeem]]" disabled="[[!canRedeem()]]">Redeem reward</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[closeReward]]">Close</oj-button>
       </div>
-      <div id="reward-confirm" class="reward-confirm reveal-target" data-bind="visible: confirming">
+      <div id="reward-confirm" class="reward-confirm" data-bind="visible: confirming">
         <p data-bind="text: 'Use ' + selectedReward().pointsRequired + ' points to redeem this reward?' "></p>
         <oj-button chroming="solid" on-oj-action="[[confirmRedeem]]" disabled="[[isBusy]]">Confirm redemption</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[cancelRedeem]]">Cancel</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[cancelRedeem]]" disabled="[[isBusy]]">Back to reward</oj-button>
       </div>
     </section>
+    </div>
     <!-- /ko -->
   </section>
 </div>

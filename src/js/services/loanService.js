@@ -10,6 +10,7 @@ define([
     return Object.assign({}, item);
   });
 
+  // Admin loan functions
   function numberOrZero(value) {
     var numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
@@ -29,11 +30,13 @@ define([
       totalScheduledInterestAmount: numberOrZero(raw.totalScheduledInterestAmount),
       totalScheduledRepaymentAmount: numberOrZero(raw.totalScheduledRepaymentAmount),
       loanStartDate: raw.loanStartDate || '',
-      tenureMonths: raw.tenureMonths !== undefined && raw.tenureMonths !== null ? Number(raw.tenureMonths) : 0,
+      tenureMonths: raw.tenureMonths !== undefined && raw.tenureMonths !== null
+        ? Number(raw.tenureMonths) : 0,
       estimatedEndDate: raw.estimatedEndDate || '',
       nextEmiDate: raw.nextEmiDate || '',
       loanStatus: raw.loanStatus || '',
-      autopayAccountId: raw.autopayAccountId !== undefined && raw.autopayAccountId !== null ? raw.autopayAccountId : null,
+      autopayAccountId: raw.autopayAccountId !== undefined &&
+        raw.autopayAccountId !== null ? raw.autopayAccountId : null,
       autopayEnabled: Boolean(raw.autopayEnabled)
     };
   }
@@ -46,7 +49,11 @@ define([
       return [];
     }
 
-    var candidates = [rows.data, rows.content, rows.items, rows.loans, rows.result, rows.records];
+    var candidates = [
+      rows.data, rows.content, rows.items,
+      rows.loans, rows.result, rows.records
+    ];
+
     for (var index = 0; index < candidates.length; index += 1) {
       if (Array.isArray(candidates[index])) {
         return candidates[index];
@@ -61,7 +68,9 @@ define([
   }
 
   function normalizeLoanType(value, shouldNormalize) {
-    var source = value === undefined || value === null ? '' : String(value).trim();
+    var source = value === undefined || value === null
+      ? '' : String(value).trim();
+
     if (!source) {
       return '';
     }
@@ -76,7 +85,10 @@ define([
   function buildPayload(form) {
     return {
       customerId: Number(form.customerId),
-      loanType: normalizeLoanType(form.loanType, config.NORMALIZE_LOAN_TYPE !== false),
+      loanType: normalizeLoanType(
+        form.loanType,
+        config.NORMALIZE_LOAN_TYPE !== false
+      ),
       principalAmount: Number(form.principalAmount),
       interestRate: Number(form.interestRate),
       loanStartDate: String(form.loanStartDate || '').slice(0, 10),
@@ -90,13 +102,10 @@ define([
       return Promise.resolve(mockLoans.map(mapLoanResponse));
     }
 
-    return apiClient.get(config.loanApiBaseUrl + config.loanEndpoint).then(function (rows) {
-      var loanRows = extractLoanList(rows);
-      if (!Array.isArray(loanRows)) {
-        throw new Error('Invalid loan list response.');
-      }
-      return loanRows.map(mapLoanResponse);
-    });
+    return apiClient.get(config.loanApiBaseUrl + config.loanEndpoint)
+      .then(function (rows) {
+        return extractLoanList(rows).map(mapLoanResponse);
+      });
   }
 
   function create(form) {
@@ -106,18 +115,24 @@ define([
       var nextId = mockLoans.reduce(function (maxId, item) {
         return Math.max(maxId, Number(item.loanId) || 0);
       }, 6000) + 1;
+
       var typeName = String(payload.loanType || 'HOME');
       var createdLoan = {
         loanId: nextId,
         customerId: payload.customerId,
-        loanAccountNo: 'LN-' + typeName + '-' + new Date(payload.loanStartDate).getFullYear() + '-' + String(nextId).slice(-3),
+        loanAccountNo: 'LN-' + typeName + '-' +
+          new Date(payload.loanStartDate).getFullYear() + '-' +
+          String(nextId).slice(-3),
         loanType: typeName,
         principalAmount: payload.principalAmount,
         outstandingAmount: payload.principalAmount,
         interestRate: payload.interestRate,
         emiAmount: Math.round(payload.principalAmount / payload.tenureMonths),
-        totalScheduledInterestAmount: payload.principalAmount * (payload.interestRate / 100),
-        totalScheduledRepaymentAmount: payload.principalAmount + (payload.principalAmount * (payload.interestRate / 100)),
+        totalScheduledInterestAmount:
+          payload.principalAmount * (payload.interestRate / 100),
+        totalScheduledRepaymentAmount:
+          payload.principalAmount +
+          (payload.principalAmount * (payload.interestRate / 100)),
         loanStartDate: payload.loanStartDate,
         tenureMonths: payload.tenureMonths,
         estimatedEndDate: payload.loanStartDate,
@@ -126,23 +141,75 @@ define([
         autopayAccountId: null,
         autopayEnabled: false
       };
+
       mockLoans.push(createdLoan);
       return Promise.resolve(mapLoanResponse(createdLoan));
     }
 
-    return apiClient.post(config.loanApiBaseUrl + config.loanEndpoint, payload).then(function (row) {
+    return apiClient.post(
+      config.loanApiBaseUrl + config.loanEndpoint,
+      payload
+    ).then(function (row) {
       if (row && typeof row === 'object' && !Array.isArray(row)) {
-        return mapLoanResponse(row.data || row.loan || row.result || row.record || row);
+        return mapLoanResponse(
+          row.data || row.loan || row.result || row.record || row
+        );
       }
       return mapLoanResponse(row);
     });
   }
 
+  // Customer loan and AutoPay functions
+  function getLoans() {
+    return apiClient.get('/banking-service/loans');
+  }
+
+  function getLoan(loanId) {
+    return apiClient.get('/banking-service/loans/' + loanId);
+  }
+
+  function getRepaymentSchedule(loanId) {
+    return apiClient.get(
+      '/banking-service/loans/' + loanId + '/repayments'
+    );
+  }
+
+  function initiateAutoPay(loanId, accountId) {
+    return apiClient.put(
+      '/banking-service/loans/' + loanId + '/autopay/initiate',
+      { accountId: accountId }
+    );
+  }
+
+  function verifyAutoPayOtp(loanId, authorizationId, otp) {
+    return apiClient.post(
+      '/banking-service/loans/' + loanId +
+        '/autopay/authorizations/' + authorizationId + '/verify',
+      { otp: otp }
+    );
+  }
+
+  function resendAutoPayOtp(authorizationId) {
+    return apiClient.post(
+      '/banking-service/loans/authorizations/' +
+        authorizationId + '/resend'
+    );
+  }
+
   return {
+    // Admin page
     list: list,
     create: create,
     mapLoanResponse: mapLoanResponse,
     buildPayload: buildPayload,
-    normalizeLoanType: normalizeLoanType
+    normalizeLoanType: normalizeLoanType,
+
+    // Customer page
+    getLoans: getLoans,
+    getLoan: getLoan,
+    getRepaymentSchedule: getRepaymentSchedule,
+    initiateAutoPay: initiateAutoPay,
+    verifyAutoPayOtp: verifyAutoPayOtp,
+    resendAutoPayOtp: resendAutoPayOtp
   };
 });

@@ -29,22 +29,24 @@
         <span aria-hidden="true">→</span>
       </button>
 
-      <div class="quick-action-row">
+      <button type="button" class="quick-action-row dashboard-action-button"
+              data-bind="click: goToBillPayments">
         <span>Pay a bill</span>
         <span aria-hidden="true">→</span>
-      </div>
+      </button>
 
-      <div class="quick-action-row">
+      <button type="button" class="quick-action-row dashboard-action-button"
+              data-bind="click: goToStatements">
         <span>View statements</span>
         <span aria-hidden="true">→</span>
-      </div>
+      </button>
     </article>
   </section>
 
   <section class="dashboard-summary" aria-label="Your banking overview">
     <article class="summary-card">
-      <p class="dashboard-eyebrow">PRIMARY ACCOUNT</p>
-      <h3>Everyday Savings</h3>
+      <p class="dashboard-eyebrow">SAVINGS ACCOUNT</p>
+      <h3 data-bind="text: savingsHeading"></h3>
       <p class="summary-account" data-bind="text: savingsAccountLabel"></p>
       <p class="summary-value" data-bind="text: savingsBalanceText"></p>
       <oj-button chroming="borderless" on-oj-action="[[goToAccounts]]">View accounts</oj-button>

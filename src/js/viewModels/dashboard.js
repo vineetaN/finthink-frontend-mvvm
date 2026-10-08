@@ -49,6 +49,12 @@ define([
       }) || null;
     });
 
+    self.savingsHeading = ko.pureComputed(function () {
+      if (self.accountsState() === 'loading') return 'Checking savings account';
+      if (self.accountsState() === 'error') return 'Savings account unavailable';
+      return self.savingsAccount() ? 'Active savings account' : 'No active savings account';
+    });
+
     self.savingsAccountLabel = ko.pureComputed(function () {
       var account = self.savingsAccount();
       if (!account) return 'No active savings account linked';
@@ -124,6 +130,8 @@ define([
     };
 
     self.goToTransfer = function () { return navigationService.goTo('fundTransfer'); };
+    self.goToBillPayments = function () { return navigationService.goTo('billers'); };
+    self.goToStatements = function () { return navigationService.goTo('transactions'); };
     self.goToAccounts = function () { return navigationService.goTo('customerSummary'); };
     self.goToRewards = function () { return navigationService.goTo('rewardsWallet'); };
     self.goToInvestments = function () { return navigationService.goTo('investments'); };

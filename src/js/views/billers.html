@@ -1,0 +1,642 @@
+<div class="dashboard-page banking-flow-page banking-collection-page billers-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">BILL PAYMENTS</p>
+    <h1>Manage your bills</h1>
+    <p>Keep your regular payments together in one place.</p>
+  </section>
+
+  <div class="banking-flow-content">
+  <div class="biller-page-actions">
+    <div>
+      <p class="cards-eyebrow">YOUR BILLERS</p>
+      <h2>Saved billers</h2>
+    </div>
+
+    <button type="button" class="biller-primary-button"
+            data-bind="click: openAddForm">
+      + Add a biller
+    </button>
+  </div>
+
+  <p class="biller-success" role="status"
+     data-bind="visible: addSuccess, text: addSuccess"></p>
+
+  <div class="cards-loading" data-bind="visible: isLoading">
+    <oj-progress-circle size="md" value="-1"></oj-progress-circle>
+    <span>Loading your billers…</span>
+  </div>
+
+  <div class="cards-error" data-bind="visible: errorMessage">
+    <p data-bind="text: errorMessage"></p>
+    <button type="button" data-bind="click: loadBillers">
+      Try again
+    </button>
+  </div>
+
+  <section class="cards-empty collection-empty"
+           aria-labelledby="billers-empty-title"
+           data-bind="visible: hasLoaded() && !isLoading() &&
+                              !errorMessage() && billers().length === 0">
+    <span class="collection-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5h26v38l-5-3-5 3-5-3-5 3-6-3V5Z"></path>
+        <path d="M18 17h12M18 24h12M18 31h8"></path>
+      </svg>
+    </span>
+    <p class="cards-eyebrow">SAVED BILLERS</p>
+    <h2 id="billers-empty-title">No billers yet</h2>
+    <p>Add a biller once to keep its details ready for future payments.</p>
+    <button type="button" class="biller-primary-button"
+            data-bind="click: openAddForm">Add a biller</button>
+  </section>
+
+  <div class="biller-grid"
+       data-bind="visible: hasLoaded() && !isLoading() &&
+                          !errorMessage() && billers().length > 0">
+    <!-- ko foreach: billers -->
+    <article class="biller-card">
+      <span class="biller-category" data-bind="text: category"></span>
+      <h3 data-bind="text: nickname || billerName"></h3>
+      <p class="biller-provider" data-bind="text: billerName"></p>
+
+      <div class="biller-card-footer">
+        <span>CONSUMER NUMBER</span>
+        <strong data-bind="text: consumerNumberMasked"></strong>
+      </div>
+
+      <button type="button" class="biller-primary-button"
+              data-bind="click: $parent.openPayBiller">
+        Pay bill
+      </button>
+
+      <button type="button" class="biller-delete-button"
+              data-bind="click: $parent.askDeleteBiller">
+        Remove saved biller
+      </button>
+    </article>
+    <!-- /ko -->
+  </div>
+
+<div class="biller-info-grid">
+  <button type="button" class="biller-info-card"
+          data-bind="click: function () { toggleInfoSection('history'); },
+                     css: { 'is-open': openInfoSection() === 'history' },
+                     attr: { 'aria-expanded': openInfoSection() === 'history' }">
+    <span class="cards-eyebrow">PAYMENT ACTIVITY</span>
+    <strong>Previous bill payments</strong>
+    <span>View payments you have made to your billers.</span>
+    <span class="biller-info-arrow" aria-hidden="true">→</span>
+  </button>
+
+  <button type="button" class="biller-info-card"
+          data-bind="click: function () { toggleInfoSection('archived'); },
+                     css: { 'is-open': openInfoSection() === 'archived' },
+                     attr: { 'aria-expanded': openInfoSection() === 'archived' }">
+    <span class="cards-eyebrow">SAVED FOR YOUR RECORDS</span>
+    <strong>Archived billers</strong>
+    <span>Restore a biller or review one you removed.</span>
+    <span class="biller-info-arrow" aria-hidden="true">→</span>
+  </button>
+</div>
+
+
+
+<section class="biller-history-section"
+         data-bind="visible: openInfoSection() === 'history'">
+  <div class="biller-form-heading biller-info-panel-heading">
+    <div>
+      <p class="cards-eyebrow">PAYMENT ACTIVITY</p>
+      <h2>Previous bill payments</h2>
+    </div>
+
+    <div class="biller-info-panel-actions">
+      <button type="button" class="biller-text-button"
+              data-bind="click: loadPaymentHistory,
+                         disable: isLoadingPaymentHistory">Refresh</button>
+      <button type="button" class="biller-info-close"
+              aria-label="Close previous bill payments"
+              title="Close"
+              data-bind="click: function () { openInfoSection(''); }">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+
+  <p data-bind="visible: isLoadingPaymentHistory() && paymentHistory().length === 0">
+    Loading bill payments…
+  </p>
+
+  <p class="card-action-error" role="alert"
+     data-bind="visible: paymentHistoryError,
+                text: paymentHistoryError"></p>
+
+  <p data-bind="visible: !isLoadingPaymentHistory() &&
+                       !paymentHistoryError() &&
+                       paymentHistory().length === 0">
+    No bill payments yet.
+  </p>
+
+  <div data-bind="foreach: paymentHistory">
+    <article class="biller-history-item">
+      <div>
+        <h3 data-bind="text: billerName"></h3>
+        <p data-bind="text: description || 'Bill payment'"></p>
+        <small data-bind="text: $parent.formatPaymentDate(transactionDate)"></small>
+      </div>
+
+      <div class="biller-history-amount">
+        <strong data-bind="text: $parent.formatCurrency(amount)"></strong>
+        <span data-bind="text: status"></span>
+      </div>
+
+      <p class="biller-history-meta">
+        Paid from <span data-bind="text: accountMasked"></span>
+        · Reference <span data-bind="text: referenceNo"></span>
+      </p>
+    </article>
+  </div>
+
+  <div class="transaction-pagination"
+       data-bind="visible: paymentHistoryTotalRecords() > 0">
+    <span data-bind="text: 'Showing page ' + (paymentHistoryPage() + 1) +
+                            ' of ' + paymentHistoryTotalPages() +
+                            ' • ' + paymentHistoryTotalRecords() + ' payments'">
+    </span>
+
+    <div>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: goToPreviousPaymentPage,
+                         disable: paymentHistoryPage() === 0 ||
+                                  isLoadingPaymentHistory()">
+        Previous
+      </button>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: goToNextPaymentPage,
+                         disable: paymentHistoryPage() >=
+                                  paymentHistoryTotalPages() - 1 ||
+                                  isLoadingPaymentHistory()">
+        Next
+      </button>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="biller-archived-section"
+         data-bind="visible: openInfoSection() === 'archived'">
+  <div class="biller-form-heading biller-info-panel-heading">
+    <div>
+      <p class="cards-eyebrow">SAVED FOR YOUR RECORDS</p>
+      <h2>Archived billers</h2>
+    </div>
+
+    <div class="biller-info-panel-actions">
+      <button type="button" class="biller-text-button"
+              data-bind="click: loadArchivedBillers,
+                         disable: isLoadingArchived">Refresh</button>
+      <button type="button" class="biller-info-close"
+              aria-label="Close archived billers"
+              title="Close"
+              data-bind="click: function () { openInfoSection(''); }">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+
+  <p>These billers are no longer available for payment, but you can restore them.</p>
+
+  <p class="biller-success" role="status"
+     data-bind="visible: archiveSuccess, text: archiveSuccess"></p>
+
+  <p class="card-form-note" data-bind="visible: isLoadingArchived">
+    Loading archived billers…
+  </p>
+
+  <p class="card-action-error" role="alert"
+     data-bind="visible: archivedError, text: archivedError"></p>
+
+  <p class="biller-archived-empty"
+     data-bind="visible: !isLoadingArchived() &&
+                        !archivedError() &&
+                        archivedBillers().length === 0">
+    No archived billers.
+  </p>
+
+  <div class="biller-grid"
+       data-bind="visible: archivedBillers().length > 0">
+    <!-- ko foreach: archivedBillers -->
+    <article class="biller-card biller-archived-card">
+      <span class="biller-category" data-bind="text: category"></span>
+      <span class="biller-archived-badge">ARCHIVED</span>
+
+      <h3 data-bind="text: nickname || billerName"></h3>
+      <p class="biller-provider" data-bind="text: billerName"></p>
+
+      <div class="biller-card-footer">
+        <span>CONSUMER NUMBER</span>
+        <strong data-bind="text: consumerNumberMasked"></strong>
+      </div>
+
+      <button type="button" class="biller-primary-button"
+              data-bind="click: $parent.restoreArchivedBiller,
+                         disable: $parent.isRestoringBiller">
+        <span data-bind="text: $parent.isRestoringBiller()
+          ? 'Restoring…'
+          : 'Restore to saved billers'"></span>
+      </button>
+
+     <!-- ko if: hasPayments === true -->
+<p class="biller-history-protected">
+  Payment history exists. This biller cannot be permanently deleted.
+</p>
+<!-- /ko -->
+
+
+<!-- ko if: hasPayments === false -->
+<button type="button" class="biller-delete-button"
+        data-bind="click: $parent.askPermanentDelete">
+  Delete permanently
+</button>
+<!-- /ko -->
+    </article>
+    <!-- /ko -->
+
+
+
+
+
+
+
+
+  </div>
+</section>
+
+<div class="biller-modal-backdrop"
+     data-bind="visible: billerToPermanentlyDelete"
+     role="alertdialog"
+     aria-modal="true"
+     aria-labelledby="biller-permanent-delete-title">
+  <section class="biller-delete-modal">
+    <p class="cards-eyebrow">PERMANENT DELETION</p>
+    <h2 id="biller-permanent-delete-title">
+      Delete this archived biller permanently?
+    </h2>
+
+    <p>
+      <strong data-bind="text: billerToPermanentlyDelete()
+        ? (billerToPermanentlyDelete().nickname ||
+           billerToPermanentlyDelete().billerName)
+        : ''"></strong>
+      will be removed permanently. This cannot be undone.
+      Billers with payment history cannot be permanently deleted.
+    </p>
+
+    <p class="card-action-error" role="alert"
+       data-bind="visible: permanentDeleteError,
+                  text: permanentDeleteError"></p>
+
+    <div class="biller-delete-actions">
+      <button type="button" class="biller-text-button"
+              data-bind="click: cancelPermanentDelete,
+                         disable: isPermanentlyDeleting">
+        No, keep archived
+      </button>
+
+      <button type="button" class="biller-danger-button"
+              data-bind="click: confirmPermanentDelete,
+                         disable: isPermanentlyDeleting">
+        <span data-bind="text: isPermanentlyDeleting()
+          ? 'Deleting…'
+          : 'Yes, delete permanently'"></span>
+      </button>
+    </div>
+  </section>
+</div>
+
+  <!-- Delete confirmation -->
+  <div class="biller-modal-backdrop"
+       data-bind="visible: billerToDelete"
+       role="alertdialog"
+       aria-modal="true"
+       aria-labelledby="biller-delete-title">
+    <section class="biller-delete-modal">
+      <p class="cards-eyebrow">CONFIRM REMOVAL</p>
+      <h2 id="biller-delete-title">Remove this saved biller?</h2>
+
+      <p>
+        <strong data-bind="text: billerToDelete()
+          ? (billerToDelete().nickname || billerToDelete().billerName)
+          : ''"></strong>
+        will no longer appear in your saved billers.
+      </p>
+
+      <p class="card-action-error" role="alert"
+         data-bind="visible: deleteError, text: deleteError"></p>
+
+      <div class="biller-delete-actions">
+        <button type="button" class="biller-text-button"
+                data-bind="click: cancelDeleteBiller, disable: isDeleting">
+          No, keep it
+        </button>
+
+        <button type="button" class="biller-danger-button"
+                data-bind="click: confirmDeleteBiller, disable: isDeleting">
+          <span data-bind="text: isDeleting()
+            ? 'Removing…'
+            : 'Yes, remove biller'"></span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Payment form, review, OTP and result -->
+  <div class="biller-modal-backdrop"
+       data-bind="visible: paymentBiller"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="biller-payment-title">
+    <section class="biller-payment-modal">
+      <div class="biller-form-heading">
+        <div>
+          <p class="cards-eyebrow">BILL PAYMENT</p>
+          <h2 id="biller-payment-title"
+              data-bind="text: paymentStep() === 'form' ? 'Pay a bill'
+                : paymentStep() === 'review' ? 'Review your payment'
+                : paymentStep() === 'otp' ? 'Verify your payment'
+                : 'Payment successful'"></h2>
+        </div>
+
+       <button type="button" class="biller-payment-close"
+        aria-label="Close payment"
+        title="Close payment"
+        data-bind="click: closePayBiller,
+                   disable: isSendingPaymentOtp() ||
+         isResendingPaymentOtp() ||
+         isVerifyingPayment()">
+  <span aria-hidden="true">&times;</span>
+</button>
+      </div>
+
+      <!-- ko if: paymentStep() === 'form' -->
+      <p>
+        Paying
+        <strong data-bind="text: paymentBiller()
+          ? (paymentBiller().nickname || paymentBiller().billerName)
+          : ''"></strong>
+        <span data-bind="text: paymentBiller()
+          ? ' · ' + paymentBiller().consumerNumberMasked
+          : ''"></span>
+      </p>
+
+      <p data-bind="visible: isLoadingPaymentAccounts">
+        Loading your accounts…
+      </p>
+
+      <p class="card-action-error" role="alert"
+         data-bind="visible: paymentError, text: paymentError"></p>
+
+      <label class="biller-payment-field">
+        <span>Pay from account *</span>
+        <select data-bind="options: paymentAccounts,
+                           optionsText: function (account) {
+                             return account.accountType + ' · ' +
+                               account.accountMasked;
+                           },
+                           optionsValue: 'accountId',
+                           value: paymentAccountId,
+                           optionsCaption: 'Choose an account'">
+        </select>
+      </label>
+
+      <p class="biller-account-balance" data-bind="visible: paymentAccount">
+        Available balance:
+        <strong data-bind="text: paymentAccount()
+          ? formatCurrency(paymentAccount().availableBalance)
+          : ''"></strong>
+      </p>
+
+      <label class="biller-payment-field">
+        <span>Amount *</span>
+        <input type="text" inputmode="decimal"
+               placeholder="0.00"
+               data-bind="textInput: paymentAmount">
+      </label>
+
+      <label class="biller-payment-field">
+        <span>Description (optional)</span>
+        <input type="text" maxlength="255"
+               placeholder="e.g. October electricity bill"
+               data-bind="textInput: paymentDescription">
+      </label>
+
+      <button type="button" class="biller-primary-button"
+              data-bind="click: reviewPayment,
+                         disable: !canReviewPayment()">
+        Continue to review
+      </button>
+      <!-- /ko -->
+
+      <!-- ko if: paymentStep() === 'review' -->
+      <div class="biller-payment-review">
+        <p>
+          <span>Biller</span>
+          <strong data-bind="text: paymentBiller()
+            ? (paymentBiller().nickname || paymentBiller().billerName)
+            : ''"></strong>
+        </p>
+        <p>
+          <span>Consumer number</span>
+          <strong data-bind="text: paymentBiller()
+            ? paymentBiller().consumerNumberMasked
+            : ''"></strong>
+        </p>
+        <p>
+          <span>Paying from</span>
+          <strong data-bind="text: paymentAccount()
+            ? paymentAccount().accountType + ' · ' +
+              paymentAccount().accountMasked
+            : ''"></strong>
+        </p>
+        <p>
+          <span>Amount</span>
+          <strong data-bind="text: formatCurrency(paymentAmount())"></strong>
+        </p>
+      </div>
+
+      <p class="card-action-error" role="alert"
+         data-bind="visible: paymentError, text: paymentError"></p>
+
+      <div class="biller-delete-actions">
+        <button type="button" class="biller-text-button"
+                data-bind="click: editPayment,
+                           disable: isSendingPaymentOtp">
+          Edit payment
+        </button>
+
+        <button type="button" class="biller-primary-button"
+                data-bind="click: sendPaymentOtp,
+                           disable: isSendingPaymentOtp">
+          <span data-bind="text: isSendingPaymentOtp()
+            ? 'Sending OTP…'
+            : 'Confirm and send OTP'"></span>
+        </button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: paymentStep() === 'otp' -->
+      <p>
+        A six-digit code was sent to your registered email.
+        Enter it to complete this bill payment.
+      </p>
+
+      <div class="biller-payment-review">
+        <p>
+          <span>Biller</span>
+          <strong data-bind="text: paymentBiller()
+            ? (paymentBiller().nickname || paymentBiller().billerName)
+            : ''"></strong>
+        </p>
+        <p>
+          <span>Amount</span>
+          <strong data-bind="text: formatCurrency(paymentAmount())"></strong>
+        </p>
+      </div>
+
+      <label class="biller-payment-field">
+        <span>Verification code</span>
+        <input type="text"
+               inputmode="numeric"
+               maxlength="6"
+               autocomplete="one-time-code"
+               placeholder="Enter six-digit OTP"
+               data-bind="textInput: paymentOtp">
+      </label>
+
+      <p class="card-action-error" role="alert"
+         data-bind="visible: paymentError, text: paymentError"></p>
+
+      <button type="button" class="biller-primary-button"
+              data-bind="click: verifyPaymentOtp,
+                         disable: paymentOtp().trim().length !== 6 ||
+                                  isVerifyingPayment()">
+        <span data-bind="text: isVerifyingPayment()
+          ? 'Verifying…'
+          : 'Verify and pay'"></span>
+      </button>
+
+      <p class="card-form-note"
+   data-bind="visible: paymentResendSeconds() > 0,
+              text: 'You can request another OTP in ' +
+                    paymentResendSeconds() + ' seconds.'"></p>
+
+<p class="biller-success" role="status"
+   data-bind="visible: paymentResendMessage,
+              text: paymentResendMessage"></p>
+
+<button type="button" class="biller-text-button"
+        data-bind="click: resendPaymentOtp,
+                   disable: paymentResendSeconds() > 0 ||
+                            isResendingPaymentOtp() ||
+                            isVerifyingPayment()">
+  <span data-bind="text: isResendingPaymentOtp()
+    ? 'Resending…'
+    : 'Resend OTP'"></span>
+</button>
+
+      <!-- /ko -->
+
+      <!-- ko if: paymentStep() === 'success' -->
+      <div class="biller-payment-success" role="status">
+        <p class="cards-eyebrow">PAYMENT COMPLETE</p>
+        <h3>Your bill has been paid.</h3>
+
+        <p>
+          Amount:
+          <strong data-bind="text: paymentResult()
+            ? formatCurrency(paymentResult().amount)
+            : ''"></strong>
+        </p>
+        <p>
+          Reference:
+          <strong data-bind="text: paymentResult()
+            ? paymentResult().referenceNo
+            : ''"></strong>
+        </p>
+        <p>
+          Remaining account balance:
+          <strong data-bind="text: paymentResult()
+            ? formatCurrency(paymentResult().remainingBalance)
+            : ''"></strong>
+        </p>
+      </div>
+      <!-- /ko -->
+    </section>
+  </div>
+
+  <!-- Add biller form -->
+  <div class="biller-modal-backdrop"
+       data-bind="visible: showAddForm"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="biller-add-title">
+  <section class="biller-form-panel biller-add-modal">
+    <div class="biller-form-heading">
+      <div>
+        <p class="cards-eyebrow">NEW BILLER</p>
+        <h2 id="biller-add-title">Add a biller</h2>
+      </div>
+
+      <button type="button" class="biller-payment-close"
+              aria-label="Close add biller form"
+              title="Close"
+              data-bind="click: closeAddForm, disable: isSaving">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <p>Enter the details exactly as they appear on your bill.</p>
+
+    <form data-bind="submit: saveBiller">
+      <div class="biller-form-grid">
+        <label>
+          <span>Biller name <em>*</em></span>
+          <input type="text" maxlength="100" required
+                 placeholder="e.g. Tata Power"
+                 data-bind="textInput: billerName">
+        </label>
+
+        <label>
+          <span>Category <em>*</em></span>
+          <input type="text" maxlength="50" required
+                 placeholder="e.g. Electricity"
+                 data-bind="textInput: category">
+        </label>
+
+        <label>
+          <span>Consumer number <em>*</em></span>
+          <input type="text" maxlength="50" required
+                 placeholder="As shown on your bill"
+                 data-bind="textInput: consumerNumber">
+        </label>
+
+        <label>
+          <span>Nickname <small>(optional)</small></span>
+          <input type="text" maxlength="50"
+                 placeholder="e.g. Home electricity"
+                 data-bind="textInput: nickname">
+        </label>
+      </div>
+
+      <p class="card-action-error" role="alert"
+         data-bind="visible: addError, text: addError"></p>
+
+      <button type="submit" class="biller-primary-button"
+              data-bind="disable: !canSaveBiller()">
+        <span data-bind="text: isSaving() ? 'Saving…' : 'Save biller'"></span>
+      </button>
+    </form>
+  </section>
+  </div>
+  </div>
+</div>

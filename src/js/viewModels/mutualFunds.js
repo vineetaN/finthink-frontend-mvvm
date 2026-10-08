@@ -1,14 +1,16 @@
 define([
   'knockout', '../services/investmentService', '../services/accountService',
   '../utils/investmentFormat', '../utils/authGuard', '../utils/sessionService',
-  '../utils/navigationService', '../utils/revealSection', 'ojs/ojbutton', 'ojs/ojprogress-circle'
+  '../utils/navigationService', 'ojs/ojbutton', 'ojs/ojprogress-circle'
 ], function (ko, investmentService, accountService, format, authGuard,
-             sessionService, navigationService, revealSection) {
+             sessionService, navigationService) {
   'use strict';
 
   function MutualFundsViewModel() {
     var self = this;
     self.funds = ko.observableArray([]);
+    self.currentPage = ko.observable(1);
+    self.pageSize = 7;
     self.accounts = ko.observableArray([]);
     self.categories = ko.observableArray([]);
     self.risks = ko.observableArray([]);
@@ -30,6 +32,36 @@ define([
     self.decimal = format.decimal;
     self.date = format.date;
     self.isLumpSum = ko.pureComputed(function () { return self.mode() === 'LUMP_SUM'; });
+    self.pageCount = ko.pureComputed(function () {
+      return Math.max(1, Math.ceil(self.funds().length / self.pageSize));
+    });
+    self.visibleFunds = ko.pureComputed(function () {
+      var start = (self.currentPage() - 1) * self.pageSize;
+      return self.funds().slice(start, start + self.pageSize);
+    });
+    self.firstFundNumber = ko.pureComputed(function () {
+      return self.funds().length ? (self.currentPage() - 1) * self.pageSize + 1 : 0;
+    });
+    self.lastFundNumber = ko.pureComputed(function () {
+      return Math.min(self.currentPage() * self.pageSize, self.funds().length);
+    });
+    self.pageNumbers = ko.pureComputed(function () {
+      var total = self.pageCount();
+      var start = Math.max(1, Math.min(self.currentPage() - 2, total - 4));
+      var pages = [];
+      for (var page = start; page <= Math.min(total, start + 4); page += 1) pages.push(page);
+      return pages;
+    });
+    self.changePage = function (page) {
+      if (self.isBusy() || self.isLoading() || page < 1 || page > self.pageCount() || page === self.currentPage()) return;
+      self.selectedFund(null);
+      self.reviewKey('');
+      self.previewResult(null);
+      self.currentPage(page);
+      revealSection('fund-list-heading');
+    };
+    self.previousPage = function () { self.changePage(self.currentPage() - 1); };
+    self.nextPage = function () { self.changePage(self.currentPage() + 1); };
 
     self.formKey = function () {
       return [self.selectedFund() && self.selectedFund().fundId, self.accountId(),
@@ -58,6 +90,7 @@ define([
             throw new Error('Invalid funds or account response.');
           }
           self.funds(results[0]);
+          self.currentPage(1);
           self.categories(Array.from(new Set(results[0].map(function (fund) { return fund.category; }).filter(Boolean))));
           self.risks(Array.from(new Set(results[0].map(function (fund) { return fund.riskLevel; }).filter(Boolean))));
           self.accounts(results[1].filter(function (account) {
@@ -82,6 +115,7 @@ define([
         .then(function (items) {
           if (!Array.isArray(items)) throw new Error('Invalid funds response.');
           self.funds(items);
+          self.currentPage(1);
           self.selectedFund(null);
           self.reviewKey('');
           self.previewResult(null);
@@ -95,7 +129,21 @@ define([
       self.previewResult(null);
       self.created(null);
       self.errorMessage('');
-      revealSection('fund-form');
+    };
+
+    self.closeFund = function () {
+      if (self.isBusy()) return;
+      self.selectedFund(null);
+      self.reviewKey('');
+      self.previewResult(null);
+      self.errorMessage('');
+    };
+
+    self.backToFundForm = function () {
+      if (self.isBusy()) return;
+      self.reviewKey('');
+      self.previewResult(null);
+      self.errorMessage('');
     };
 
     self.validate = function () {
@@ -123,7 +171,6 @@ define([
       self.previewResult(null);
       if (!self.isLumpSum()) {
         self.reviewKey(key);
-        revealSection('fund-review');
         return;
       }
       self.isBusy(true);
@@ -134,7 +181,6 @@ define([
         if (key === self.formKey()) {
           self.previewResult(result);
           self.reviewKey(key);
-          revealSection('fund-review');
         }
       }).catch(function (error) { self.errorMessage(error.message || 'Unable to preview purchase.'); })
         .finally(function () { self.isBusy(false); });
@@ -168,7 +214,6 @@ define([
         self.created(result);
         self.reviewKey('');
         self.previewResult(null);
-        revealSection('fund-success');
       }).catch(function (error) { self.errorMessage(error.message || 'Unable to complete investment.'); })
         .finally(function () { self.isBusy(false); });
     };

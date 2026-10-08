@@ -8,7 +8,7 @@ define([
     var self = this;
     self.beneficiaries = ko.observableArray([]);
     self.selected = ko.observable(null);
-    self.pendingRemoveId = ko.observable(null);
+    self.showAddForm = ko.observable(false);
     self.beneficiaryName = ko.observable('');
     self.accountNumber = ko.observable('');
     self.ifscCode = ko.observable('');
@@ -27,6 +27,19 @@ define([
       self.accountNumber('');
       self.ifscCode('');
       self.bankName('');
+    };
+
+    self.openAddForm = function () {
+      self.errorMessage('');
+      self.successMessage('');
+      self.showAddForm(true);
+    };
+
+    self.closeAddForm = function () {
+      if (self.isBusy()) return;
+      self.showAddForm(false);
+      self.clearForm();
+      self.errorMessage('');
     };
 
     self.load = function () {
@@ -66,6 +79,7 @@ define([
         bankName: bank
       }).then(function () {
         self.clearForm();
+        self.showAddForm(false);
         self.successMessage('Beneficiary added.');
         return beneficiaryService.list();
       }).then(function (items) { self.beneficiaries(items); })
@@ -76,7 +90,6 @@ define([
     self.viewDetails = function (item) {
       if (self.isBusy()) return;
       self.errorMessage('');
-      self.pendingRemoveId(null);
       self.isBusy(true);
       beneficiaryService.get(item.beneficiaryId)
         .then(function (detail) { self.selected(detail); })
@@ -85,8 +98,9 @@ define([
     };
 
     self.closeDetails = function () {
+      if (self.isBusy()) return;
       self.selected(null);
-      self.pendingRemoveId(null);
+      self.errorMessage('');
     };
 
     self.toggleStatus = function () {
@@ -103,27 +117,6 @@ define([
           return beneficiaryService.list();
         }).then(function (items) { self.beneficiaries(items); })
         .catch(function (error) { self.errorMessage(error.message || 'Unable to change status.'); })
-        .finally(function () { self.isBusy(false); });
-    };
-
-    self.askRemove = function () {
-      if (self.selected()) self.pendingRemoveId(self.selected().beneficiaryId);
-    };
-    self.cancelRemove = function () { self.pendingRemoveId(null); };
-    self.remove = function () {
-      var id = self.pendingRemoveId();
-      if (!id || self.isBusy()) return;
-      self.errorMessage('');
-      self.successMessage('');
-      self.isBusy(true);
-      beneficiaryService.remove(id)
-        .then(function () {
-          self.pendingRemoveId(null);
-          self.selected(null);
-          self.successMessage('Beneficiary removed from active use. Its transfer history is preserved.');
-          return beneficiaryService.list();
-        }).then(function (items) { self.beneficiaries(items); })
-        .catch(function (error) { self.errorMessage(error.message || 'Unable to remove beneficiary.'); })
         .finally(function () { self.isBusy(false); });
     };
 
