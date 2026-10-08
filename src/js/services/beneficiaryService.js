@@ -9,7 +9,6 @@ define(['./apiClient'], function (apiClient) {
     create: function (payload) { return apiClient.post(base, payload); },
     setStatus: function (id, status) {
       return apiClient.patch(base + '/' + encodeURIComponent(id) + '/status', { status: status });
-    },
-    remove: function (id) { return apiClient.remove(base + '/' + encodeURIComponent(id)); }
+    }
   };
 });

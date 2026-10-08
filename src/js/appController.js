@@ -105,26 +105,26 @@ define([
 
       const customerNavData = [
         navItem('dashboard'),
-        { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
-        { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
-        { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
-        { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
         navItem('customerSummary'),
-        {
-          path: 'rewardsMenu',
-          detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
-          children: [navItem('rewards'), navItem('rewardsWallet')]
-        },
-        navItem('beneficiaries'),
+        navItem('transactions'),
         navItem('fundTransfer'),
+        navItem('beneficiaries'),
+        navItem('billers'),
+        navItem('cards'),
+        navItem('loans'),
         {
           path: 'investmentMenu',
-          detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+          detail: { label: 'Investments', iconClass: 'oj-ux-ico-money-investment' },
           children: [
             navItem('investments'),
             navItem('investmentDeposits'),
             navItem('mutualFunds')
           ]
+        },
+        {
+          path: 'rewardsMenu',
+          detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+          children: [navItem('rewards'), navItem('rewardsWallet')]
         }
       ];
 

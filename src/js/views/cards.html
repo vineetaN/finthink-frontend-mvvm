@@ -1,10 +1,11 @@
-<div class="cards-page">
-  <section class="cards-header">
-    <p class="cards-eyebrow">CARD MANAGEMENT</p>
+<div class="dashboard-page banking-flow-page banking-collection-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">CARD MANAGEMENT</p>
     <h1>Your cards</h1>
     <p>View your cards and manage their security settings.</p>
   </section>
 
+  <div class="banking-flow-content">
   <div class="cards-loading" data-bind="visible: isLoading">
     <oj-progress-circle size="md" value="-1"></oj-progress-circle>
     <span>Loading your cards…</span>
@@ -17,18 +18,28 @@
     </oj-button>
   </div>
 
-  <div class="cards-empty"
-       data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && cards().length === 0">
-    <p class="cards-eyebrow">NO CARDS FOUND</p>
-    <h2>You do not have any cards yet.</h2>
-    <p>Your issued FinThink cards will appear here.</p>
-  </div>
+  <section class="cards-empty collection-empty"
+           aria-labelledby="cards-empty-title"
+           data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && cards().length === 0">
+    <span class="collection-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="11" width="38" height="26" rx="4"></rect>
+        <path d="M5 19h38M12 30h10"></path>
+      </svg>
+    </span>
+    <p class="cards-eyebrow">YOUR CARDS</p>
+    <h2 id="cards-empty-title">No cards yet</h2>
+    <p>When a FinThink card is issued to your account, it will appear here.</p>
+  </section>
 
   <section class="cards-grid"
            data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && cards().length > 0">
 
     <!-- ko foreach: cards -->
-    <article class="customer-card">
+    <article class="customer-card"
+             data-bind="css: { 'customer-card-credit': cardType === 'CREDIT',
+                                'customer-card-frozen': cardStatus === 'FROZEN',
+                                'customer-card-blocked': cardStatus === 'BLOCKED' }">
       <div class="customer-card-top">
         <span data-bind="text: cardType"></span>
         <span class="customer-card-status" data-bind="text: cardStatus"></span>
@@ -235,7 +246,7 @@
   </button>
 </section>
 
-<div class="payment-modal-backdrop" data-bind="visible: paymentDialogOpen">
+<div class="payment-modal-backdrop" style="display: none" data-bind="visible: paymentDialogOpen">
   <section class="payment-modal" role="dialog" aria-modal="true">
 
     <!-- ko if: paymentStep() === 'form' -->
@@ -371,7 +382,7 @@
     <!-- /ko -->
 
   </section>
-</div>
+  </div>
 
 
 
@@ -541,4 +552,5 @@
     <!-- /ko -->
 
   </section>
+  </div>
 </div>

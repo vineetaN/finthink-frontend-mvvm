@@ -1,10 +1,11 @@
-<div class="cards-page billers-page">
-  <section class="cards-header">
-    <p class="cards-eyebrow">BILL PAYMENTS</p>
+<div class="dashboard-page banking-flow-page banking-collection-page billers-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">BILL PAYMENTS</p>
     <h1>Manage your bills</h1>
     <p>Keep your regular payments together in one place.</p>
   </section>
 
+  <div class="banking-flow-content">
   <div class="biller-page-actions">
     <div>
       <p class="cards-eyebrow">YOUR BILLERS</p>
@@ -32,13 +33,22 @@
     </button>
   </div>
 
-  <div class="cards-empty"
-       data-bind="visible: hasLoaded() && !isLoading() &&
-                          !errorMessage() && billers().length === 0">
-    <p class="cards-eyebrow">NO SAVED BILLERS</p>
-    <h2>No billers yet</h2>
-    <p>Add your first biller to keep its details ready for future payments.</p>
-  </div>
+  <section class="cards-empty collection-empty"
+           aria-labelledby="billers-empty-title"
+           data-bind="visible: hasLoaded() && !isLoading() &&
+                              !errorMessage() && billers().length === 0">
+    <span class="collection-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5h26v38l-5-3-5 3-5-3-5 3-6-3V5Z"></path>
+        <path d="M18 17h12M18 24h12M18 31h8"></path>
+      </svg>
+    </span>
+    <p class="cards-eyebrow">SAVED BILLERS</p>
+    <h2 id="billers-empty-title">No billers yet</h2>
+    <p>Add a biller once to keep its details ready for future payments.</p>
+    <button type="button" class="biller-primary-button"
+            data-bind="click: openAddForm">Add a biller</button>
+  </section>
 
   <div class="biller-grid"
        data-bind="visible: hasLoaded() && !isLoading() &&
@@ -627,5 +637,6 @@
       </button>
     </form>
   </section>
+  </div>
   </div>
 </div>

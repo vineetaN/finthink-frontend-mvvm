@@ -8,6 +8,8 @@ define([
   function InvestmentsViewModel() {
     var self = this;
     self.items = ko.observableArray([]);
+    self.currentPage = ko.observable(1);
+    self.pageSize = 7;
     self.selected = ko.observable(null);
     self.valuation = ko.observable(null);
     self.redeemMode = ko.observable('ALL');
@@ -28,6 +30,34 @@ define([
         return sum + Number(item.principal || 0);
       }, 0);
     });
+    self.pageCount = ko.pureComputed(function () {
+      return Math.max(1, Math.ceil(self.items().length / self.pageSize));
+    });
+    self.visibleItems = ko.pureComputed(function () {
+      var start = (self.currentPage() - 1) * self.pageSize;
+      return self.items().slice(start, start + self.pageSize);
+    });
+    self.firstItemNumber = ko.pureComputed(function () {
+      return self.items().length ? (self.currentPage() - 1) * self.pageSize + 1 : 0;
+    });
+    self.lastItemNumber = ko.pureComputed(function () {
+      return Math.min(self.currentPage() * self.pageSize, self.items().length);
+    });
+    self.pageNumbers = ko.pureComputed(function () {
+      var total = self.pageCount();
+      var start = Math.max(1, Math.min(self.currentPage() - 2, total - 4));
+      var pages = [];
+      for (var page = start; page <= Math.min(total, start + 4); page += 1) pages.push(page);
+      return pages;
+    });
+    self.changePage = function (page) {
+      if (self.isBusy() || page < 1 || page > self.pageCount() || page === self.currentPage()) return;
+      self.closeDetails();
+      self.currentPage(page);
+      revealSection('investment-list-heading');
+    };
+    self.previousPage = function () { self.changePage(self.currentPage() - 1); };
+    self.nextPage = function () { self.changePage(self.currentPage() + 1); };
     self.isFund = ko.pureComputed(function () {
       return !!self.selected() && self.selected().investmentType === 'MUTUAL_FUND';
     });
@@ -40,6 +70,7 @@ define([
         .then(function (items) {
           if (!Array.isArray(items)) throw new Error('Invalid investments response.');
           self.items(items);
+          self.currentPage(1);
         })
         .catch(function (error) {
           self.items([]);
@@ -139,7 +170,10 @@ define([
         self.reviewedRedemption(null);
         revealSection('investment-success');
         return investmentService.active();
-      }).then(function (items) { self.items(items); })
+      }).then(function (items) {
+        self.items(items);
+        self.currentPage(Math.min(self.currentPage(), self.pageCount()));
+      })
         .catch(function (error) { self.errorMessage(error.message || 'Unable to complete investment action.'); })
         .finally(function () { self.isBusy(false); });
     };

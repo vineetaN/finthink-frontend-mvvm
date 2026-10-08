@@ -8,6 +8,8 @@ define([
   function RewardsViewModel() {
     var self = this;
     self.rewards = ko.observableArray([]);
+    self.currentPage = ko.observable(1);
+    self.pageSize = 7;
     self.accounts = ko.observableArray([]);
     self.availablePoints = ko.observable(0);
     self.selectedReward = ko.observable(null);
@@ -17,6 +19,36 @@ define([
     self.errorMessage = ko.observable('');
     self.successMessage = ko.observable('');
     self.confirming = ko.observable(false);
+
+    self.pageCount = ko.pureComputed(function () {
+      return Math.max(1, Math.ceil(self.rewards().length / self.pageSize));
+    });
+    self.visibleRewards = ko.pureComputed(function () {
+      var start = (self.currentPage() - 1) * self.pageSize;
+      return self.rewards().slice(start, start + self.pageSize);
+    });
+    self.firstRewardNumber = ko.pureComputed(function () {
+      return self.rewards().length ? (self.currentPage() - 1) * self.pageSize + 1 : 0;
+    });
+    self.lastRewardNumber = ko.pureComputed(function () {
+      return Math.min(self.currentPage() * self.pageSize, self.rewards().length);
+    });
+    self.pageNumbers = ko.pureComputed(function () {
+      var total = self.pageCount();
+      var start = Math.max(1, Math.min(self.currentPage() - 2, total - 4));
+      var pages = [];
+      for (var page = start; page <= Math.min(total, start + 4); page += 1) pages.push(page);
+      return pages;
+    });
+    self.changePage = function (page) {
+      if (self.isBusy() || page < 1 || page > self.pageCount() || page === self.currentPage()) return;
+      self.selectedReward(null);
+      self.confirming(false);
+      self.currentPage(page);
+      revealSection('rewards-catalogue-heading');
+    };
+    self.previousPage = function () { self.changePage(self.currentPage() - 1); };
+    self.nextPage = function () { self.changePage(self.currentPage() + 1); };
 
     self.formatMoney = function (value) {
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
@@ -45,6 +77,7 @@ define([
         .then(function (results) {
           if (!Array.isArray(results[0])) throw new Error('Invalid rewards response.');
           self.rewards(results[0]);
+          self.currentPage(1);
           self.availablePoints(Number(results[1].availablePoints || 0));
         })
         .catch(function (error) {

@@ -18,11 +18,11 @@
     <section class="investment-filterbar summary-card" aria-label="Filter mutual funds">
       <label>Category<select data-bind="options: categories, optionsCaption: 'All categories', value: category"></select></label>
       <label>Risk level<select data-bind="options: risks, optionsCaption: 'All risk levels', value: riskLevel"></select></label>
-      <oj-button chroming="outlined" on-oj-action="[[applyFilters]]" disabled="[[isLoading]]">Apply filters</oj-button>
+      <oj-button class="investment-soft-action" chroming="solid" on-oj-action="[[applyFilters]]" disabled="[[isLoading]]">Apply filters</oj-button>
     </section>
 
-    <div class="customer-summary-heading"><p class="dashboard-eyebrow">AVAILABLE FUNDS</p><h2>Choose a fund</h2></div>
-    <div class="investment-card-grid" data-bind="foreach: funds">
+    <div id="fund-list-heading" class="customer-summary-heading investment-list-heading reveal-target"><div><p class="dashboard-eyebrow">AVAILABLE FUNDS</p><h2>Choose a fund</h2></div><span class="investment-list-count" data-bind="text: funds().length + (funds().length === 1 ? ' fund' : ' funds')"></span></div>
+    <div class="investment-card-grid" data-bind="foreach: visibleFunds">
       <article class="summary-card investment-holding-card">
         <div class="investment-card-top"><span class="investment-pill" data-bind="text: category"></span><span class="investment-status" data-bind="text: riskLevel + ' risk'"></span></div>
         <h3 data-bind="text: fundName"></h3>
@@ -30,9 +30,19 @@
         <p class="summary-value" data-bind="text: $parent.nav(currentNav)"></p>
         <p class="banking-help">Current NAV per unit</p>
         <div class="investment-meta"><span data-bind="text: 'From ' + $parent.money(minLumpsumAmount)"></span><span data-bind="text: 'SIP from ' + $parent.money(minSipAmount)"></span></div>
-        <oj-button chroming="outlined" on-oj-action="[[$parent.chooseFund.bind($parent, $data)]]">Select fund</oj-button>
+        <oj-button class="investment-soft-action investment-card-action" chroming="solid" on-oj-action="[[$parent.chooseFund.bind($parent, $data)]]">Select fund</oj-button>
       </article>
     </div>
+    <nav class="wallet-pagination investment-pagination" aria-label="Mutual fund pages" data-bind="visible: pageCount() > 1">
+      <p data-bind="text: 'Showing ' + firstFundNumber() + '–' + lastFundNumber() + ' of ' + funds().length + ' funds'"></p>
+      <div class="wallet-pagination-controls">
+        <button type="button" data-bind="click: previousPage, disable: currentPage() === 1 || isBusy() || isLoading()" aria-label="Previous page">Previous</button>
+        <div class="wallet-pagination-pages" data-bind="foreach: pageNumbers">
+          <button type="button" data-bind="text: $data, click: $parent.changePage.bind($parent, $data), disable: $parent.isBusy() || $parent.isLoading(), css: { 'is-current': $data === $parent.currentPage() }, attr: { 'aria-label': 'Page ' + $data, 'aria-current': $data === $parent.currentPage() ? 'page' : null }"></button>
+        </div>
+        <button type="button" data-bind="click: nextPage, disable: currentPage() === pageCount() || isBusy() || isLoading()" aria-label="Next page">Next</button>
+      </div>
+    </nav>
     <p class="customer-summary-state" data-bind="visible: !isLoading() && !errorMessage() && funds().length === 0">No funds match these filters.</p>
 
     <!-- ko if: selectedFund -->
@@ -63,8 +73,9 @@
         <!-- /ko -->
       </div>
       <p class="banking-help" data-bind="text: isLumpSum() ? 'Preview the estimated units at the current NAV before buying.' : 'The first SIP installment is debited immediately. Later installments are scheduled monthly.'"></p>
-      <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review investment</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button></div>
-      <!-- /ko -->
+      <div class="reward-actions"><oj-button class="investment-soft-action" chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review investment</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button></div>
+    </section>
+    <!-- /ko -->
 
     <!-- ko if: isReviewCurrent -->
     <div id="fund-review" aria-label="Investment review">

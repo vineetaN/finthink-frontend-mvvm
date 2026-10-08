@@ -1,10 +1,11 @@
-<div class="cards-page">
-  <section class="cards-header">
-    <p class="cards-eyebrow">LOAN MANAGEMENT</p>
+<div class="dashboard-page banking-flow-page banking-collection-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">LOAN MANAGEMENT</p>
     <h1>Your loans</h1>
     <p>Review your loans, upcoming EMIs, and repayment progress.</p>
   </section>
 
+  <div class="banking-flow-content">
   <div class="cards-loading" data-bind="visible: isLoading">
     <oj-progress-circle size="md" value="-1"></oj-progress-circle>
     <span>Loading your loans…</span>
@@ -17,12 +18,19 @@
     </oj-button>
   </div>
 
-  <div class="cards-empty"
-       data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && loans().length === 0">
-    <p class="cards-eyebrow">NO LOANS FOUND</p>
-    <h2>You do not have any active loans.</h2>
-    <p>Your loan details will appear here when available.</p>
-  </div>
+  <section class="cards-empty collection-empty"
+           aria-labelledby="loans-empty-title"
+           data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && loans().length === 0">
+    <span class="collection-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="10" y="5" width="28" height="38" rx="3"></rect>
+        <path d="M16 16h16M16 23h12M16 30h16"></path>
+      </svg>
+    </span>
+    <p class="cards-eyebrow">YOUR LOANS</p>
+    <h2 id="loans-empty-title">No active loans yet</h2>
+    <p>Your loan details will appear here when a loan is available.</p>
+  </section>
 
   <section class="loans-grid"
            data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && loans().length > 0">
@@ -365,5 +373,6 @@
       </div>
 
     </section>
+  </div>
   </div>
 </div>

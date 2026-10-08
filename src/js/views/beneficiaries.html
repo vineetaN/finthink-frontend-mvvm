@@ -82,14 +82,8 @@
         <oj-button chroming="outlined" on-oj-action="[[toggleStatus]]" disabled="[[isBusy]]">
           <span data-bind="text: selected().status === 'ACTIVE' ? 'Deactivate' : 'Activate'"></span>
         </oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[askRemove]]" disabled="[[isBusy]]">Remove</oj-button>
       </div>
       <p class="banking-alert banking-alert-error" role="alert" data-bind="visible: errorMessage, text: errorMessage"></p>
-      <div class="reward-confirm" data-bind="visible: pendingRemoveId">
-        <p>Remove this beneficiary from active use? Previous transfer history will remain.</p>
-        <oj-button chroming="solid" on-oj-action="[[remove]]" disabled="[[isBusy]]">Confirm removal</oj-button>
-        <oj-button chroming="borderless" on-oj-action="[[cancelRemove]]" disabled="[[isBusy]]">Cancel</oj-button>
-      </div>
     </section>
     </div>
     <!-- /ko -->
