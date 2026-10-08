@@ -1,0 +1,9 @@
+.git
+.gitignore
+node_modules
+src
+src-web
+staged-themes
+tests
+coverage
+*.log
