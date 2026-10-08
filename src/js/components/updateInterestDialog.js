@@ -89,7 +89,10 @@ define(['knockout', '../config/apiConfig', '../services/investmentService', 'ojs
       self.saving(true);
       self.fieldError('');
       self.requestError('');
-      investmentService.updateInterestRate(self.product().productId, Number(self.rawRate())).then(function () {
+      investmentService.updateRate({
+        productId: self.product().productId,
+        interestRate: Number(self.rawRate())
+      }).then(function () {
         self.saveCompleted = true;
         document.getElementById('investmentUpdateDialog').close();
       }).catch(function (error) {

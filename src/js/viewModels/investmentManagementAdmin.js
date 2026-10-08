@@ -55,7 +55,7 @@ define([
         });
       },
       onReload: function (productId) {
-        return service.list().then(function (rows) {
+        return service.products().then(function (rows) {
           self.products(rows);
           self.liveMessage(self.showingText());
           window.setTimeout(self.updateScroll, 0);
@@ -86,7 +86,7 @@ define([
       if (!silent) self.loading(true);
       self.error('');
       self.liveMessage('Loading investment products');
-      return service.list().then(function (rows) {
+      return service.products().then(function (rows) {
         self.products(rows);
         self.liveMessage(self.showingText());
         window.setTimeout(self.updateScroll, 0);

@@ -16,7 +16,7 @@ define([], function () {
     cardCurrency: 'INR',
     useMockCardData: false,
     investmentBaseUrl: 'http://localhost:8080/investment-service/api/investments/admin',
-    useMockInvestmentData: true,
+    useMockInvestmentData: false,
     MAX_INTEREST_RATE: 100,
     auditLogEndpoint: '/audit-admin-service/admin/audit-logs',
     useMockAuditLogData: false,
