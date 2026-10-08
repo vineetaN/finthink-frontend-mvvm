@@ -80,7 +80,8 @@ async function run() {
     '../utils/investmentFormat': format,
     '../utils/authGuard': { requireAuthentication: () => true },
     '../utils/sessionService': { getCustomerId: () => 1 },
-    '../utils/navigationService': { goTo: () => Promise.resolve() }
+    '../utils/navigationService': { goTo: () => Promise.resolve() },
+    '../utils/revealSection': function () {}
   };
 
   const Deposits = loadAmd('viewModels/investmentDeposits.js', deps);

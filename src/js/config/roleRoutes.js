@@ -16,6 +16,13 @@ define([], function () {
       // UI role checks are for user experience only; the backend must enforce ADMIN on every admin endpoint.
       { path: 'investmentManagementAdmin', label: 'Investment Management', iconClass: 'oj-ux-ico-chart-spark', roles: ['ADMIN'] },
       { path: 'dashboard', label: 'Customer Dashboard', iconClass: 'oj-ux-ico-contact-group', roles: ['CUSTOMER'] },
+
+      { path: 'cards', label: 'Cards', iconClass: 'oj-ux-ico-cc-card', roles: ['CUSTOMER'] },
+{ path: 'loans', label: 'Loans', iconClass: 'oj-ux-ico-money-stack', roles: ['CUSTOMER'] },
+{ path: 'transactions', label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics', roles: ['CUSTOMER'] },
+{ path: 'notifications', label: 'Notifications', iconClass: 'oj-ux-ico-bell-ring-s', roles: ['CUSTOMER'] },
+{ path: 'billers', label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper', roles: ['CUSTOMER'] },
+{ path: 'changePassword', label: 'Change Password', iconClass: 'oj-ux-ico-lock', roles: ['CUSTOMER', 'ADMIN'] },
       { path: 'customerSummary', label: 'Customer Summary', iconClass: 'oj-ux-ico-contact-group', roles: ['CUSTOMER'] },
       { path: 'rewards', label: 'Rewards Catalogue', iconClass: 'oj-ux-ico-gift', roles: ['CUSTOMER'] },
       { path: 'rewardsWallet', label: 'Rewards Wallet', iconClass: 'oj-ux-ico-wallet', roles: ['CUSTOMER'] },

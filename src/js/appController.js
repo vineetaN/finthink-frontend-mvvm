@@ -23,6 +23,7 @@ define([
   './utils/sessionService',
   './utils/authGuard',
   './config/roleRoutes',
+    './services/notificationService',
   // side-effect imports (no parameter)
   'ojs/ojmodule-element',
   'ojs/ojknockout',
@@ -47,7 +48,8 @@ define([
   navigationService,
   sessionService,
   authGuard,
-  roleRoutes
+  roleRoutes,
+  notificationService
 )  {
      function ControllerViewModel() {
 
@@ -74,6 +76,7 @@ define([
         { path: '', redirect: 'login' },
         { path: 'login' },
         { path: 'register' },
+        { path: 'forgotPassword' },
         { path: 'unauthorized' }
       ].concat(roleRoutes.pages.map((page) => ({ path: page.path })));
       // Router setup
@@ -99,24 +102,69 @@ define([
         const page = roleRoutes.pages.find((entry) => entry.path === path);
         return { path, detail: { label: page.label, iconClass: page.iconClass } };
       };
+
       const customerNavData = [
         navItem('dashboard'),
+        { path: 'cards', detail: { label: 'Cards', iconClass: 'oj-ux-ico-cc-card' } },
+        { path: 'loans', detail: { label: 'Loans', iconClass: 'oj-ux-ico-money-stack' } },
+        { path: 'transactions', detail: { label: 'Transactions', iconClass: 'oj-ux-ico-money-analytics' } },
+        { path: 'billers', detail: { label: 'Bill Payments', iconClass: 'oj-ux-ico-newspaper' } },
         navItem('customerSummary'),
-        { path: 'rewardsMenu', detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
-          children: [navItem('rewards'), navItem('rewardsWallet')] },
+        {
+          path: 'rewardsMenu',
+          detail: { label: 'Rewards', iconClass: 'oj-ux-ico-gift' },
+          children: [navItem('rewards'), navItem('rewardsWallet')]
+        },
         navItem('beneficiaries'),
         navItem('fundTransfer'),
-        { path: 'investmentMenu', detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
-          children: [navItem('investments'), navItem('investmentDeposits'), navItem('mutualFunds')] }
+        {
+          path: 'investmentMenu',
+          detail: { label: 'Investments', iconClass: 'oj-ux-ico-bar-chart' },
+          children: [
+            navItem('investments'),
+            navItem('investmentDeposits'),
+            navItem('mutualFunds')
+          ]
+        }
       ];
-      const adminNavData = roleRoutes.pages.filter((page) => page.roles.includes('ADMIN'))
+
+      const adminNavData = roleRoutes.pages
+       .filter((page) => page.roles.includes('ADMIN') && page.path !== 'changePassword')
         .map((page) => navItem(page.path));
-      this.customerNavDataProvider = new ArrayTreeDataProvider(customerNavData, { keyAttributes: 'path' });
-      this.adminNavDataProvider = new ArrayTreeDataProvider(adminNavData, { keyAttributes: 'path' });
+
+      this.customerNavDataProvider = new ArrayTreeDataProvider(customerNavData, {
+        keyAttributes: 'path'
+      });
+      this.adminNavDataProvider = new ArrayTreeDataProvider(adminNavData, {
+        keyAttributes: 'path'
+      });
+
       this.isAuthenticated = sessionService.authenticated;
       this.isCustomer = ko.pureComputed(() => sessionService.role() === 'CUSTOMER');
       this.isAdmin = ko.pureComputed(() => sessionService.role() === 'ADMIN');
 
+      this.unreadNotificationCount = notificationService.unreadCount;
+
+      this.refreshUnreadNotificationCount = function () {
+        if (!sessionService.isAuthenticated()) {
+          notificationService.clearUnreadCount();
+          return;
+        }
+
+        notificationService.getUnreadCount().catch(function () {
+          // Keep the last known count if this request temporarily fails.
+        });
+      };
+
+      sessionService.authenticated.subscribe((isAuthenticated) => {
+        if (isAuthenticated) {
+          this.refreshUnreadNotificationCount();
+        } else {
+          notificationService.clearUnreadCount();
+        }
+      });
+
+      this.refreshUnreadNotificationCount();
       // Drawer
       this.sideDrawerOn = ko.observable(false);
       this.adminDrawerOn = ko.observable(false);
@@ -135,13 +183,19 @@ define([
 
       this.handleNavSelection = (event) => {
         const path = event.detail.value;
+
         if (!path || path === 'investmentMenu' || path === 'rewardsMenu') {
           return;
         }
+
         this.sideDrawerOn(false);
         this.adminDrawerOn(false);
         navigationService.goTo(path);
-      }
+      };
+
+      this.goToNotifications = () => {
+        navigationService.goTo('notifications');
+      };
 
       this.handleLogout = () => {
         sessionService.clearSession();
@@ -149,13 +203,14 @@ define([
       };
 
       this.handleUserMenuAction = (event) => {
-  // Reset Password is a menu placeholder until its page is connected.
-  if (event.detail.selectedValue !== 'out') {
-    return;
-  }
+        const selectedValue = event.detail.selectedValue;
 
-  this.handleLogout();
-};
+        if (selectedValue === 'changePassword') {
+          navigationService.goTo('changePassword');
+        } else if (selectedValue === 'out') {
+          this.handleLogout();
+        }
+      };
 
       // Header
       // Application Name used in Branding Area

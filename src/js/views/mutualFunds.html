@@ -6,7 +6,7 @@
   </section>
 
   <div class="investment-content">
-    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage" role="alert">
+    <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage() && !selectedFund() && !created()" role="alert">
       <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
     </div>
     <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
@@ -36,9 +36,18 @@
     <p class="customer-summary-state" data-bind="visible: !isLoading() && !errorMessage() && funds().length === 0">No funds match these filters.</p>
 
     <!-- ko if: selectedFund -->
-    <section id="fund-form" class="summary-card banking-form-card investment-form-card reveal-target" aria-labelledby="fund-form-title">
-      <p class="dashboard-eyebrow">INVEST IN THIS FUND</p>
-      <h2 id="fund-form-title" data-bind="text: selectedFund().fundName"></h2>
+    <div class="biller-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="fund-dialog-title">
+    <section class="biller-add-modal fund-investment-modal">
+      <div class="biller-form-heading">
+        <div>
+          <p class="dashboard-eyebrow" data-bind="text: isReviewCurrent() ? 'REVIEW BEFORE CONFIRMING' : 'INVEST IN THIS FUND'"></p>
+          <h2 id="fund-dialog-title" data-bind="text: selectedFund().fundName"></h2>
+        </div>
+        <button type="button" class="biller-payment-close" aria-label="Close investment form" title="Close"
+                data-bind="click: closeFund, disable: isBusy"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="banking-alert banking-alert-error" data-bind="visible: errorMessage, text: errorMessage" role="alert"></div>
+      <!-- ko ifnot: isReviewCurrent -->
       <p class="banking-help" data-bind="text: selectedFund().category + ' · ' + selectedFund().riskLevel + ' risk · Expense ratio ' + selectedFund().expenseRatio + '%' "></p>
       <p class="banking-help" data-bind="text: 'Exit load: ' + selectedFund().exitLoadPercent + '% for ' + selectedFund().exitLoadPeriodDays + ' days.'"></p>
       <p class="banking-help" data-bind="visible: selectedFund().category === 'ELSS'">ELSS investments have a three-year lock-in period.</p>
@@ -55,13 +64,11 @@
       </div>
       <p class="banking-help" data-bind="text: isLumpSum() ? 'Preview the estimated units at the current NAV before buying.' : 'The first SIP installment is debited immediately. Later installments are scheduled monthly.'"></p>
       <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review investment</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button></div>
-    </section>
-    <!-- /ko -->
+      <!-- /ko -->
 
     <!-- ko if: isReviewCurrent -->
-    <section id="fund-review" class="summary-card investment-review reveal-target" aria-labelledby="fund-review-title">
-      <p class="dashboard-eyebrow">REVIEW BEFORE CONFIRMING</p>
-      <h2 id="fund-review-title" data-bind="text: isLumpSum() ? 'One-time purchase preview' : 'Monthly SIP summary'"></h2>
+    <div id="fund-review" aria-label="Investment review">
+      <h3 data-bind="text: isLumpSum() ? 'One-time purchase preview' : 'Monthly SIP summary'"></h3>
       <dl class="banking-detail-list">
         <div><dt>Fund</dt><dd data-bind="text: selectedFund().fundName"></dd></div>
         <div><dt data-bind="text: isLumpSum() ? 'Amount now' : 'First installment now'"></dt><dd data-bind="text: money(amount())"></dd></div>
@@ -74,13 +81,22 @@
         <!-- /ko -->
       </dl>
       <p class="banking-help">NAV and units can change before the purchase completes. Confirming debits the selected account.</p>
-      <oj-button chroming="solid" on-oj-action="[[confirm]]" disabled="[[isBusy]]">Confirm investment</oj-button>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[confirm]]" disabled="[[isBusy]]">Confirm investment</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[backToFundForm]]" disabled="[[isBusy]]">Back to details</oj-button>
+      </div>
+    </div>
+    <!-- /ko -->
     </section>
+    </div>
     <!-- /ko -->
     <!-- /ko -->
 
     <!-- ko if: created -->
-    <section id="fund-success" class="summary-card investment-review banking-success-card reveal-target" aria-labelledby="fund-success-title">
+    <div class="biller-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="fund-success-title">
+    <section id="fund-success" class="biller-add-modal fund-investment-modal banking-success-card" aria-labelledby="fund-success-title">
+      <button type="button" class="biller-payment-close" aria-label="Close investment confirmation" title="Close"
+              data-bind="click: startAgain"><span aria-hidden="true">&times;</span></button>
       <p class="dashboard-eyebrow">INVESTMENT COMPLETE</p>
       <h2 id="fund-success-title" data-bind="text: created().productName"></h2>
       <p data-bind="text: isLumpSum() ? 'Your purchase is complete.' : 'Your SIP has started and the first installment was debited.'"></p>
@@ -91,6 +107,7 @@
       </dl>
       <div class="reward-actions"><oj-button chroming="solid" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button><oj-button chroming="borderless" on-oj-action="[[startAgain]]">Explore more funds</oj-button></div>
     </section>
+    </div>
     <!-- /ko -->
   </div>
 </div>

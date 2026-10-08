@@ -1,0 +1,369 @@
+<div class="cards-page">
+  <section class="cards-header">
+    <p class="cards-eyebrow">LOAN MANAGEMENT</p>
+    <h1>Your loans</h1>
+    <p>Review your loans, upcoming EMIs, and repayment progress.</p>
+  </section>
+
+  <div class="cards-loading" data-bind="visible: isLoading">
+    <oj-progress-circle size="md" value="-1"></oj-progress-circle>
+    <span>Loading your loans…</span>
+  </div>
+
+  <div class="cards-error" data-bind="visible: errorMessage">
+    <p data-bind="text: errorMessage"></p>
+    <oj-button chroming="outlined" on-oj-action="[[loadLoans]]">
+      Try again
+    </oj-button>
+  </div>
+
+  <div class="cards-empty"
+       data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && loans().length === 0">
+    <p class="cards-eyebrow">NO LOANS FOUND</p>
+    <h2>You do not have any active loans.</h2>
+    <p>Your loan details will appear here when available.</p>
+  </div>
+
+  <section class="loans-grid"
+           data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && loans().length > 0">
+    <!-- ko foreach: loans -->
+    <article class="loan-card">
+      <div class="loan-card-top">
+        <span data-bind="text: loanType"></span>
+        <span class="loan-status" data-bind="text: loanStatus"></span>
+      </div>
+
+      <p class="loan-account-number" data-bind="text: loanAccountNo"></p>
+
+      <div class="loan-amount">
+        <span>Outstanding balance</span>
+        <strong data-bind="text: $parent.formatCurrency(outstandingAmount)"></strong>
+      </div>
+
+      <div class="loan-card-details">
+        <div>
+          <span>Monthly EMI</span>
+          <strong data-bind="text: $parent.formatCurrency(emiAmount)"></strong>
+        </div>
+        <div>
+          <span>Next EMI</span>
+          <strong data-bind="text: $parent.formatDate(nextEmiDate)"></strong>
+        </div>
+      </div>
+
+      <button type="button" class="loan-details-button"
+              data-bind="click: $parent.openLoanDetails">
+        View loan details
+      </button>
+    </article>
+    <!-- /ko -->
+  </section>
+
+  <section class="loan-detail-panel"
+           data-bind="visible: isDetailLoading() || detailError() || selectedLoan()">
+
+    <div class="cards-loading" data-bind="visible: isDetailLoading">
+      <oj-progress-circle size="sm" value="-1"></oj-progress-circle>
+      <span>Loading loan details…</span>
+    </div>
+
+    <div class="cards-error" data-bind="visible: detailError">
+      <p data-bind="text: detailError"></p>
+    </div>
+
+    <!-- ko if: selectedLoan -->
+    <div class="loan-detail-content">
+      <div class="card-detail-heading">
+        <div>
+          <p class="cards-eyebrow">LOAN DETAILS</p>
+          <h2 data-bind="text: selectedLoan().loanType"></h2>
+        </div>
+
+        <button type="button" class="card-close-button"
+                data-bind="click: closeLoanDetails">
+          Close
+        </button>
+      </div>
+
+      <div class="loan-detail-grid">
+        <div>
+          <span>Loan account</span>
+          <strong data-bind="text: selectedLoan().loanAccountNo"></strong>
+        </div>
+        <div>
+          <span>Principal amount</span>
+          <strong data-bind="text: formatCurrency(selectedLoan().principalAmount)"></strong>
+        </div>
+        <div>
+          <span>Outstanding balance</span>
+          <strong data-bind="text: formatCurrency(selectedLoan().outstandingAmount)"></strong>
+        </div>
+        <div>
+          <span>Interest rate</span>
+          <strong data-bind="text: selectedLoan().interestRate + '%'"></strong>
+        </div>
+        <div>
+          <span>Monthly EMI</span>
+          <strong data-bind="text: formatCurrency(selectedLoan().emiAmount)"></strong>
+        </div>
+        <div>
+          <span>Loan start date</span>
+          <strong data-bind="text: formatDate(selectedLoan().loanStartDate)"></strong>
+        </div>
+        <div>
+          <span>Tenure</span>
+          <strong data-bind="text: selectedLoan().tenureMonths + ' months'"></strong>
+        </div>
+        <div>
+          <span>Next EMI date</span>
+          <strong data-bind="text: formatDate(selectedLoan().nextEmiDate)"></strong>
+        </div>
+        <div>
+          <span>AutoPay</span>
+          <strong data-bind="text: selectedLoan().autopayEnabled ? 'Enabled' : 'Not enabled'"></strong>
+        </div>
+
+        <!-- ko if: selectedLoan().autopayEnabled -->
+        <div>
+          <span>AutoPay account</span>
+          <strong data-bind="text: selectedLoan().autopayAccountType + ' • ' + selectedLoan().autopayAccountMasked"></strong>
+        </div>
+        <!-- /ko -->
+      </div>
+
+      <section class="loan-autopay-entry">
+        <div>
+          <p class="cards-eyebrow">EMI AUTOPAY</p>
+          <h3 data-bind="text: selectedLoan().autopayEnabled ? 'Manage AutoPay' : 'Enable AutoPay'"></h3>
+          <p>Choose the account that should be used for future EMI payments.</p>
+        </div>
+
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: openAutoPayDialog">
+          <span data-bind="text: selectedLoan().autopayEnabled ? 'Change AutoPay account' : 'Enable AutoPay'"></span>
+        </button>
+      </section>
+
+      <section class="repayment-schedule">
+        <p class="cards-eyebrow">REPAYMENT SCHEDULE</p>
+        <h3>Upcoming and completed EMIs</h3>
+
+        <p class="card-form-note" data-bind="visible: isRepaymentsLoading">
+          Loading repayment schedule…
+        </p>
+
+        <p class="card-action-error"
+           data-bind="visible: repaymentsError, text: repaymentsError"></p>
+
+        <p class="card-form-note"
+           data-bind="visible: !isRepaymentsLoading() && !repaymentsError() && repayments().length === 0">
+          No repayment schedule is available.
+        </p>
+
+        <div class="repayment-list"
+             data-bind="visible: !isRepaymentsLoading() && repayments().length > 0">
+          <!-- ko foreach: repayments -->
+          <article class="repayment-item">
+            <div>
+              <strong data-bind="text: 'EMI ' + installmentNumber"></strong>
+              <span data-bind="text: $parent.formatDate(dueDate)"></span>
+            </div>
+            <div>
+              <strong data-bind="text: $parent.formatCurrency(totalDue)"></strong>
+              <span data-bind="text: repaymentStatus"></span>
+            </div>
+          </article>
+          <!-- /ko -->
+        </div>
+      </section>
+    </div>
+    <!-- /ko -->
+  </section>
+
+  <div class="payment-modal-backdrop" data-bind="visible: isAutoPayDialogOpen">
+    <section class="payment-modal" role="dialog" aria-modal="true">
+
+      <!-- Account selection -->
+      <div data-bind="if: autoPayStep() === 'select'">
+        <div class="payment-modal-header">
+          <div>
+            <p class="cards-eyebrow">EMI AUTOPAY</p>
+            <h3>Select payment account</h3>
+          </div>
+
+          <button type="button" class="card-close-button"
+                  data-bind="click: closeAutoPayDialog">
+            Close
+          </button>
+        </div>
+
+        <p class="card-form-description">
+          Your EMI will be deducted automatically from the selected account.
+        </p>
+
+        <p class="card-form-note" data-bind="visible: isAutoPayAccountsLoading">
+          Loading your accounts…
+        </p>
+
+        <p class="card-action-error"
+           data-bind="visible: autoPayAccountsError, text: autoPayAccountsError"></p>
+
+        <p class="card-action-error"
+           data-bind="visible: autoPaySelectionError, text: autoPaySelectionError"></p>
+
+        <div class="autopay-account-list"
+             data-bind="visible: !isAutoPayAccountsLoading() && autoPayAccounts().length > 0">
+          <!-- ko foreach: autoPayAccounts -->
+          <label class="autopay-account-option">
+            <input type="radio"
+                   data-bind="checked: $parent.selectedAutoPayAccountId,
+                              checkedValue: accountId">
+            <span>
+              <strong data-bind="text: accountType + ' • ' + accountMasked"></strong>
+              <small data-bind="text: 'Available balance: ' + $parent.formatCurrency(availableBalance)"></small>
+            </span>
+          </label>
+          <!-- /ko -->
+        </div>
+
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: showAutoPayReview,
+                           enable: canContinueAutoPay()">
+          Continue
+        </button>
+      </div>
+
+      <!-- Review -->
+      <div data-bind="if: autoPayStep() === 'review'">
+        <div class="payment-modal-header">
+          <div>
+            <p class="cards-eyebrow">CONFIRM AUTOPAY</p>
+            <h3>Review your AutoPay settings</h3>
+          </div>
+
+          <button type="button" class="card-close-button"
+                  data-bind="click: closeAutoPayDialog">
+            Close
+          </button>
+        </div>
+
+        <div class="payment-review">
+          <div>
+            <span>Loan account</span>
+            <strong data-bind="text: autoPayReview().loanAccountNo"></strong>
+          </div>
+          <div>
+            <span>Monthly EMI</span>
+            <strong data-bind="text: formatCurrency(autoPayReview().emiAmount)"></strong>
+          </div>
+          <div>
+            <span>AutoPay account</span>
+            <strong data-bind="text: autoPayReview().accountType + ' • ' + autoPayReview().accountMasked"></strong>
+          </div>
+          <div>
+            <span>Available balance</span>
+            <strong data-bind="text: formatCurrency(autoPayReview().availableBalance)"></strong>
+          </div>
+        </div>
+
+        <div class="payment-modal-actions">
+          <button type="button" class="payment-secondary-button"
+                  data-bind="click: editAutoPaySelection">
+            Edit
+          </button>
+
+          <button type="button" class="card-submit-payment-button"
+                  data-bind="click: sendAutoPayOtp,
+                             disable: isSendingAutoPayOtp">
+            <span data-bind="text: isSendingAutoPayOtp() ? 'Sending OTP…' : 'Confirm and send OTP'"></span>
+          </button>
+        </div>
+
+        <p class="card-action-error"
+           data-bind="visible: autoPayOtpError, text: autoPayOtpError"></p>
+      </div>
+
+      <!-- OTP verification -->
+      <div data-bind="if: autoPayStep() === 'otp'">
+        <div class="payment-modal-header">
+          <div>
+            <p class="cards-eyebrow">VERIFY AUTOPAY</p>
+            <h3>Enter verification code</h3>
+          </div>
+
+          <button type="button" class="card-close-button"
+                  data-bind="click: closeAutoPayDialog">
+            Close
+          </button>
+        </div>
+
+        <p class="card-form-description">
+          A verification code has been sent to your registered email address.
+        </p>
+
+        <p class="card-form-note">
+          Enter the six-digit code to enable EMI AutoPay.
+        </p>
+
+        <label class="card-form-field">
+          <span>Verification code</span>
+          <input type="text"
+                 inputmode="numeric"
+                 maxlength="6"
+                 autocomplete="one-time-code"
+                 placeholder="Enter six-digit OTP"
+                 data-bind="textInput: autoPayOtp">
+        </label>
+
+        <p class="card-action-error"
+           data-bind="visible: autoPayOtpError, text: autoPayOtpError"></p>
+
+        <p class="card-form-note"
+           data-bind="visible: autoPayResendSeconds() > 0,
+                      text: 'You can request another OTP in ' + autoPayResendSeconds() + ' seconds.'">
+        </p>
+
+        <p class="payment-success-message"
+           data-bind="visible: autoPayResendMessage,
+                      text: autoPayResendMessage">
+        </p>
+
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: resendAutoPayOtp,
+                           disable: autoPayResendSeconds() > 0 || isResendingAutoPayOtp()">
+          <span data-bind="text: isResendingAutoPayOtp() ? 'Resending…' : 'Resend OTP'"></span>
+        </button>
+
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: verifyAutoPayOtp,
+                           enable: canVerifyAutoPayOtp(),
+                           disable: isVerifyingAutoPayOtp">
+          <span data-bind="text: isVerifyingAutoPayOtp() ? 'Verifying…' : 'Verify and enable AutoPay'"></span>
+        </button>
+      </div>
+
+      <!-- Success -->
+      <div data-bind="if: autoPayStep() === 'success'">
+        <div class="payment-modal-header">
+          <div>
+            <p class="cards-eyebrow">AUTOPAY ENABLED</p>
+            <h3>All set</h3>
+          </div>
+
+          <button type="button" class="card-close-button"
+                  data-bind="click: closeAutoPayDialog">
+            Close
+          </button>
+        </div>
+
+        <p class="payment-success-message"
+           data-bind="text: autoPaySuccessMessage"></p>
+
+        <p class="card-form-description">
+          Your future EMIs will be deducted automatically from the selected account.
+        </p>
+      </div>
+
+    </section>
+  </div>
+</div>

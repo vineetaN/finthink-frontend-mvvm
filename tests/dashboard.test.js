@@ -45,14 +45,19 @@ async function run() {
   dashboard.toggleBalance();
   assert.match(dashboard.balanceText(), /2,000/);
   assert.equal(dashboard.savingsAccountLabel(), 'Account •••• 5678');
+  assert.equal(dashboard.savingsHeading(), 'Active savings account');
   assert.match(dashboard.savingsBalanceText(), /1,250/);
   assert.equal(dashboard.pointsText(), '125 pts');
   assert.equal(dashboard.investmentsText(), '2');
   await dashboard.goToTransfer();
+  await dashboard.goToBillPayments();
+  await dashboard.goToStatements();
   await dashboard.goToAccounts();
   await dashboard.goToRewards();
   await dashboard.goToInvestments();
-  assert.deepEqual(routes, ['fundTransfer', 'customerSummary', 'rewardsWallet', 'investments']);
+  assert.deepEqual(routes, [
+    'fundTransfer', 'billers', 'transactions', 'customerSummary', 'rewardsWallet', 'investments'
+  ]);
   await dashboard.load();
   assert.equal(dashboard.balanceText(), '••••••');
 

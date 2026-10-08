@@ -51,7 +51,6 @@ define([
     self.view = function (item) {
       if (self.isBusy()) return;
       self.selected(item);
-      revealSection('investment-detail');
       self.valuation(null);
       self.redeemMode('ALL');
       self.unitsToRedeem('');
@@ -67,6 +66,7 @@ define([
     };
 
     self.closeDetails = function () {
+      if (self.isBusy()) return;
       self.selected(null);
       self.valuation(null);
       self.confirmAction('');
@@ -77,7 +77,6 @@ define([
     self.askClose = function () {
       if (self.selected() && !self.isFund()) {
         self.confirmAction('CLOSE');
-        revealSection('investment-confirm');
       }
     };
 
@@ -98,7 +97,6 @@ define([
         units: self.unitsToRedeem().trim()
       });
       self.confirmAction('REDEEM');
-      revealSection('investment-confirm');
     };
 
     self.cancelAction = function () {
