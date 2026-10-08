@@ -30,10 +30,10 @@ define([
 
     this.moduleCards = [
       { title: 'Audit Logs', icon: 'oj-ux-ico-list', accent: 'module-tile-audit', value: this.auditCount, note: 'recent events', loading: this.auditLoading, error: this.auditError, route: 'auditLog' },
-      { title: 'Card Management', icon: 'oj-ux-ico-object-card', accent: 'module-tile-cards', value: this.summaryCards[1].value, note: 'active cards', loading: this.summaryCards[1].loading, error: this.summaryCards[1].error, route: 'cardManagement' },
-      { title: 'Loan Management', icon: 'oj-ux-ico-chart', accent: 'module-tile-loans', value: this.summaryCards[0].value, note: 'total loans', loading: this.summaryCards[0].loading, error: this.summaryCards[0].error, route: 'loanManagement' },
-      { title: 'Investment Management', icon: 'oj-ux-ico-chart-spark', accent: 'module-tile-investments', value: this.summaryCards[3].value, note: 'investment products', loading: this.summaryCards[3].loading, error: this.summaryCards[3].error, route: 'investmentManagement' },
-      { title: 'Reward Management', icon: 'oj-ux-ico-star', accent: 'module-tile-rewards', value: this.summaryCards[2].value, note: 'reward offers', loading: this.summaryCards[2].loading, error: this.summaryCards[2].error, route: 'rewardManagement' }
+      { title: 'Loan Management', icon: 'oj-ux-ico-chart', accent: 'module-tile-loans', value: this.summaryCards[0].value, note: 'total loans', loading: this.summaryCards[0].loading, error: this.summaryCards[0].error, route: 'loanManagementAdmin' },
+      { title: 'Card Management', icon: 'oj-ux-ico-object-card', accent: 'module-tile-cards', value: this.summaryCards[1].value, note: 'active cards', loading: this.summaryCards[1].loading, error: this.summaryCards[1].error, route: 'cardManagementAdmin' },
+      { title: 'Reward Management', icon: 'oj-ux-ico-star', accent: 'module-tile-rewards', value: this.summaryCards[2].value, note: 'reward offers', loading: this.summaryCards[2].loading, error: this.summaryCards[2].error, route: 'rewardManagementAdmin' },
+      { title: 'Investment Management', icon: 'oj-ux-ico-chart-spark', accent: 'module-tile-investments', value: this.summaryCards[3].value, note: 'investment products', loading: this.summaryCards[3].loading, error: this.summaryCards[3].error, route: 'investmentManagementAdmin' },
     ].map(function (card) {
       card.navigate = function () { navigationService.goTo(card.route); };
       return card;
