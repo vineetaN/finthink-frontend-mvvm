@@ -39,18 +39,10 @@ define(['./apiClient'], function (apiClient) {
     },
     initiatePasswordChange: function (payload) {
       return apiClient.post(
-        '/identification-service/auth/account/password/change/initiate',
+        '/identification-service/account/password/change/initiate',
         payload
       );
     },
-
-    confirmPasswordChange: function (payload) {
-      return apiClient.post(
-        '/identification-service/auth/account/password/change/confirm',
-        payload
-      );
-},
-
 
 forgotPassword: function (username) {
   return apiClient.post(

@@ -294,10 +294,10 @@ define([
       }
 
       this.passwordChangePending(true);
-      authService.confirmPasswordChange({
-        otp: this.passwordChangeOtp(),
-        newPassword: this.newPassword()
-      }).then((response) => {
+      authService.confirmPasswordChange(
+        this.passwordChangeOtp(),
+        this.newPassword()
+      ).then((response) => {
         this.passwordChangeStep('complete');
         this.passwordChangeMessage(response.message || 'Your password has been changed.');
         this.currentPassword('');
