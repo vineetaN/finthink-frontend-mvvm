@@ -74,7 +74,6 @@
       </div>
       <p class="banking-help" data-bind="text: isLumpSum() ? 'Preview the estimated units at the current NAV before buying.' : 'The first SIP installment is debited immediately. Later installments are scheduled monthly.'"></p>
       <div class="reward-actions"><oj-button class="investment-soft-action" chroming="solid" on-oj-action="[[review]]" disabled="[[isBusy() || isLoading()]]">Review investment</oj-button><oj-button chroming="borderless" on-oj-action="[[goToPortfolio]]">View portfolio</oj-button></div>
-    </section>
     <!-- /ko -->
 
     <!-- ko if: isReviewCurrent -->
