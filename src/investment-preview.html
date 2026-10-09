@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investment Pages Preview | FinThink Bank</title>
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    body { margin: 0; }
+    .preview-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: 1rem clamp(1.25rem, 6vw, 6.5rem); background: #083641; color: #fff; }
+    .preview-bar strong { margin-right: auto; letter-spacing: .08em; }
+    .preview-bar button { padding: .6rem .85rem; border: 1px solid #8ac6bc; border-radius: 4px; background: transparent; color: #fff; cursor: pointer; font: inherit; }
+    .preview-bar button[aria-selected="true"] { background: #d9f5ed; color: #083641; }
+    .preview-note { margin: 0; padding: .65rem 1rem; background: #fff1c7; color: #564518; text-align: center; }
+    main button { padding: .7rem 1.1rem; border: 1px solid #0a7169; border-radius: 4px; background: #0a7169; color: #fff; cursor: pointer; font: 600 .95rem Arial, sans-serif; }
+    main button:hover { background: #07554e; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <nav class="preview-bar" aria-label="Investment page previews">
+    <strong>FINTHINK BANK</strong>
+    <button type="button" data-page="portfolio" aria-selected="true">Investments</button>
+    <button type="button" data-page="deposits" aria-selected="false">FD &amp; RD</button>
+    <button type="button" data-page="funds" aria-selected="false">Mutual Funds</button>
+    <button type="button" data-page="admin" aria-selected="false">Admin Rates</button>
+  </nav>
+  <p class="preview-note">Visual preview only · All amounts, rates, funds, and accounts shown here are sample data.</p>
+
+  <main id="portfolio" class="dashboard-page investment-page">
+    <section class="dashboard-intro investment-intro"><p class="dashboard-eyebrow">YOUR INVESTMENTS</p><h1>See how your<br>money is growing.</h1><p>Track deposits and mutual funds in one calm view.</p></section>
+    <div class="investment-content">
+      <div class="investment-hero-grid">
+        <article class="balance-card investment-total-card"><p class="balance-label">ACTIVE AMOUNT INVESTED</p><p class="balance-amount">₹1,42,000.00</p><p class="balance-caption">3 active investments</p></article>
+        <article class="summary-card investment-next-card"><p class="dashboard-eyebrow">GROW YOUR MONEY</p><h2>Find your next move.</h2><p>Start a fixed or recurring deposit, or explore mutual funds.</p><div class="reward-actions"><button type="button" onclick="showPage('deposits')">Start a deposit</button><button type="button" onclick="showPage('funds')">Explore funds</button></div></article>
+      </div>
+      <div class="customer-summary-heading"><p class="dashboard-eyebrow">PORTFOLIO</p><h2>Active investments</h2></div>
+      <div class="investment-card-grid">
+        <article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">FD</span><span class="investment-status">ACTIVE</span></div><h3>Classic Fixed Deposit</h3><p class="summary-account">Amount invested</p><p class="summary-value">₹80,000.00</p><div class="investment-meta"><span>Rate 7.25%</span><span>Matures 4 Oct 2027</span></div><button type="button">View details</button></article>
+        <article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">RD</span><span class="investment-status">ACTIVE</span></div><h3>Monthly Growth RD</h3><p class="summary-account">Monthly installment</p><p class="summary-value">₹2,000.00</p><div class="investment-meta"><span>Rate 6.75%</span><span>Matures 4 Oct 2027</span></div><button type="button">View details</button></article>
+        <article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">MUTUAL FUND</span><span class="investment-status">ACTIVE</span></div><h3>Balanced Growth Fund</h3><p class="summary-account">Amount invested</p><p class="summary-value">₹60,000.00</p><div class="investment-meta"><span>Units 1,432.87</span><span>Started 4 Apr 2026</span></div><button type="button">View details</button></article>
+      </div>
+    </div>
+  </main>
+
+  <main id="deposits" class="dashboard-page investment-page" hidden>
+    <section class="dashboard-intro investment-intro"><p class="dashboard-eyebrow">FIXED &amp; RECURRING DEPOSITS</p><h1>Build tomorrow,<br>one deposit at a time.</h1><p>Choose a one-time deposit or a monthly plan.</p></section>
+    <div class="investment-content">
+      <div class="investment-mode-switch"><label><input type="radio" name="previewDeposit" checked> Fixed deposit</label><label><input type="radio" name="previewDeposit"> Recurring deposit</label></div>
+      <section class="summary-card banking-form-card investment-form-card"><p class="dashboard-eyebrow">NEW INVESTMENT</p><h2>Create a fixed deposit</h2><p class="banking-help">A single amount is debited when you create the deposit.</p><div class="investment-form-grid"><label>Debit from<select><option>Savings •••• 4821 · ₹84,680.42</option></select></label><label>Deposit amount (₹)<input type="text" value="10,000"></label><label>Tenure in months<input type="number" value="12"></label><label>At maturity<select><option>Credit my account</option><option>Renew for another term</option></select></label></div><p class="banking-help">The bank’s active FD product is selected automatically.</p><button type="button">Review deposit</button></section>
+      <section class="summary-card investment-review"><p class="dashboard-eyebrow">REVIEW BEFORE CONFIRMING</p><h2>Fixed deposit preview</h2><dl class="banking-detail-list"><div><dt>Deposit amount</dt><dd>₹10,000.00</dd></div><div><dt>Tenure</dt><dd>12 months</dd></div><div><dt>Interest rate</dt><dd>7.25%</dd></div><div><dt>Estimated maturity amount</dt><dd>₹10,725.00</dd></div></dl><p class="banking-help">Sample preview. The live page gets its estimate from the backend.</p></section>
+    </div>
+  </main>
+
+  <main id="funds" class="dashboard-page investment-page" hidden>
+    <section class="dashboard-intro investment-intro"><p class="dashboard-eyebrow">MUTUAL FUNDS</p><h1>Invest with<br>intention.</h1><p>Explore funds, compare their details, and choose how to invest.</p></section>
+    <div class="investment-content">
+      <section class="investment-filterbar summary-card"><label>Category<select><option>All categories</option><option>Equity</option><option>ELSS</option></select></label><label>Risk level<select><option>All risk levels</option><option>Medium</option><option>High</option></select></label><button type="button">Apply filters</button></section>
+      <div class="customer-summary-heading"><p class="dashboard-eyebrow">AVAILABLE FUNDS</p><h2>Choose a fund</h2></div>
+      <div class="investment-card-grid">
+        <article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">EQUITY</span><span class="investment-status">MEDIUM RISK</span></div><h3>Balanced Growth Fund</h3><p class="summary-account">FinThink Asset Management</p><p class="summary-value">₹41.87</p><p class="banking-help">Current NAV per unit</p><div class="investment-meta"><span>From ₹500</span><span>SIP from ₹500</span></div><button type="button">Select fund</button></article>
+        <article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">ELSS</span><span class="investment-status">HIGH RISK</span></div><h3>Tax Saver Equity Fund</h3><p class="summary-account">FinThink Asset Management</p><p class="summary-value">₹28.30</p><p class="banking-help">Current NAV per unit</p><div class="investment-meta"><span>From ₹500</span><span>SIP from ₹500</span></div><button type="button">Select fund</button></article>
+      </div>
+    </div>
+  </main>
+
+  <main id="admin" class="dashboard-page investment-page" hidden>
+    <section class="dashboard-intro investment-intro"><p class="dashboard-eyebrow">INVESTMENT ADMIN</p><h1>Manage deposit<br>rates with care.</h1><p>Review FD and RD products before changing an interest rate.</p></section>
+    <div class="investment-content"><div class="customer-summary-heading"><p class="dashboard-eyebrow">PRODUCT CATALOGUE</p><h2>Deposit products</h2></div><div class="investment-card-grid"><article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">DEPOSIT</span><span class="investment-status">ACTIVE</span></div><h3>Classic FD</h3><p class="summary-account">Current interest rate</p><p class="summary-value">7.25%</p><p class="banking-help">Early closure penalty rate: 0.50%</p><button type="button">Change rate</button></article><article class="summary-card investment-holding-card"><div class="investment-card-top"><span class="investment-pill">DEPOSIT</span><span class="investment-status">ACTIVE</span></div><h3>Monthly Growth RD</h3><p class="summary-account">Current interest rate</p><p class="summary-value">6.75%</p><p class="banking-help">Early closure penalty rate: 0.50%</p><button type="button">Change rate</button></article></div><section class="summary-card banking-form-card investment-form-card"><p class="dashboard-eyebrow">CHANGE INTEREST RATE</p><h2>Classic FD</h2><div class="investment-form-grid"><label>New annual interest rate (%)<input type="text" value="7.50"></label></div><p class="banking-help">This action updates the product rate and the rates on its active investments.</p><button type="button">Review rate change</button></section></div>
+  </main>
+
+  <script>
+    function showPage(page) {
+      ['portfolio', 'deposits', 'funds', 'admin'].forEach(function (id) {
+        document.getElementById(id).hidden = id !== page;
+        document.querySelector('[data-page="' + id + '"]').setAttribute('aria-selected', id === page);
+      });
+      window.scrollTo(0, 0);
+    }
+    document.querySelectorAll('.preview-bar button').forEach(function (button) {
+      button.addEventListener('click', function () { showPage(button.dataset.page); });
+    });
+  </script>
+</body>
+</html>

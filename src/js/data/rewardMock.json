@@ -1,0 +1,5 @@
+[
+  { "rewardId": 7001, "rewardName": "Amazon Gift Voucher", "rewardType": "VOUCHER", "pointsRequired": 1000, "rewardValue": 500, "status": "ACTIVE", "startDate": "2026-01-01", "endDate": "2026-12-31" },
+  { "rewardId": 7002, "rewardName": "Bill Payment Cashback", "rewardType": "CASHBACK", "pointsRequired": 500, "rewardValue": 100.50, "status": "ACTIVE", "startDate": "2026-01-01", "endDate": "2026-12-31" },
+  { "rewardId": 7003, "rewardName": "Travel Partner Offer", "rewardType": "OFFER", "pointsRequired": 750, "rewardValue": 300, "status": "INACTIVE", "startDate": "2025-01-01", "endDate": "2025-12-31" }
+]

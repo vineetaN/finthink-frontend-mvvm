@@ -16,10 +16,11 @@
   </section>
 
   <section class="auth-card auth-register-card" aria-labelledby="register-title">
-    <p class="auth-step">CREATE ACCOUNT</p>
+    <!-- ko if: registrationStep() === 'details' -->
+    <p class="auth-step">STEP 1 OF 2</p>
     <h2 id="register-title">Join FinThink Bank</h2>
     <p class="auth-subtitle">
-      Fill in your details to create your secure online banking account.
+      Enter your details, then verify your email to create your account.
     </p>
 
     <oj-form-layout
@@ -38,6 +39,7 @@
 
       <oj-input-password
         label-hint="Password"
+        mask-icon="visible"
         value="{{password}}"
         raw-value="{{password}}"
         required
@@ -80,18 +82,61 @@
     <oj-button
       class="auth-primary-button"
       chroming="solid"
-      on-oj-action="[[submit]]"
-      disabled="[[!canSubmit()]]">
+      on-oj-action="[[sendCode]]"
+      disabled="[[!canSendCode()]]">
+      Send verification code
+    </oj-button>
+    <!-- /ko -->
+
+    <!-- ko if: registrationStep() === 'verify' -->
+    <p class="auth-step">STEP 2 OF 2</p>
+    <h2 id="register-title">Verify your email</h2>
+    <p class="auth-subtitle">
+      Enter the six-digit code sent to <strong data-bind="text: email"></strong>
+      to finish creating your account.
+    </p>
+
+    <oj-form-layout class="auth-form" label-edge="inside" max-columns="1"
+                    user-assistance-density="efficient">
+      <oj-input-text label-hint="Verification code"
+                     value="{{otp}}" raw-value="{{otp}}"
+                     inputmode="numeric" maxlength="6"
+                     autocomplete="one-time-code" required>
+      </oj-input-text>
+    </oj-form-layout>
+
+    <oj-button class="auth-primary-button" chroming="solid"
+               on-oj-action="[[submit]]" disabled="[[!canRegister()]]">
       Create account
     </oj-button>
+
+    <div class="auth-resend">
+      <oj-button chroming="borderless" on-oj-action="[[resendCode]]"
+                 disabled="[[!canResendCode()]]">
+        Resend code
+      </oj-button>
+      <p class="auth-countdown"
+         data-bind="visible: resendSeconds() > 0,
+                    text: 'You can request another code in ' + resendSeconds() + ' seconds.'"></p>
+      <oj-button chroming="borderless" on-oj-action="[[changeDetails]]"
+                 disabled="[[isSendingOtp() || isSubmitting()]]">
+        Change details or email
+      </oj-button>
+    </div>
+    <!-- /ko -->
+
+    <!-- ko if: registrationStep() === 'success' -->
+    <p class="auth-step">ACCOUNT CREATED</p>
+    <h2 id="register-title">You're all set</h2>
+    <p class="auth-subtitle" data-bind="text: successMessage"></p>
 
     <oj-button
       class="auth-secondary-button"
       chroming="outlined"
-      on-oj-action="[[goToLogin]]"
-      data-bind="visible: successMessage">
+      on-oj-action="[[goToLogin]]">
       Continue to sign in
     </oj-button>
+    <!-- /ko -->
 
     <div
       class="auth-message auth-message-error"
@@ -99,10 +144,9 @@
       <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
     </div>
 
-    <div
-      class="auth-message auth-message-success"
-      data-bind="visible: successMessage">
-      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    <div class="auth-message auth-message-success"
+         data-bind="visible: infoMessage" role="status">
+      <oj-bind-text value="[[infoMessage]]"></oj-bind-text>
     </div>
 
     <div class="auth-register-note">
@@ -121,7 +165,7 @@
       size="sm"
       value="-1"
       aria-label="Creating account"
-      data-bind="visible: isSubmitting">
+      data-bind="visible: isSubmitting() || isSendingOtp()">
     </oj-progress-circle>
   </section>
 </div>

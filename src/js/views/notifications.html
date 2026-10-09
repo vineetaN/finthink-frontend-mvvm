@@ -1,0 +1,117 @@
+<div class="cards-page notifications-page">
+  <section class="cards-header">
+    <p class="cards-eyebrow">NOTIFICATIONS</p>
+    <h1>Stay informed</h1>
+    <p>View important activity from your FinThink accounts, cards, and loans.</p>
+  </section>
+
+  <section class="notifications-panel">
+    <div class="notifications-heading">
+      <div>
+        <p class="cards-eyebrow">YOUR INBOX</p>
+        <h2>Latest updates</h2>
+
+        <p class="notification-unread-count"
+           data-bind="text: unreadCount() === 1
+             ? '1 unread notification'
+             : unreadCount() + ' unread notifications'">
+        </p>
+      </div>
+
+      <div class="notifications-heading-actions">
+        <button type="button" class=".notification-AllRead-mark-button"
+                data-bind="click: markAllAsRead,
+                           disable: unreadCount() === 0 || isMarkingAllRead()">
+          <span data-bind="text: isMarkingAllRead()
+            ? 'Updating…'
+            : 'Mark all as read'">
+          </span>
+        </button>
+
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: loadNotifications,
+                           disable: isLoading">
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <p class="card-form-note" data-bind="visible: isLoading">
+      Loading notifications…
+    </p>
+
+    <p class="card-action-error"
+       data-bind="visible: errorMessage, text: errorMessage"></p>
+
+    <p class="card-action-error"
+       data-bind="visible: actionError, text: actionError"></p>
+
+    <p class="card-form-note"
+       data-bind="visible: !isLoading() && !errorMessage() && notifications().length === 0">
+      You have no notifications yet.
+    </p>
+
+    <div class="notification-list"
+         data-bind="visible: notifications().length > 0">
+      <!-- ko foreach: notifications -->
+      <article class="notification-item"
+               data-bind="css: { 'notification-unread': $parent.isUnread($data) }">
+        <div class="notification-indicator"></div>
+
+        <div class="notification-content">
+          <button type="button" class="notification-summary"
+                  data-bind="click: function () { $parent.toggleNotificationDetails($data); },
+                             attr: {
+                               'aria-expanded': $parent.isExpanded($data) ? 'true' : 'false'
+                             }">
+            <span class="notification-title-row">
+              <strong data-bind="text: title"></strong>
+              <time data-bind="text: $parent.formatDateTime(createdAt)"></time>
+            </span>
+
+            <span class="notification-summary-meta">
+              <span data-bind="text: notificationType + ' • ' + eventType"></span>
+              <span class="notification-state"
+                    data-bind="text: $parent.isUnread($data) ? 'New' : 'Read'"></span>
+            </span>
+
+            <span class="notification-chevron"
+                  data-bind="text: $parent.isExpanded($data) ? '⌃' : '⌄'">
+            </span>
+          </button>
+
+          <div class="notification-detail"
+               data-bind="visible: $parent.isExpanded($data)">
+            <p data-bind="text: message"></p>
+
+            <small data-bind="visible: referenceEntity || referenceId,
+                              text: 'Related to: ' + (referenceEntity || 'Activity') + (referenceId ? ' #' + referenceId : '')">
+            </small>
+          </div>
+        </div>
+      </article>
+      <!-- /ko -->
+    </div>
+
+    <div class="transaction-pagination"
+         data-bind="visible: totalRecords() > 0">
+      <span data-bind="text: 'Showing page ' + (currentPage() + 1) +
+                              ' of ' + totalPages() +
+                              ' • ' + totalRecords() + ' notifications'"></span>
+
+      <div>
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: goToPreviousPage,
+                           disable: currentPage() === 0 || isLoading() || isMarkingAllRead()">
+          Previous
+        </button>
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: goToNextPage,
+                           disable: currentPage() >= totalPages() - 1 ||
+                                    isLoading() || isMarkingAllRead()">
+          Next
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

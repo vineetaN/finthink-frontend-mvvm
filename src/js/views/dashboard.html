@@ -1,58 +1,71 @@
 <div class="dashboard-page">
   <section class="dashboard-intro">
     <p class="dashboard-eyebrow">PERSONAL OVERVIEW</p>
-    <h1>Welcome,<br>Vineet.</h1>
+    <h1>Welcome,<br><oj-bind-text value="[[username]]"></oj-bind-text>.</h1>
     <p>Your financial world, brought together.</p>
   </section>
 
   <section class="dashboard-grid">
     <article class="balance-card">
-      <p class="balance-label">TOTAL BALANCE</p>
-      <p class="balance-amount">₹1,24,680.42</p>
-      <p class="balance-caption">Available balance</p>
+      <div class="dashboard-balance-heading">
+        <p class="balance-label">TOTAL BALANCE</p>
+        <oj-button chroming="borderless" on-oj-action="[[toggleBalance]]"
+                   disabled="[[accountsState() !== 'ready']]"
+                   :aria-label="[[showBalance() ? 'Hide total balance' : 'Show total balance']]">
+          <oj-bind-text value="[[showBalance() ? 'Hide' : 'Show']]"></oj-bind-text>
+        </oj-button>
+      </div>
+      <p class="balance-amount" data-bind="text: balanceText"></p>
+      <p class="balance-caption" data-bind="text: balanceCaption"></p>
     </article>
 
     <article class="quick-actions-card">
       <p class="dashboard-eyebrow">QUICK ACTIONS</p>
       <h2>What would you like to do?</h2>
 
-      <div class="quick-action-row">
+      <button type="button" class="quick-action-row dashboard-action-button"
+              data-bind="click: goToTransfer">
         <span>Transfer money</span>
         <span aria-hidden="true">→</span>
-      </div>
+      </button>
 
-      <div class="quick-action-row">
+      <button type="button" class="quick-action-row dashboard-action-button"
+              data-bind="click: goToBillPayments">
         <span>Pay a bill</span>
         <span aria-hidden="true">→</span>
-      </div>
+      </button>
 
-      <div class="quick-action-row">
+      <button type="button" class="quick-action-row dashboard-action-button"
+              data-bind="click: goToStatements">
         <span>View statements</span>
         <span aria-hidden="true">→</span>
-      </div>
+      </button>
     </article>
   </section>
 
-  <section class="dashboard-summary">
+  <section class="dashboard-summary" aria-label="Your banking overview">
     <article class="summary-card">
-      <p class="dashboard-eyebrow">PRIMARY ACCOUNT</p>
-      <h3>Everyday Savings</h3>
-      <p class="summary-account">•••• 4821</p>
-      <p class="summary-value">₹84,680.42</p>
-    </article>
-
-    <article class="summary-card">
-      <p class="dashboard-eyebrow">UPCOMING</p>
-      <h3>Next bill payment</h3>
-      <p class="summary-account">Electricity bill · 08 Oct</p>
-      <p class="summary-value">₹2,450.00</p>
+      <p class="dashboard-eyebrow">SAVINGS ACCOUNT</p>
+      <h3 data-bind="text: savingsHeading"></h3>
+      <p class="summary-account" data-bind="text: savingsAccountLabel"></p>
+      <p class="summary-value" data-bind="text: savingsBalanceText"></p>
+      <oj-button chroming="borderless" on-oj-action="[[goToAccounts]]">View accounts</oj-button>
     </article>
 
     <article class="summary-card">
       <p class="dashboard-eyebrow">REWARDS</p>
       <h3>FinThink points</h3>
       <p class="summary-account">Available to redeem</p>
-      <p class="summary-value">1,240 pts</p>
+      <p class="summary-value" data-bind="text: pointsText"></p>
+      <oj-button chroming="borderless" on-oj-action="[[goToRewards]]">View rewards</oj-button>
+    </article>
+
+    <article class="summary-card">
+      <p class="dashboard-eyebrow">INVESTMENTS</p>
+      <h3>Your investments</h3>
+      <p class="summary-account">Active holdings</p>
+      <p class="summary-value" data-bind="text: investmentsText"></p>
+      <oj-button chroming="borderless" on-oj-action="[[goToInvestments]]">View investments</oj-button>
     </article>
   </section>
 </div>

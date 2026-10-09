@@ -1,0 +1,62 @@
+<div class="dashboard-page rewards-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">REWARDS ADMIN</p>
+    <h1>Shape the<br>reward catalogue.</h1>
+    <p>Create and manage offers for FinThink customers.</p>
+  </section>
+
+  <section class="rewards-content" aria-label="Admin rewards management">
+    <div class="customer-summary-state customer-summary-error" data-bind="visible: errorMessage" role="alert">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+    <div class="customer-summary-state rewards-success" data-bind="visible: successMessage" role="status">
+      <oj-bind-text value="[[successMessage]]"></oj-bind-text>
+    </div>
+
+    <section class="summary-card reward-admin-form" aria-labelledby="reward-form-title">
+      <p class="dashboard-eyebrow" data-bind="text: isEditing() ? 'EDIT OFFER' : 'NEW OFFER'"></p>
+      <h2 id="reward-form-title" data-bind="text: isEditing() ? 'Edit reward' : 'Create reward'"></h2>
+      <div class="reward-form-grid">
+        <label>Reward name<input type="text" maxlength="100" data-bind="value: rewardName, valueUpdate: 'input'"></label>
+        <label>Type<select data-bind="value: rewardType">
+          <option value="CASHBACK">Cashback</option>
+          <option value="VOUCHER">Voucher</option>
+          <option value="OFFER">Offer</option>
+        </select></label>
+        <label>Points required<input type="number" min="0" step="1" data-bind="value: pointsRequired"></label>
+        <label>Reward value (₹)<input type="number" min="0" step="0.01" data-bind="value: rewardValue"></label>
+        <label>Start date<input type="date" data-bind="value: startDate"></label>
+        <label>End date<input type="date" data-bind="value: endDate"></label>
+      </div>
+      <div class="reward-actions">
+        <oj-button chroming="solid" on-oj-action="[[save]]" disabled="[[isBusy]]">Save reward</oj-button>
+        <oj-button chroming="borderless" on-oj-action="[[clearForm]]">Clear</oj-button>
+      </div>
+    </section>
+
+    <div class="customer-summary-heading">
+      <p class="dashboard-eyebrow">ALL OFFERS</p>
+      <h2>Reward catalogue</h2>
+    </div>
+    <div class="customer-summary-state" data-bind="visible: isLoading" role="status">
+      <oj-progress-circle size="sm" value="-1" aria-label="Loading rewards"></oj-progress-circle>
+      Loading rewards…
+    </div>
+    <div class="rewards-grid" data-bind="foreach: rewards">
+      <article class="summary-card reward-card">
+        <p class="dashboard-eyebrow" data-bind="text: rewardType + ' · ' + status"></p>
+        <h3 data-bind="text: rewardName"></h3>
+        <p class="summary-account" data-bind="text: pointsRequired + ' points' "></p>
+        <p class="summary-value" data-bind="text: $parent.formatMoney(rewardValue)"></p>
+        <p class="reward-validity" data-bind="text: startDate + ' to ' + endDate"></p>
+        <div class="reward-actions">
+          <oj-button chroming="outlined" on-oj-action="[[$parent.edit.bind($parent, $data)]]">Edit</oj-button>
+          <oj-button chroming="borderless" on-oj-action="[[$parent.toggleStatus.bind($parent, $data)]]" disabled="[[$parent.isBusy]]">
+            <span data-bind="text: status === 'ACTIVE' ? 'Deactivate' : 'Activate'"></span>
+          </oj-button>
+        </div>
+      </article>
+    </div>
+    <p class="customer-summary-state" data-bind="visible: !isLoading() && rewards().length === 0 && !errorMessage()">No reward offers have been created yet.</p>
+  </section>
+</div>

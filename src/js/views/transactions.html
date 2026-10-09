@@ -1,0 +1,194 @@
+<div class="cards-page transactions-page">
+  <section class="cards-header transaction-hero">
+    <p class="cards-eyebrow">TRANSACTION HISTORY</p>
+    <h1>Your transactions</h1>
+    <p>View payments, transfers, loan EMIs, and card activity in one place.</p>
+  </section>
+
+  <section class="transaction-account-panel">
+    <div class="transaction-account-heading">
+      <div>
+        <p class="cards-eyebrow">ACCOUNT ACTIVITY</p>
+        <h2>Choose an account</h2>
+        <p>Select an account to view its complete transaction history.</p>
+      </div>
+    </div>
+
+    <p class="card-form-note" data-bind="visible: isLoadingAccounts">
+      Loading your accounts…
+    </p>
+
+    <p class="card-action-error"
+       data-bind="visible: accountsError, text: accountsError"></p>
+
+    <label class="transaction-account-field"
+           data-bind="visible: !isLoadingAccounts() && accounts().length > 0">
+      <span>Account</span>
+      <select data-bind="options: accounts,
+                         optionsText: 'accountLabel',
+                         optionsValue: 'accountId',
+                         value: selectedAccountId,
+                         optionsCaption: 'Choose an account'">
+      </select>
+    </label>
+
+    <div class="selected-transaction-account"
+         data-bind="visible: selectedAccount">
+      <div>
+        <span>SELECTED ACCOUNT</span>
+        <strong data-bind="text: selectedAccount() ? selectedAccount().accountLabel : ''"></strong>
+      </div>
+
+      <div>
+        <span>AVAILABLE BALANCE</span>
+        <strong data-bind="text: selectedAccount()
+          ? formatCurrency(selectedAccount().availableBalance)
+          : ''">
+        </strong>
+      </div>
+    </div>
+  </section>
+<section class="transaction-history-panel"
+         data-bind="visible: selectedAccount">
+ <div class="transaction-history-heading">
+  <div>
+    <p class="cards-eyebrow">RECENT ACTIVITY</p>
+    <h2>Latest transactions</h2>
+  </div>
+
+  <div class="transaction-history-actions">
+    <button type="button" class="card-submit-payment-button"
+            data-bind="click: downloadPdfStatement,
+                       disable: isDownloadingStatement">
+      <span data-bind="text: isDownloadingStatement()
+        ? 'Preparing PDF…'
+        : 'Download PDF statement'">
+      </span>
+    </button>
+
+    <button type="button" class="payment-secondary-button"
+            data-bind="click: loadTransactions,
+                       disable: isLoadingTransactions">
+      Refresh
+    </button>
+  </div>
+</div>
+
+  <div class="transaction-filters">
+  <label>
+    <span>Type</span>
+    <select data-bind="value: filterType">
+      <option value="">All types</option>
+      <option value="CREDIT">Credit</option>
+      <option value="DEBIT">Debit</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Category</span>
+    <select data-bind="value: filterCategory">
+      <option value="">All categories</option>
+      <option value="TRANSFER">Transfer</option>
+      <option value="BILL">Bill payment</option>
+      <option value="CARD">Card payment</option>
+      <option value="LOAN">Loan payment</option>
+      <option value="INVESTMENT">Investment</option>
+      <option value="REWARD">Reward</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Status</span>
+    <select data-bind="value: filterStatus">
+      <option value="">All statuses</option>
+      <option value="SUCCESS">Successful</option>
+      <option value="PENDING">Pending</option>
+      <option value="FAILED">Failed</option>
+    </select>
+  </label>
+
+  <label>
+    <span>From date</span>
+    <input type="date" data-bind="value: filterFromDate">
+  </label>
+
+  <label>
+    <span>To date</span>
+    <input type="date" data-bind="value: filterToDate">
+  </label>
+
+  <div class="transaction-filter-actions">
+    <button type="button" class="card-submit-payment-button"
+            data-bind="click: applyFilters">
+      Apply filters
+    </button>
+
+    <button type="button" class="payment-secondary-button"
+            data-bind="click: clearFilters">
+      Clear
+    </button>
+  </div>
+</div>
+
+<p class="card-action-error"
+   data-bind="visible: downloadError, text: downloadError">
+</p>
+
+<p class="payment-success-message"
+   data-bind="visible: downloadSuccessMessage,
+              text: downloadSuccessMessage">
+</p>
+
+  <p class="card-form-note" data-bind="visible: isLoadingTransactions">
+    Loading transactions…
+  </p>
+
+  <p class="card-action-error"
+     data-bind="visible: transactionsError, text: transactionsError"></p>
+
+  <p class="card-form-note"
+     data-bind="visible: hasLoadedTransactions() && !isLoadingTransactions() && !transactionsError() && transactions().length === 0">
+    No transactions were found for this account.
+  </p>
+
+  <div class="transaction-list"
+       data-bind="visible: transactions().length > 0">
+    <!-- ko foreach: transactions -->
+    <article class="transaction-item">
+      <div class="transaction-item-main">
+        <strong data-bind="text: description || transactionCategory"></strong>
+        <span data-bind="text: $parent.formatDateTime(transactionDate)"></span>
+        <small data-bind="text: transactionCategory + ' • ' + referenceNo"></small>
+      </div>
+
+      <div class="transaction-item-amount">
+        <strong data-bind="text: $parent.formatCurrency(amount),
+                           css: transactionType === 'CREDIT' ? 'transaction-credit' : 'transaction-debit'">
+        </strong>
+        <span data-bind="text: transactionType + ' • ' + status"></span>
+      </div>
+    </article>
+    <!-- /ko -->
+  </div>
+
+  <div class="transaction-pagination"
+     data-bind="visible: hasLoadedTransactions() && totalRecords() > 0">
+  <span data-bind="text: 'Showing page ' + (currentPage() + 1) + ' of ' + totalPages() + ' • ' + totalRecords() + ' transactions'"></span>
+
+  <div>
+    <button type="button" class="payment-secondary-button"
+            data-bind="click: goToPreviousPage,
+                       disable: currentPage() === 0 || isLoadingTransactions()">
+      Previous
+    </button>
+
+    <button type="button" class="payment-secondary-button"
+            data-bind="click: goToNextPage,
+                       disable: currentPage() >= totalPages() - 1 || isLoadingTransactions()">
+      Next
+    </button>
+  </div>
+</div>
+</section>
+
+</div>

@@ -3,6 +3,7 @@ define([
   '../services/authService',
   '../utils/sessionService',
   '../utils/navigationService',
+  '../config/roleRoutes',
   'ojs/ojformlayout',
   'ojs/ojinputtext',
   'ojs/ojbutton',
@@ -11,7 +12,8 @@ define([
   ko,
   authService,
   sessionService,
-  navigationService
+  navigationService,
+  roleRoutes
 ) {
   'use strict';
 
@@ -93,7 +95,8 @@ define([
       sessionService.saveSession(response);
       clearResendTimer();
 
-      return navigationService.goTo('dashboard');
+      var roleConfig = roleRoutes.roles[sessionService.role()];
+      return navigationService.goTo(roleConfig ? roleConfig.landingPage : 'unauthorized');
     }
 
     self.submit = function () {
@@ -206,6 +209,10 @@ define([
 
     self.goToRegister = function () {
   navigationService.goTo('register');
+};
+
+self.goToForgotPassword = function () {
+  navigationService.goTo('forgotPassword');
 };
 
     self.connected = function () {

@@ -1,0 +1,19 @@
+<oj-dialog id="cardCreateFormDialog" dialog-title="Release a Card" modality="modal" cancel-behavior="icon" on-oj-close="[[closed]]" on-oj-before-close="[[beforeClose]]" class="reward-form-dialog">
+  <div slot="body" class="reward-form">
+    <p class="reward-form-error" role="alert" data-bind="visible: error, text: error"></p>
+    <div class="reward-form-grid">
+      <div class="reward-form-field"><oj-label for="cardCustomerIdInput">Customer ID</oj-label><oj-input-text id="cardCustomerIdInput" value="{{customerId}}" required="true" inputmode="numeric"></oj-input-text><span role="alert" data-bind="text: fieldErrors.customerId"></span></div>
+      <div class="reward-form-field"><oj-label for="cardAccountIdInput">Account ID</oj-label><oj-input-text id="cardAccountIdInput" value="{{accountId}}" required="true" inputmode="numeric"></oj-input-text><span role="alert" data-bind="text: fieldErrors.accountId"></span></div>
+      <div class="reward-form-field"><oj-label for="cardNumberInput">Card number</oj-label><oj-input-text id="cardNumberInput" value="{{cardNumber}}" required="true" max-length="19" inputmode="numeric"></oj-input-text><span role="alert" data-bind="text: fieldErrors.cardNumber"></span></div>
+      <div class="reward-form-field"><oj-label for="cardTypeInput">Card type</oj-label><oj-select-single id="cardTypeInput" data="[[typeOptions]]" value="{{cardType}}" required="true"></oj-select-single><span role="alert" data-bind="text: fieldErrors.cardType"></span></div>
+      <div class="reward-form-field"><oj-label for="cardExpiryDateInput">Expiry date</oj-label><oj-input-date id="cardExpiryDateInput" value="{{expiryDate}}" required="true"></oj-input-date><span role="alert" data-bind="text: fieldErrors.expiryDate"></span></div>
+      <div class="reward-form-field"><oj-label for="cardDailyLimitInput">Daily limit</oj-label><oj-input-number id="cardDailyLimitInput" value="{{dailyLimit}}" min="0" step="0.01" required="true"></oj-input-number><span role="alert" data-bind="text: fieldErrors.dailyLimit"></span></div>
+    </div>
+    <label class="card-international-toggle"><input type="checkbox" data-bind="checked: internationalEnabled"> Enable international transactions</label>
+  </div>
+  <div slot="footer" class="reward-dialog-actions">
+    <oj-button chroming="borderless" on-oj-action="[[close]]" disabled="[[saving]]">Cancel</oj-button>
+    <oj-progress-circle size="sm" value="-1" aria-label="Releasing card" data-bind="visible: saving"></oj-progress-circle>
+    <oj-button chroming="callToAction" on-oj-action="[[submit]]" disabled="[[saving]]">Release Card</oj-button>
+  </div>
+</oj-dialog>

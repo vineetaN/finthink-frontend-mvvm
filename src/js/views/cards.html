@@ -1,0 +1,559 @@
+<div class="dashboard-page banking-flow-page banking-collection-page">
+  <section class="dashboard-intro">
+    <p class="dashboard-eyebrow">CARD MANAGEMENT</p>
+    <h1>Your cards</h1>
+    <p>View your cards and manage their security settings.</p>
+  </section>
+
+  <div class="banking-flow-content">
+  <div class="cards-loading" data-bind="visible: isLoading">
+    <oj-progress-circle size="md" value="-1"></oj-progress-circle>
+    <span>Loading your cards…</span>
+  </div>
+
+  <div class="cards-error" data-bind="visible: errorMessage">
+    <p data-bind="text: errorMessage"></p>
+    <oj-button chroming="outlined" on-oj-action="[[loadCards]]">
+      Try again
+    </oj-button>
+  </div>
+
+  <section class="cards-empty collection-empty"
+           aria-labelledby="cards-empty-title"
+           data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && cards().length === 0">
+    <span class="collection-empty-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="11" width="38" height="26" rx="4"></rect>
+        <path d="M5 19h38M12 30h10"></path>
+      </svg>
+    </span>
+    <p class="cards-eyebrow">YOUR CARDS</p>
+    <h2 id="cards-empty-title">No cards yet</h2>
+    <p>When a FinThink card is issued to your account, it will appear here.</p>
+  </section>
+
+  <section class="cards-grid"
+           data-bind="visible: hasLoaded() && !isLoading() && !errorMessage() && cards().length > 0">
+
+    <!-- ko foreach: cards -->
+    <article class="customer-card"
+             data-bind="css: { 'customer-card-credit': cardType === 'CREDIT',
+                                'customer-card-frozen': cardStatus === 'FROZEN',
+                                'customer-card-blocked': cardStatus === 'BLOCKED' }">
+      <div class="customer-card-top">
+        <span data-bind="text: cardType"></span>
+        <span class="customer-card-status" data-bind="text: cardStatus"></span>
+      </div>
+
+      <div class="customer-card-number-row">
+        <p class="customer-card-number" data-bind="text: cardNumberMasked"></p>
+        <button type="button" class="card-reveal-button card-reveal-button-on-card"
+                data-bind="click: $parent.openCardNumberReveal,
+                           attr: { 'aria-label': 'View card number for ' + cardNumberMasked }"
+                title="View card number">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12 C4 8 7 6 12 6 C17 6 20 8 22 12 C20 16 17 18 12 18 C7 18 4 16 2 12 Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span>View number</span>
+        </button>
+      </div>
+
+      <div class="customer-card-details">
+        <div>
+          <span class="customer-card-label">EXPIRES</span>
+          <strong data-bind="text: expiryDate"></strong>
+        </div>
+
+        <div>
+          <span class="customer-card-label">DAILY LIMIT</span>
+          <strong data-bind="text: $parent.formatCurrency(dailyLimit)"></strong>
+        </div>
+      </div>
+
+      <button type="button"
+              class="card-details-button"
+              data-bind="click: $parent.openCardDetails">
+        View details
+      </button>
+    </article>
+    <!-- /ko -->
+
+  </section>
+
+  <!-- ko if: revealDialogOpen -->
+  <div class="payment-modal-backdrop card-reveal-backdrop">
+    <section class="payment-modal card-reveal-modal" role="dialog" aria-modal="true"
+             aria-labelledby="card-reveal-title">
+      <div class="payment-modal-header">
+        <div>
+          <p class="cards-eyebrow">CARD SECURITY</p>
+          <h3 id="card-reveal-title">View card number</h3>
+        </div>
+        <button type="button" class="card-reveal-close" aria-label="Close card number dialog"
+                data-bind="click: closeCardNumberReveal">&times;</button>
+      </div>
+
+      <p class="card-form-description">
+        Card <strong data-bind="text: revealCard().cardNumberMasked"></strong>
+      </p>
+
+      <!-- ko if: revealStep() === 'confirm' -->
+      <p class="card-form-description">
+        To view your full card number, we’ll send a one-time verification code to your
+        registered email address. Would you like to receive the code?
+      </p>
+      <div class="payment-modal-actions">
+        <button type="button" class="payment-secondary-button"
+                data-bind="click: closeCardNumberReveal">Cancel</button>
+        <button type="button" class="card-submit-payment-button"
+                data-bind="click: sendCardNumberRevealOtp">Send OTP</button>
+      </div>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'requesting' -->
+      <p role="status">Sending a verification code to your registered email…</p>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'otp' -->
+      <p class="card-form-description">
+        Enter the six-digit code sent to your registered email. The code expires in five minutes.
+      </p>
+      <form class="card-reveal-otp-form" data-bind="submit: verifyCardNumberReveal">
+        <label class="card-reveal-field" for="card-reveal-otp">Verification code</label>
+        <input id="card-reveal-otp" class="card-reveal-input" type="text"
+               inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+               placeholder="Six-digit code" data-bind="textInput: revealOtp">
+        <p class="card-action-error" role="alert"
+           data-bind="visible: revealError, text: revealError"></p>
+        <button type="submit" class="card-submit-payment-button"
+                data-bind="disable: !canVerifyRevealOtp(),
+                           text: isVerifyingReveal() ? 'Verifying…' : 'Verify and view number'">
+        </button>
+      </form>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'visible' -->
+      <p class="card-reveal-label">Card number</p>
+      <p class="card-revealed-number" data-bind="text: revealedCardNumber"></p>
+      <p class="card-form-note">For your security, this closes automatically after 30 seconds.</p>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: closeCardNumberReveal">Hide number now</button>
+      <!-- /ko -->
+
+      <!-- ko if: revealStep() === 'error' -->
+      <p class="card-action-error" role="alert" data-bind="text: revealError"></p>
+      <button type="button" class="payment-secondary-button"
+              data-bind="click: closeCardNumberReveal">Close</button>
+      <!-- /ko -->
+    </section>
+  </div>
+  <!-- /ko -->
+
+  <section class="card-detail-panel"
+           id="card-detail-panel"
+           tabindex="-1"
+           aria-label="Selected card details"
+           data-bind="visible: isDetailLoading() || detailError() || selectedCard()">
+
+    <div class="cards-loading" data-bind="visible: isDetailLoading">
+      <oj-progress-circle size="sm" value="-1"></oj-progress-circle>
+      <span>Loading card details…</span>
+    </div>
+
+    <div class="cards-error" data-bind="visible: detailError">
+      <p data-bind="text: detailError"></p>
+    </div>
+
+    <!-- ko if: selectedCard -->
+    <div class="card-detail-content">
+      <div class="card-detail-heading">
+        <div>
+          <p class="cards-eyebrow">CARD DETAILS</p>
+          <h2 data-bind="text: selectedCard().cardType"></h2>
+        </div>
+
+        <button type="button"
+                class="card-close-button"
+                data-bind="click: closeCardDetails">
+          Close
+        </button>
+      </div>
+
+      <div class="card-detail-grid">
+        <div>
+          <span>Card number</span>
+          <strong data-bind="text: selectedCard().cardNumberMasked"></strong>
+          <button type="button" class="card-reveal-button card-reveal-button-in-details"
+                  data-bind="click: function () { openCardNumberReveal(selectedCard()); }">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12 C4 8 7 6 12 6 C17 6 20 8 22 12 C20 16 17 18 12 18 C7 18 4 16 2 12 Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            View number
+          </button>
+        </div>
+
+        <div>
+          <span>Status</span>
+          <strong data-bind="text: selectedCard().cardStatus"></strong>
+        </div>
+
+        <div>
+          <span>Expiry date</span>
+          <strong data-bind="text: selectedCard().expiryDate"></strong>
+        </div>
+
+        <div>
+          <span>Daily limit</span>
+          <strong data-bind="text: formatCurrency(selectedCard().dailyLimit)"></strong>
+        </div>
+
+        <div>
+  <span>Remaining today</span>
+  <strong data-bind="text: formatCurrency(selectedCard().remainingDailyLimit)"></strong>
+</div>
+
+        <div>
+          <span>International usage</span>
+          <strong data-bind="text: selectedCard().internationalEnabled ? 'Enabled' : 'Disabled'"></strong>
+        </div>
+
+        <div>
+  <span>Linked account</span>
+  <strong data-bind="text: selectedCard().linkedAccountMasked"></strong>
+</div>
+
+<div>
+  <span>Available balance</span>
+  <strong data-bind="text: formatCurrency(selectedCard().availableBalance)"></strong>
+</div>
+      </div>
+
+
+
+<section class="card-payment-entry"
+         data-bind="visible: selectedCard().cardStatus === 'ACTIVE'">
+  <div>
+    <p class="cards-eyebrow">MAKE A PAYMENT</p>
+    <h3>Need to make a payment?</h3>
+    <p>Review your payment details securely before verification.</p>
+  </div>
+
+  <button type="button"
+          class="card-submit-payment-button"
+          data-bind="click: openPaymentDialog">
+    Pay with this card
+  </button>
+</section>
+
+<div class="payment-modal-backdrop" style="display: none" data-bind="visible: paymentDialogOpen">
+  <section class="payment-modal" role="dialog" aria-modal="true">
+
+    <!-- ko if: paymentStep() === 'form' -->
+    <div class="payment-modal-header">
+      <div>
+        <p class="cards-eyebrow">CARD PAYMENT</p>
+        <h3>Payment details</h3>
+      </div>
+      <button class="card-close-button" data-bind="click: closePaymentDialog">Close</button>
+    </div>
+
+    <oj-input-text
+      label-hint="Merchant name"
+      value="{{paymentMerchantName}}"
+      raw-value="{{paymentMerchantName}}"
+      required="true">
+    </oj-input-text>
+
+    <oj-input-text
+      label-hint="Amount"
+      type="number"
+      value="{{paymentAmount}}"
+      raw-value="{{paymentAmount}}"
+      required="true">
+    </oj-input-text>
+
+    <oj-switch value="{{paymentInternational}}">
+      International payment
+    </oj-switch>
+
+    <button type="button"
+            class="card-submit-payment-button"
+            data-bind="click: showPaymentReview, enable: canInitiatePayment()">
+      Continue payment
+    </button>
+    <!-- /ko -->
+
+    <!-- ko if: paymentStep() === 'review' -->
+    <div class="payment-modal-header">
+      <div>
+        <p class="cards-eyebrow">CONFIRM PAYMENT</p>
+        <h3>Review before continuing</h3>
+      </div>
+      <button class="card-close-button" data-bind="click: closePaymentDialog">Close</button>
+    </div>
+
+    <div class="payment-review">
+      <div><span>Merchant</span><strong data-bind="text: paymentMerchantName"></strong></div>
+      <div><span>Payment amount</span><strong data-bind="text: formatCurrency(paymentAmount())"></strong></div>
+      <div><span>Paid from</span><strong data-bind="text: selectedCard().linkedAccountType + ' • ' + selectedCard().linkedAccountMasked"></strong></div>
+      <div><span>Available balance</span><strong data-bind="text: formatCurrency(selectedCard().availableBalance)"></strong></div>
+    </div>
+
+    <p class="card-action-error" data-bind="visible: paymentError, text: paymentError"></p>
+
+    <div class="payment-modal-actions">
+      <button class="payment-secondary-button" data-bind="click: editPayment">Edit</button>
+      <button class="card-submit-payment-button"
+              data-bind="click: initiateCardPayment, disable: isPaymentSubmitting">
+        Confirm and send OTP
+      </button>
+    </div>
+    <!-- /ko -->
+
+    <!-- ko if: paymentStep() === 'otp' -->
+    <div class="payment-modal-header">
+      <div>
+        <p class="cards-eyebrow">VERIFY PAYMENT</p>
+        <h3>Enter verification code</h3>
+      </div>
+      <button class="card-close-button" data-bind="click: closePaymentDialog">Close</button>
+    </div>
+
+    <p class="card-payment-message" data-bind="text: paymentInitiationMessage"></p>
+
+    <oj-input-text
+      label-hint="6-digit OTP"
+      value="{{cardPaymentOtp}}"
+      raw-value="{{cardPaymentOtp}}"
+      maxlength="6"
+      required="true">
+
+
+    </oj-input-text>
+
+    <p class="otp-wait-message"
+   data-bind="visible: paymentOtpResendSeconds() > 0,
+              text: 'You can request a new OTP in ' + paymentOtpResendSeconds() + ' seconds.'">
+</p>
+
+<p class="otp-resend-success"
+   data-bind="visible: paymentOtpResendMessage,
+              text: paymentOtpResendMessage">
+</p>
+
+<button type="button"
+        class="payment-secondary-button"
+        data-bind="click: resendCardPaymentOtp,
+                   disable: !canResendPaymentOtp()">
+  Resend OTP
+</button>
+
+    <p class="card-action-error" data-bind="visible: paymentError, text: paymentError"></p>
+
+    <button class="card-submit-payment-button"
+            data-bind="click: verifyCardPaymentOtp,
+                       enable: canVerifyCardPaymentOtp() && !isOtpVerifying()">
+      Verify and complete payment
+    </button>
+    <!-- /ko -->
+
+    <!-- ko if: paymentStep() === 'success' -->
+    <div class="payment-success-panel">
+      <p class="cards-eyebrow">PAYMENT SUCCESSFUL</p>
+      <h3>Payment completed</h3>
+
+      <p class="payment-success-amount"
+         data-bind="text: formatCurrency(paymentReceipt().amount)"></p>
+
+      <p data-bind="text: 'Paid to ' + paymentReceipt().merchantName"></p>
+
+      <div class="payment-review">
+        <div><span>From account</span><strong data-bind="text: paymentReceipt().linkedAccountType + ' • ' + paymentReceipt().linkedAccountMasked"></strong></div>
+        <div><span>Remaining balance</span><strong data-bind="text: formatCurrency(paymentReceipt().remainingAvailableBalance)"></strong></div>
+        <div><span>Remaining daily limit</span><strong data-bind="text: formatCurrency(paymentReceipt().remainingDailyLimit)"></strong></div>
+        <div><span>Reference</span><strong data-bind="text: paymentReceipt().referenceNo"></strong></div>
+      </div>
+
+      <button class="card-submit-payment-button" data-bind="click: closePaymentDialog">
+        Done
+      </button>
+    </div>
+    <!-- /ko -->
+
+  </section>
+  </div>
+
+
+
+
+
+      <section class="card-payment-history">
+  <div class="card-history-heading">
+    <div>
+      <p class="cards-eyebrow">RECENT ACTIVITY</p>
+      <h3>Card payment history</h3>
+    </div>
+  </div>
+
+  <p class="card-history-loading" data-bind="visible: isPaymentHistoryLoading">
+    Loading payment history…
+  </p>
+
+  <p class="card-action-error"
+     data-bind="visible: paymentHistoryError, text: paymentHistoryError"></p>
+
+  <p class="card-history-empty"
+     data-bind="visible: !isPaymentHistoryLoading() && !paymentHistoryError() && cardPayments().length === 0">
+    No card payments have been recorded yet.
+  </p>
+
+  <div class="card-payment-list"
+       data-bind="visible: !isPaymentHistoryLoading() && cardPayments().length > 0">
+
+    <!-- ko foreach: cardPayments -->
+    <article class="card-payment-item">
+      <div>
+        <strong data-bind="text: merchantName"></strong>
+        <span data-bind="text: $parent.formatDateTime(transactionDate)"></span>
+        <small data-bind="text: referenceNo"></small>
+      </div>
+
+      <div class="card-payment-amount">
+        <strong data-bind="text: $parent.formatCurrency(amount)"></strong>
+        <span data-bind="text: status"></span>
+      </div>
+    </article>
+    <!-- /ko -->
+
+  </div>
+</section>
+       
+
+    </div>
+
+  <div class="card-action-area">
+  <p class="card-action-success" data-bind="visible: actionMessage, text: actionMessage"></p>
+  <p class="card-action-error" data-bind="visible: actionError, text: actionError"></p>
+
+  <p class="card-action-loading" data-bind="visible: isActionLoading">
+    Updating your card…
+  </p>
+
+  <div class="card-action-buttons"
+       data-bind="visible: !isActionLoading() && selectedCard().cardStatus !== 'BLOCKED'">
+
+    <!-- ko if: selectedCard().cardStatus === 'ACTIVE' -->
+    <button type="button"
+            class="card-action-button"
+            data-bind="click: function () { performCardAction('freeze'); }">
+      Freeze card
+    </button>
+    <!-- /ko -->
+
+    <!-- ko if: selectedCard().cardStatus === 'FROZEN' -->
+    <button type="button"
+            class="card-action-button"
+            data-bind="click: function () { performCardAction('unfreeze'); }">
+      Unfreeze card
+    </button>
+    <!-- /ko -->
+
+    <button type="button"
+            class="card-action-button card-block-button"
+            data-bind="click: function () { performCardAction('block'); }">
+      Block card
+    </button>
+<button type="button"
+        class="card-action-button"
+        data-bind="click: openCardSettings">
+  Card settings
+</button>
+
+  </div>
+
+  <p class="card-blocked-message"
+     data-bind="visible: selectedCard().cardStatus === 'BLOCKED'">
+    This card is blocked and can no longer be used.
+  </p>
+</div>
+
+
+<section class="card-settings-panel"
+         data-bind="visible: isSettingsOpen">
+
+  <div class="card-detail-heading">
+    <div>
+      <p class="cards-eyebrow">CARD SETTINGS</p>
+      <h2>Manage card settings</h2>
+    </div>
+
+   <button type="button"
+        class="card-close-button"
+        data-bind="click: closeCardSettings,
+                   disable: isSavingSettings">
+  Close
+</button>
+  </div>
+
+  <div class="card-settings-fields">
+    <oj-input-text
+      label-hint="Daily spending limit"
+      type="number"
+      value="{{newDailyLimit}}"
+      raw-value="{{newDailyLimit}}">
+    </oj-input-text>
+
+   <div class="settings-switch-row">
+  <div>
+    <strong>International card usage</strong>
+    <span>Allow this card to be used for international payments.</span>
+  </div>
+
+  <oj-switch value="{{newInternationalUsage}}"></oj-switch>
+</div>
+  </div>
+
+  <p class="card-form-description">
+  Save changes securely to update your card settings.
+</p>
+
+<p class="card-action-error"
+   data-bind="visible: settingsError, text: settingsError"></p>
+
+<p class="card-action-success"
+   data-bind="visible: settingsSuccess, text: settingsSuccess"></p>
+
+<div class="card-settings-actions">
+<button type="button"
+        class="payment-secondary-button"
+        data-bind="click: closeCardSettings,
+                   disable: isSavingSettings">
+  Cancel
+</button>
+
+  <button type="button"
+          class="card-submit-payment-button"
+          data-bind="click: saveCardSettings,
+                     disable: isSavingSettings">
+    Save changes
+  </button>
+</div>
+
+<p class="card-form-note" data-bind="visible: isSavingSettings">
+  Updating card settings…
+</p>
+</section>
+     
+
+
+
+
+    <!-- /ko -->
+
+  </section>
+  </div>
+</div>
